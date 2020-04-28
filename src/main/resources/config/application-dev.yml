@@ -39,7 +39,7 @@ spring:
     resources:
       add-mappings: false
   redis:
-    database: 1
+    database: 2
     host: 192.168.30.97
     port: 6379
     password: ronghe2020
@@ -64,7 +64,7 @@ eureka:
       enabled: false   #关闭健康检查，不然无法注册到eureka注册中心
     #普通安全级别设置访问Eureka的访问密码
     serviceUrl:
-      defaultZone: http://192.168.30.97:33333/eureka
+      defaultZone: http://192.168.30.94:8761/eureka
   instance:
     prefer-ip-address: true
     #自定义 eureka 监控服务的ip服务名等
