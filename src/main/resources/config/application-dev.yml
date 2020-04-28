@@ -1,0 +1,88 @@
+server:
+  port: 30002
+
+spring:
+  profiles:
+    active: dev
+  http:
+    multipart:
+      maxFileSize: 500MB
+      maxRequestSize: 500MB
+
+  application:
+    name: purchasingService-dev
+  datasource:
+    url: jdbc:oracle:thin:@192.168.30.96:1521:helowin
+    username: rhpm_v2
+    password: rhpm_v2
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+    type: com.alibaba.druid.pool.DruidDataSource
+    filters: stat
+    maxActive: 20
+    initialSize: 1
+    maxWait: 60000
+    minIdle: 1
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: select 'x'
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxOpenPreparedStatements: 20
+    thymeleaf:
+      mode: HTML5
+      #出现错误时, 直接抛出异常
+    mvc:
+      throw-exception-if-no-handler-found: true
+      #不要为我们工程中的资源文件建立映射
+    resources:
+      add-mappings: false
+  redis:
+    database: 3
+    host: localhost
+    port: 6379
+logging:
+  config: classpath:logback-boot.xml  # 默认logback.xml配置文件目录
+  level:
+    com.rhzl.publicService.dao: debug  #打印sql
+
+eureka:
+  client:
+    #    register-with-eureka: false #把自己当成客户端
+    #    fetch-registry: false
+    healthcheck:
+      enabled: false   #关闭健康检查，不然无法注册到eureka注册中心
+    #普通安全级别设置访问Eureka的访问密码
+    serviceUrl:
+      defaultZone: http://192.168.30.97:33333/eureka
+  instance:
+    prefer-ip-address: true
+    #自定义 eureka 监控服务的ip服务名等
+    instance-id: ${spring.application.name}:${spring.cloud.client.ipAddress}:${server.port}
+#ribbon.eureka.enable: true
+
+
+jwt:
+  token:
+    verification-key: |
+      -----BEGIN PUBLIC KEY-----
+      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnrIeJJhcf5eBXd0TI+M7
+      +gzvQfwNe/+EbphOS2GswMXzfRF/UuxZqgsjwgw+0MqK481UzMZGUMfeMN4AaqSG
+      j7DxFMBKtYlsQ/DVIkt8WAf3C9EUJ2ZytS3ZZoc4POUgf30GYhDjM/VTG7/EaHeU
+      vVSZDY5LSExkSS4muN8OSZ9/3hPgyTxnZ8+IjbjFnpfbkXlXiNP3h//WjLp4Gp04
+      BTUozdRFdix0yaABrV9NMquiYWz+MkW/VP1swfhtHXJ7oVuLWl/Zg/UXHcKZyuOl
+      /BzRrlfLRfxTmdq+isYuxNJZazHIXJSFPpMwxbcWkgMg8pE3AQqUBtKGs0f64ye1
+      IQIDAQAB
+      -----END PUBLIC KEY-----
+
+mybatis-plus:
+  global-config:
+    id-type: 1
+    logic-delete-field: flagdelete
+    logic-delete-value: 1
+    logic-not-delete-value: 0
+  mapper-locations: classpath:/mapping/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    type-aliases-package: com.rhdk.purchasingservice.pojo.entity

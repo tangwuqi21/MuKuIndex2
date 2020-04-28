@@ -1,0 +1,16 @@
+spring:
+  profiles:
+    active: #profiles.active#
+#pagehelper
+pagehelper:
+  helperDialect: oracle
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+
+
+
+
+
+
+
