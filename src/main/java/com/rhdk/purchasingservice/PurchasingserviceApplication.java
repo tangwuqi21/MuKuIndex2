@@ -17,29 +17,16 @@ import javax.servlet.MultipartConfigElement;
 
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.rhdk"})
+@ComponentScan(basePackages = {"com.rhdk","com.igen"})
 @MapperScan("com.rhdk.purchasingservice.mapper")
 @EnableEurekaClient
 @EnableAspectJAutoProxy
 @ServletComponentScan
 @EnableSwagger2
 @EnableFeignClients
-public class PurchasingserviceApplication implements CommandLineRunner {
+public class PurchasingserviceApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(PurchasingserviceApplication.class, args);
     }
-
-    @Bean
-    public MultipartConfigElement multipartConfigElement() {
-        MultipartConfigFactory factory = new MultipartConfigFactory();
-        // 允许上传的文件最大值
-        factory.setMaxFileSize("500MB"); // KB,MB
-        /// 设置总上传数据总大小
-        factory.setMaxRequestSize("500MB");
-        return factory.createMultipartConfig();
-    }
-
-    @Override
-    public void run(String... args) throws Exception {}
 }

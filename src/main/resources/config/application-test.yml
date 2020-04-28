@@ -60,7 +60,7 @@ spring:
 logging:
   config: classpath:logback-boot.xml  # 默认logback.xml配置文件目录
   level:
-    com.rhzl.publicService.dao: info  #打印sql
+    com.rhdk.purchasingservice.dao: info  #打印sql
 
 eureka:
   client:
@@ -77,9 +77,6 @@ eureka:
     instance-id: ${spring.application.name}:${spring.cloud.client.ipAddress}:${server.port}
 #ribbon.eureka.enable: true
 
-file:
-  dir: /home/data/images/images/
-  url: http://iot.szrhzl.com.cn:9998/images/
 
 jwt:
   token:
@@ -97,7 +94,7 @@ jwt:
 mybatis-plus:
   global-config:
     id-type: 1
-    logic-delete-field: flagdelete
+    logic-delete-field: delFlag
     logic-delete-value: 1
     logic-not-delete-value: 0
   mapper-locations: classpath:/mapping/*.xml
@@ -105,11 +102,7 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     type-aliases-package: com.rhdk.purchasingservice.pojo.entity
 
-security:
-  basic:
-    enabled: false
 
-#fegin默认断路器是关闭的
 feign:
   hystrix:
     enabled: true

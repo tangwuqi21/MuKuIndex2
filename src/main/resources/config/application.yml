@@ -1,16 +1,25 @@
 spring:
   profiles:
     active: #profiles.active#
-#pagehelper
-pagehelper:
-  helperDialect: oracle
-  reasonable: true
-  supportMethodsArguments: true
-  params: count=countSql
+server:
+  port: 30001
+
+  config: classpath:logback-boot.xml  # 默认logback.xml配置文件目录
+  level:
+    com.rhdk.inventory.mapper: debug  #打印sql
 
 
+mybatis-plus:
+  global-config:
+    id-type: 1
+    logic-delete-field: delFlag
+    logic-delete-value: 1
+    logic-not-delete-value: 0
+  mapper-locations: classpath:/mapping/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    type-aliases-package: com.rhdk.purchasingservice.pojo.entity
 
-
-
-
-
+feign:
+  hystrix:
+    enabled: true
