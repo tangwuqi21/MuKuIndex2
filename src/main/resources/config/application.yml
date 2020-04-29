@@ -2,11 +2,11 @@ spring:
   profiles:
     active: #profiles.active#
 server:
-  port: 30001
+  port: 30002
 
-  config: classpath:logback-boot.xml  # 默认logback.xml配置文件目录
+  config: classpath:logback-boot.xml  # 榛樿logback.xml閰嶇疆鏂囦欢鐩綍
   level:
-    com.rhdk.inventory.mapper: debug  #打印sql
+    com.rhdk.inventory.mapper: debug  #鎵撳嵃sql
 
 
 mybatis-plus:
