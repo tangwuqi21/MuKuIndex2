@@ -15,7 +15,6 @@
     <description>融合电科经租系统采购管理</description>
 
     <properties>
-        <auth-tool.version>2.0.7</auth-tool.version>
         <resource.delimiter>#</resource.delimiter><!--maven 动态切换 标记符-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -30,6 +29,10 @@
         <lombok.version>1.18.8</lombok.version>
         <aspectjrt.version>1.8.0</aspectjrt.version>
         <spring-cloud.version>Dalston.SR3</spring-cloud.version>
+
+        <!--uaa鉴权-->
+        <solarman-oauth2.version>1.0.0-rh</solarman-oauth2.version>
+        <auth.client.version>2.0.0</auth.client.version>
     </properties>
 
     <dependencies>
@@ -186,11 +189,11 @@
             <artifactId>pinyin4j</artifactId>
             <version>2.5.0</version>
         </dependency>
-	<!--uaa鉴权-->
+        <!--uaa鉴权-->
         <dependency>
             <groupId>com.igen.solarman</groupId>
             <artifactId>solarman-oauth2</artifactId>
-            <version>1.0.0-rh</version>
+            <version>${solarman-oauth2.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
@@ -205,7 +208,7 @@
         <dependency>
             <groupId>com.igen</groupId>
             <artifactId>auth-api-rpc-client</artifactId>
-            <version>2.0.0</version>
+            <version>${auth.client.version}</version>
         </dependency>
         <!--uaa鉴权-->
     </dependencies>
