@@ -5,7 +5,6 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import com.rhdk.purchasingservice.common.exception.RequestEmptyException;
-import com.rhdk.purchasingservice.common.utils.FileOop;
 import com.rhdk.purchasingservice.common.utils.FileUtil;
 import com.rhdk.purchasingservice.common.utils.MsgClient;
 import com.rhdk.purchasingservice.common.utils.response.ResponseData;
@@ -75,7 +74,7 @@ public class DemoController {
       //获取文件扩展名
       certificateFile = folder + '/' + System.currentTimeMillis() + "." + cert;
       File localFile = new File(certificateFile);
-      FileOop.createFile(localFile, FileOop.getSysName(System.getProperties().getProperty("os.name")));
+      FileUtil.createFile(localFile, FileUtil.getSysName(System.getProperties().getProperty("os.name")));
       file.transferTo(localFile);
     } catch (IOException e) {
       e.printStackTrace();
@@ -92,7 +91,7 @@ public class DemoController {
     String certificateFile=null;
     File toFile =null;
     try {
-      toFile = FileOop.multipartFileToFile(file);
+      toFile = FileUtil.multipartFileToFile(file);
       Date start = new Date();
       logger.debug("start");
       ImportParams params = new ImportParams();
