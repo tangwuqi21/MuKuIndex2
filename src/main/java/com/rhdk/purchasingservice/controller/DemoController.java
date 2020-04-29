@@ -7,7 +7,9 @@ import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import com.rhdk.purchasingservice.common.exception.RequestEmptyException;
 import com.rhdk.purchasingservice.common.utils.FileUtil;
 import com.rhdk.purchasingservice.common.utils.MsgClient;
+import com.rhdk.purchasingservice.common.utils.TokenUtil;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
+import com.rhdk.purchasingservice.feign.IDemoFeign;
 import com.rhdk.purchasingservice.pojo.vo.DemoVo;
 import com.rhdk.purchasingservice.service.DemoService;
 import io.swagger.annotations.Api;
@@ -42,6 +44,9 @@ public class DemoController {
   @Autowired
   private DemoService demoService;
 
+  @Autowired
+  private IDemoFeign demoFeign;
+
   private static org.slf4j.Logger logger = LoggerFactory.getLogger(DemoController.class);
 
   @Resource
@@ -55,6 +60,17 @@ public class DemoController {
     return demoService.searchTPatrolThemeListPage(dto);
   }
 
+
+  /**
+   * fegin调用远程RPC服务用例
+   * @param dto
+   * @return
+   */
+  @ApiOperation(value = "fegin调用远程RPC服务用例", notes = "fegin调用远程RPC服务用例")
+  @RequestMapping(value = "/getFeginRpcTestData", method = RequestMethod.POST)
+  public ResponseEnvelope getFeginRpcTestData(@RequestBody DemoVo dto) {
+    return demoFeign.searchDemoListPage(dto, TokenUtil.getToken());
+  }
 
   @ApiOperation(value = "上传附件", notes = "上传附件")
   @RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
