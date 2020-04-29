@@ -223,7 +223,7 @@
     </dependencyManagement>
 
     <build>
-        <finalName>asset</finalName>
+        <finalName>purchasingservice-30002</finalName>
         <plugins>
             <plugin>
                 <!--过滤 xls,xlsx-->
@@ -255,7 +255,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.rhdk.inventory.AssetApplication</mainClass>
+                            <mainClass>com.rhdk.purchasingservice.PurchasingserviceApplication</mainClass>
                             <!-- 防止manifest中引用snapshot版本的jar命名混乱 -->
                             <useUniqueVersions>false</useUniqueVersions>
                         </manifest>
