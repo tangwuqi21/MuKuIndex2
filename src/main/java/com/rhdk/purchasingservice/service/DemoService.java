@@ -1,7 +1,7 @@
 package com.rhdk.purchasingservice.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.rhdk.purchasingservice.common.utils.response.ResponseData;
+import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.pojo.entity.Demo;
 import com.rhdk.purchasingservice.pojo.vo.DemoVo;
 
@@ -18,7 +18,7 @@ public interface DemoService extends IService<Demo> {
    * @param pojo
    * @return
    */
-   ResponseData searchTPatrolThemeListPage(DemoVo pojo);
+  ResponseEnvelope searchTPatrolThemeListPage(DemoVo pojo);
 
 
 

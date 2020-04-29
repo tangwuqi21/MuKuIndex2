@@ -7,7 +7,7 @@ import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import com.rhdk.purchasingservice.common.exception.RequestEmptyException;
 import com.rhdk.purchasingservice.common.utils.FileUtil;
 import com.rhdk.purchasingservice.common.utils.MsgClient;
-import com.rhdk.purchasingservice.common.utils.response.ResponseData;
+import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.pojo.vo.DemoVo;
 import com.rhdk.purchasingservice.service.DemoService;
 import io.swagger.annotations.Api;
@@ -51,7 +51,7 @@ public class DemoController {
 
   @ApiOperation(value = "Web端巡查主题列表分页查询", notes = "巡查主题API")
   @RequestMapping(value = "/searchList", method = RequestMethod.POST)
-  public ResponseData searchTPatrolThemeListPageWeb(@RequestBody DemoVo dto) {
+  public ResponseEnvelope searchTPatrolThemeListPageWeb(@RequestBody DemoVo dto) {
     return demoService.searchTPatrolThemeListPage(dto);
   }
 
