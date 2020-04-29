@@ -1,5 +1,7 @@
 package com.rhdk.purchasingservice.feign.fallBack;
 
+import com.rhdk.purchasingservice.common.enums.ExceptionEnum;
+import com.rhdk.purchasingservice.common.exception.ServiceException;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.feign.IDemoFeign;
 import com.rhdk.purchasingservice.pojo.entity.Demo;
@@ -21,9 +23,6 @@ public class DemoHystrix implements IDemoFeign {
 
     @Override
     public ResponseEnvelope searchDemoListPage(DemoVo dto, String token) {
-        ResponseEnvelope responseEnvelope = new ResponseEnvelope();
-        responseEnvelope.setCode(500);
-        responseEnvelope.setMsg("哦呦，发生了不可预测的错误");
-        return responseEnvelope;
+        return new ResponseEnvelope(new ServiceException(ExceptionEnum.ERROR_RPC_SERVICE.getStatus(),ExceptionEnum.ERROR_RPC_SERVICE.getMessage()));
     }
 }
