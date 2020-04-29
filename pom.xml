@@ -223,7 +223,7 @@
     </dependencyManagement>
 
     <build>
-        <finalName>purchasingservice-30002</finalName>
+        <finalName>purchasingService-30002</finalName>
         <plugins>
             <plugin>
                 <!--过滤 xls,xlsx-->
