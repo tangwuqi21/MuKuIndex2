@@ -91,4 +91,6 @@ igen-rpc:
     account: IGEN-MCRSRV-ACC_THRIFT
 
 
-
+feign:
+  hystrix:
+    enabled: false

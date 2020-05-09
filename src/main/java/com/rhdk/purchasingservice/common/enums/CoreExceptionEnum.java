@@ -1,4 +1,4 @@
-package com.rhdk.purchasingservice.common.exception.enums;
+package com.rhdk.purchasingservice.common.enums;
 
 
 import com.rhdk.purchasingservice.common.exception.AbstractBaseExceptionEnum;

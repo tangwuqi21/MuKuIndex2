@@ -1,0 +1,90 @@
+package ${package.Controller};
+
+
+
+import org.springframework.web.bind.annotation.*;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import lombok.extern.slf4j.Slf4j;
+import ${package.Service}.${table.serviceName};
+
+#if(${restControllerStyle})
+import org.springframework.web.bind.annotation.RestController;
+#else
+import org.springframework.stereotype.Controller;
+#end
+#if(${superControllerClassPackage})
+import ${superControllerClassPackage};
+#end
+
+
+
+
+/**
+ * <p>
+ * $!{table.comment} 前端控制器
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+@Slf4j
+@Api(tags = {"$!{table.comment}API" })
+    #if(${restControllerStyle})
+    @RestController
+    #else
+    @Controller
+    #end
+@RequestMapping("#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end" )
+@ResponseBody
+#if(${kotlin})
+class ${table.controllerName}#if(${superControllerClass}) : ${superControllerClass}()#end
+
+#else
+    #if(${superControllerClass})
+    public class ${table.controllerName} extends ${superControllerClass} {
+    #else
+    public class ${table.controllerName} {
+    #end
+
+@Autowired
+    #if(${table.serviceName})
+        #set ($tableServiceNameFormat=${table.serviceName})
+        #set ($tableServiceName = $tableServiceNameFormat.substring(0,1).toLowerCase() + $tableServiceNameFormat.substring(1,$tableServiceNameFormat.length()))
+    #end
+private ${table.serviceName}  $tableServiceName;
+
+
+@ApiOperation(value = "$!{table.comment}列表分页查询" , notes = "$!{table.comment}API" )
+@RequestMapping(value = "/search${entity}ListPage" , method = RequestMethod.POST)
+public ResponseEnvelope search${entity}ListPage(@RequestBody ${entity}DTO dto){
+        return ${tableServiceName}.search${entity}ListPage(dto);
+        }
+@ApiOperation(value = "$!{table.comment}详细查询" , notes = "$!{table.comment}API" )
+@RequestMapping(value = "/search${entity}One" , method = RequestMethod.GET)
+public ResponseEnvelope search${entity}One(Long id){
+        return ${tableServiceName}.search${entity}One(id);
+        }
+@ApiOperation(value = "$!{table.comment}添加" , notes = "$!{table.comment}API" )
+@RequestMapping(value = "/add${entity}" , method = RequestMethod.POST)
+public ResponseEnvelope add${entity}(@RequestBody ${entity}DTO dto){
+        return ${tableServiceName}.add${entity}(dto);
+        }
+@ApiOperation(value = "$!{table.comment}更新" , notes = "$!{table.comment}API" )
+@RequestMapping(value = "/update${entity}" , method = RequestMethod.POST)
+public ResponseEnvelope update${entity}(@RequestBody ${entity}DTO dto){
+        return ${tableServiceName}.update${entity}(dto);
+        }
+@ApiOperation(value = "$!{table.comment}删除" , notes = "$!{table.comment}API" )
+@RequestMapping(value = "/delete${entity}" , method = RequestMethod.GET)
+public ResponseEnvelope delete${entity}(Long id){
+        return ${tableServiceName}.delete${entity}(id);
+        }
+
+        }
+#end

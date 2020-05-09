@@ -1,0 +1,82 @@
+package ${package.ServiceImpl};
+
+import ${package.Entity}.${entity};
+import ${package.Mapper}.${table.mapperName};
+import com.rhdk.inventory.pojo.entity.dto.${entity}DTO;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * <p>
+ * $!{table.comment} 服务实现类
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+@Slf4j
+@Transactional
+@Service
+#if(${kotlin})
+open class ${table.serviceImplName} : ${superServiceImplClass}<${table.mapperName}, ${entity}>(), ${table.serviceName} {
+
+        }
+#else
+        public class ${table.serviceImplName} extends ${superServiceImplClass}<${table.mapperName}, ${entity}>implements ${table.serviceName} {
+
+
+    #if(${table.mapperName})
+        #set ($tableMapperNameFormat=${table.mapperName})
+        #set ($tableMapperName = $tableMapperNameFormat.substring(0,1).toLowerCase() + $tableMapperNameFormat.substring(1,$tableMapperNameFormat.length()))
+    #end
+        @Autowired
+        private ${table.mapperName} $tableMapperName;
+
+        @Override
+        public ResponseEnvelope search${entity}ListPage(${entity}DTO dto){
+        Page<${entity}>page=new Page<${entity}>();
+        page.setSize(dto.getSize());
+        page.setCurrent(dto.getCurrent());
+        QueryWrapper<${entity}>queryWrapper=new QueryWrapper<${entity}>();
+    ${entity} entity=new ${entity}();
+        BeanCopyUtil.copyPropertiesIgnoreNull(dto,entity);
+        queryWrapper.setEntity(entity);
+        return ResultVOUtil.returnSuccess(${tableMapperName}.selectPage(page,queryWrapper));
+        }
+        @Override
+        public ResponseEnvelope search${entity}One(Long id){
+
+        return ResultVOUtil.returnSuccess(this.selectOne(id));
+        }
+        @Override
+        public ResponseEnvelope add${entity}(${entity}DTO dto){
+    ${entity} entity=new ${entity}();
+        BeanCopyUtil.copyPropertiesIgnoreNull(dto,entity);
+    ${tableMapperName}.insert(entity);
+        return ResultVOUtil.returnSuccess();
+        }
+        @Override
+        public ResponseEnvelope update${entity}(${entity}DTO dto){
+    ${entity} entity= this.selectOne(dto.getId());
+        BeanCopyUtil.copyPropertiesIgnoreNull(dto,entity);
+    ${tableMapperName}.updateById(entity);
+        return ResultVOUtil.returnSuccess();
+        }
+        @Override
+        public ResponseEnvelope delete${entity}(Long id){
+    ${tableMapperName}.deleteById(id);
+        return ResultVOUtil.returnSuccess();
+        }
+
+
+        public ${entity} selectOne(Long id){
+    ${entity} entity=new ${entity}();
+        entity.setId(id);
+        QueryWrapper<${entity}>queryWrapper=new QueryWrapper<>();
+        queryWrapper.setEntity(entity);
+        return ${tableMapperName}.selectOne(queryWrapper);
+        }
+
+        }
+#end

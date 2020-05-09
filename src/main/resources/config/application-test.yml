@@ -105,4 +105,4 @@ mybatis-plus:
 
 feign:
   hystrix:
-    enabled: true
+    enabled: false
