@@ -87,5 +87,7 @@ jwt:
       IQIDAQAB
       -----END PUBLIC KEY-----
 
-
+feign:
+  hystrix:
+    enabled: false
 

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rhdk.purchasingservice.mapper.OrderContractMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.rhdk.purchasingservice.pojo.entity.OrderContract">
+        <id column="ID" property="id"/>
+        <result column="CONTRACT_DATE" property="contractDate"/>
+        <result column="CONTRACT_CODE" property="contractCode"/>
+        <result column="CONTRACT_NAME" property="contractName"/>
+        <result column="CONTRACT_COMPANY" property="contractCompany"/>
+        <result column="CONTRACT_TYPE" property="contractType"/>
+        <result column="CONTRACT_MONEY" property="contractMoney"/>
+        <result column="ATTACHMENT_ID" property="attachmentId"/>
+        <result column="DEL_FLAG" property="delFlag"/>
+        <result column="CREATE_DATE" property="createDate"/>
+        <result column="CREATE_BY" property="createBy"/>
+        <result column="UPDATE_DATE" property="updateDate"/>
+        <result column="UPDATE_BY" property="updateBy"/>
+        <result column="REMARK" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ID, CONTRACT_DATE, CONTRACT_CODE, CONTRACT_NAME, CONTRACT_COMPANY, CONTRACT_TYPE, CONTRACT_MONEY, ATTACHMENT_ID, DEL_FLAG, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY, REMARK
+         </sql>
+
+    <!--查询用户部门名称，用户名名称-->
+    <select id="getUserNameByID" resultType="java.util.HashMap">
+        select a.name as "userName",d.name as "deptName" from T_USER_INFO a LEFT JOIN T_USER_ORG t on a.id =t.USER_ID
+       left join T_DEPT d on t.ORG_ID=d.id where a.id=#{userId} and a.DEL_FLAG=0
+    </select>
+</mapper>

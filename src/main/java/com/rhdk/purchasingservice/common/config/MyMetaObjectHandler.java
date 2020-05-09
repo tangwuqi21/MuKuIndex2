@@ -14,6 +14,8 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
  public void insertFill(MetaObject metaObject) {
   this.strictInsertFill(
           metaObject, "createBy", Long.class, TokenUtil.getUserInfo().getUserId());
+  this.strictInsertFill(
+          metaObject, "createDate", Date.class, new Date());
  }
 
  @Override

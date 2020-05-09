@@ -21,7 +21,10 @@ public enum ResultEnum {
   // 物资匹配提示语
   MATCH_FAILURE(500, "物资识别，匹配失败"),
   MATCH_MORE(500, "匹配失败，请联系管理员检查校验码设置"),
-  MATCH_SUCCESS(0, "物资识别，匹配成功");
+  MATCH_SUCCESS(0, "物资识别，匹配成功"),
+
+  //附件上传不能为空
+  FILE_NOTNULL(500, "附件不能为空");
 
   private Integer code;
 

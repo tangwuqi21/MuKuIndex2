@@ -1,10 +1,6 @@
 server:
   port: 30002
 
-#上传与下载路径
-upload:
-  path: D:/attachments/
-
 spring:
   profiles:
     active: dev
@@ -95,4 +91,6 @@ igen-rpc:
     account: IGEN-MCRSRV-ACC_THRIFT
 
 
-
+feign:
+  hystrix:
+    enabled: false

@@ -19,10 +19,10 @@ public class MybatisGenerator {
   static String outPath = "D:/GenJavaFile";
   static String author = "LMYOU";
   static String driverName = "oracle.jdbc.driver.OracleDriver";
-  static String url = "jdbc:oracle:thin:@192.168.30.97:1521:helowin";
-  static String username = "RHDK_SSO";
-  static String password = "rhdk_sso";
-  static String[] tables = new String[] {"A_DEMO","T_DEPT"};
+  static String url = "jdbc:oracle:thin:@192.168.30.96:1521:helowin";
+  static String username = "rh_finance";
+  static String password = "rh_finance";
+  static String[] tables = new String[] {"T_ORDER_ATTACHMENT","T_ORDER_CONTRACT"};
   static String delete_falg = "DEL_FLAG";
 
   public static void main(String[] args) throws InterruptedException {
@@ -60,6 +60,7 @@ public class MybatisGenerator {
     pc.setModuleName("purchasingservice");
     pc.setController("controller");
     mpg.setPackageInfo(pc);
+
 
     InjectionConfig injectionConfig =
         new InjectionConfig() {
@@ -119,13 +120,17 @@ public class MybatisGenerator {
     // 自动填充
     //    TableFill gmtCreate = new TableFill("gmt_create", FieldFill.INSERT);
     TableFill gmtModified = new TableFill("UPDATE_DATE", FieldFill.UPDATE);
+      TableFill createBy = new TableFill("CREATE_BY", FieldFill.INSERT);
+      TableFill updateBy = new TableFill("UPDATE_BY", FieldFill.UPDATE);
     ArrayList<TableFill> tableFills = new ArrayList<>();
     //    tableFills.add(gmtCreate);
     tableFills.add(gmtModified);
+    tableFills.add(createBy);
+    tableFills.add(updateBy);
     strategy.setTableFillList(tableFills);
 
     // 此处可以修改为您的表前缀
-    strategy.setTablePrefix(new String[] {"A_"});
+    strategy.setTablePrefix(new String[] {"T_"});
     // 表名生成策略
     strategy.setNaming(NamingStrategy.underline_to_camel);
     // 需要生成的表
