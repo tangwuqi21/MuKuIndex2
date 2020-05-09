@@ -47,8 +47,8 @@ public class SwaggerConfig {
 
   private ApiInfo apiInfo() {
     return new ApiInfoBuilder()
-        .title("融和融资项目管理系统api文档")
-        .description("融和融资项目管理系统V2_2019，https://test.pm.private.igen-tech.com:8443/rhzl")
+        .title("融和电科经租系统api文档")
+        .description("融和电科经租系统V1_2019，https://test.pm.private.igen-tech.com:8443/rhzl")
         .termsOfServiceUrl("https://test.pm.private.igen-tech.com:8443/rhzl")
         .version("0.1")
         .build();
