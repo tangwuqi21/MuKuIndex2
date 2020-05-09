@@ -1,11 +1,18 @@
 package com.rhdk.purchasingservice.controller;
 
 
+import cn.afterturn.easypoi.excel.ExcelExportUtil;
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
+import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import com.rhdk.purchasingservice.common.exception.RequestEmptyException;
 import com.rhdk.purchasingservice.common.utils.FileUtil;
+import com.rhdk.purchasingservice.common.utils.MsgClient;
 import com.rhdk.purchasingservice.common.utils.TokenUtil;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.pojo.dto.OrderContractDTO;
+import com.rhdk.purchasingservice.pojo.vo.OrderContractVO;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.util.ObjectUtils;
@@ -24,11 +31,20 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -92,6 +108,35 @@ public class OrderContractController {
     @RequestMapping(value = "/updateOrderContract", method = RequestMethod.POST)
     public ResponseEnvelope updateOrderContract(@RequestBody @Valid OrderContractDTO dto) {
         return iOrderContractService.updateOrderContract(dto);
+    }
+
+    /**
+     *
+     * @param dto
+     * @return
+     */
+    @ApiOperation(value = "导出合同列表数据", notes = "合同表API")
+    @RequestMapping(value = "/exportContractList", method = RequestMethod.POST)
+    public void exportContractList(HttpServletResponse response, @RequestBody OrderContractDTO dto) {
+        log.info("根据条件导出合同列表数据");
+        try {
+            Map<String, Object> map = new HashMap<>();
+            Workbook workbook = null;
+            //获取模板
+            TemplateExportParams params = new TemplateExportParams("word/contractInfo.xlsx", 0);
+            //获取数据源
+            List<OrderContractVO> result = iOrderContractService.getContractInforList(dto);
+            map.put("listMap", result);
+            //写入模板
+            workbook = ExcelExportUtil.exportExcel(params, map);
+            response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode("采购合同列表.xlsx", "UTF-8"));
+            ServletOutputStream out = response.getOutputStream();
+            workbook.write(out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
