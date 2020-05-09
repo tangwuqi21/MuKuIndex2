@@ -276,7 +276,7 @@
                     <excludes>
                         <exclude>*.yml</exclude>
                         <exclude>*.xml</exclude>
-                        <exclude>mapping/**</exclude>
+                        <exclude>*.properties</exclude>
                         <exclude>config/*</exclude>
                     </excludes>
                 </configuration>
