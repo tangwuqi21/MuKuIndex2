@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -57,9 +58,14 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
         page.setCurrent(dto.getCurrent());
         QueryWrapper<OrderContract> queryWrapper = new QueryWrapper<OrderContract>();
         OrderContract entity = new OrderContract();
+        queryWrapper.orderByDesc("CREATE_DATE");
+        if(!StringUtils.isEmpty(dto.getContractCompany())){
+            String paramStr=dto.getContractCompany();
+            queryWrapper.like("CONTRACT_COMPANY",paramStr);
+            dto.setContractCompany(null);
+        }
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
         queryWrapper.setEntity(entity);
-        queryWrapper.orderByDesc("CREATE_DATE");
         page = orderContractMapper.selectPage(page, queryWrapper);
         List<OrderContract> resultList = page.getRecords();
         logger.info("getFileList-获取合同附件列表开始");
