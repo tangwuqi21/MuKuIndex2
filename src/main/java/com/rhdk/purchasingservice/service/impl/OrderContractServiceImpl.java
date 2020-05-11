@@ -162,6 +162,33 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
         }
     }
 
+
+    @Override
+    public List<OrderContractVO> getContractInforList(OrderContractDTO dto) {
+        QueryWrapper<OrderContract> queryWrapper = new QueryWrapper<OrderContract>();
+        OrderContract entity = new OrderContract();
+        queryWrapper.orderByDesc("CREATE_DATE");
+        if(!StringUtils.isEmpty(dto.getContractCompany())){
+            String paramStr=dto.getContractCompany();
+            queryWrapper.like("CONTRACT_COMPANY",paramStr);
+            dto.setContractCompany(null);
+        }
+        BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
+        queryWrapper.setEntity(entity);
+        List<OrderContract> resultList=orderContractMapper.selectList(queryWrapper);
+        List<OrderContractVO> contractVOList = resultList.stream().map(a -> {
+            //根据合同id去附件表里获取每个合同对应的附件
+            Map<String,String> userInfo=orderContractMapper.getUserNameByID(a.getCreateBy());
+            OrderContractVO at = OrderContractVO.builder().haveFile(iOrderAttachmentService.selectAttachmentList(a.getId()).size()>0?"是":"否")
+                    .contractCode(a.getContractCode()).contractCompany(a.getContractCompany()).contractName(a.getContractName())
+                    .contractDate(a.getContractDate()).contractMoney(a.getContractMoney()).id(a.getId()).contractTypeName(a.getContractType()==1?"采购合同":"")
+                    .createDate(a.getCreateDate())
+                    .createName(userInfo.get("userName")).deptName(userInfo.get("deptName")).build();
+            return at;
+        }).collect(Collectors.toList());
+        return contractVOList;
+    }
+
     public OrderContract selectOne(Long id) {
         OrderContract entity = new OrderContract();
         entity.setId(id);
