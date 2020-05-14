@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.rhdk.purchasingservice.pojo.entity.OrderAttachment;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+import java.util.Map;
+
 
 /**
  * <p>
@@ -16,4 +19,6 @@ import org.apache.ibatis.annotations.Param;
 public interface OrderAttachmentMapper extends BaseMapper<OrderAttachment> {
 
     Integer deleteAttachmentByParentId(@Param("id") Long id);
+
+    List<Map<String,Object>>  selectListByParentId(@Param("id") Long id,@Param("atttype") Integer atttype);
 }

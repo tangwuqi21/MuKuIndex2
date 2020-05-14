@@ -1,0 +1,22 @@
+package com.rhdk.purchasingservice.mapper;
+
+import com.rhdk.purchasingservice.pojo.entity.OrderDelivemiddle;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.rhdk.purchasingservice.pojo.vo.OrderDelivemiddleVO;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+import java.util.Map;
+
+
+/**
+ * <p>
+ * 送货记录明细中间表 Mapper 接口
+ * </p>
+ *
+ * @author LMYOU
+ * @since 2020-05-13
+ */
+public interface OrderDelivemiddleMapper extends BaseMapper<OrderDelivemiddle> {
+        List<Map<String, Object>> getTitleMap(@Param("moduleId") Long moduleId);
+}

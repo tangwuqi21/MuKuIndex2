@@ -1,8 +1,10 @@
-package com.rhdk.purchasingservice.pojo.dto;
+package com.rhdk.purchasingservice.pojo.query;
 
+import com.rhdk.purchasingservice.pojo.dto.BaseDTO;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
@@ -18,7 +20,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class OrderContractDTO  implements Serializable {
+public class OrderContractQuery extends BaseDTO implements Serializable {
     private static final long serialVersionUID = 1L;
     @ApiModelProperty(value = "ID")
     private Long id;
@@ -49,7 +51,7 @@ public class OrderContractDTO  implements Serializable {
 
     @ApiModelProperty(value = "附件")
     @NotNull(message = "合同附件不能为空")
-    private List<OrderAttachmentDTO> attachmentList;
+    private List<OrderAttachmentQuery> attachmentList;
 
     @ApiModelProperty(value = "备注")
     private String remark;

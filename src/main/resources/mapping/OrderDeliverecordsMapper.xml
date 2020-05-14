@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rhdk.purchasingservice.mapper.OrderDeliverecordsMapper">
+
+        <!-- 通用查询映射结果 -->
+        <resultMap id="BaseResultMap" type="com.rhdk.purchasingservice.pojo.entity.OrderDeliverecords">
+                    <id column="ID" property="id"/>
+                    <result column="DELIVERY_CODE" property="deliveryCode"/>
+                    <result column="DELIVERY_NAME" property="deliveryName"/>
+                    <result column="DELIVERY_DATE" property="deliveryDate"/>
+                    <result column="SUPPLIER_ID" property="supplierId"/>
+                    <result column="SIGN_ADDRESS" property="signAddress"/>
+                    <result column="ORDER_ID" property="orderId"/>
+                    <result column="REMARK" property="remark"/>
+                    <result column="CREATE_BY" property="createBy"/>
+                    <result column="CREATE_DATE" property="createDate"/>
+                    <result column="UPDATE_BY" property="updateBy"/>
+                    <result column="UPDATE_DATE" property="updateDate"/>
+                    <result column="ORG_ID" property="orgId"/>
+                    <result column="DEL_FLAG" property="delFlag"/>
+        </resultMap>
+
+        <!-- 通用查询结果列 -->
+        <sql id="Base_Column_List">
+        ID, DELIVERY_CODE, DELIVERY_NAME, DELIVERY_DATE, SUPPLIER_ID, SIGN_ADDRESS, ORDER_ID, REMARK, CREATE_BY, CREATE_DATE, UPDATE_BY, UPDATE_DATE, ORG_ID, DEL_FLAG
+         </sql>
+
+
+
+</mapper>

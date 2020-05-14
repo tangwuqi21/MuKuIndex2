@@ -1,35 +1,27 @@
 package com.rhdk.purchasingservice.pojo.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.rhdk.purchasingservice.pojo.dto.OrderAttachmentDTO;
-import lombok.*;
-
+import lombok.Data;
 import java.util.Date;
-
 import com.baomidou.mybatisplus.extension.activerecord.Model;
-
 import java.io.Serializable;
-
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 合同表
+ * 送货记录明细中间表
  * </p>
  *
  * @author LMYOU
- * @since 2020-05-08
+ * @since 2020-05-13
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("T_ORDER_CONTRACT")
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@KeySequence(value = "T_ORDER_CONTRACT_SEQ", clazz = Long.class)
-public class OrderContract extends Model<OrderContract> {
+@TableName("T_ORDER_DELIVEMIDDLE")
+@KeySequence(value = "T_ORDER_DELIVEMIDDLE_SEQ", clazz = Long.class)
+public class OrderDelivemiddle extends Model<OrderDelivemiddle> {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,32 +31,45 @@ public class OrderContract extends Model<OrderContract> {
     @TableId(value = "ID", type = IdType.INPUT)
     private Long id;
     /**
-     * 单据日期
+     * 送货记录id
      */
-    @TableField("CONTRACT_DATE")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
-    private Date contractDate;
+    @TableField("DELIVERY_ID")
+    private Long deliveryId;
     /**
-     * 单据编码
+     * 单据号
      */
-    @TableField("CONTRACT_CODE")
-    private String contractCode;
+    @TableField("DELIVERYDETAIL_CODE")
+    private String deliverydetailCode;
     /**
-     * 合同名称
+     * 签收单号
      */
-    @TableField("CONTRACT_NAME")
-    private String contractName;
+    @TableField("SIGN_NO")
+    private String signNo;
     /**
-     * 合同类型,1-采购合同
+     * 资产模板id
      */
-    @TableField("CONTRACT_TYPE")
-    private Integer contractType;
+    @TableField("MODULE_ID")
+    private Long moduleId;
     /**
-     * 合同金额
+     * 单位
      */
-    @TableField("CONTRACT_MONEY")
-    private Long contractMoney;
-
+    @TableField("ASSET_UNIT")
+    private String assetUnit;
+    /**
+     * 数量
+     */
+    @TableField("ASSET_NUMBER")
+    private String assetNumber;
+    /**
+     * 单价
+     */
+    @TableField("ASSET_PRICE")
+    private Long assetPrice;
+    /**
+     * 累计金额
+     */
+    @TableField("TOTAL_MONEY")
+    private Long totalMoney;
     /**
      * 删除标识，0-正常，1-已删除
      */
@@ -74,8 +79,7 @@ public class OrderContract extends Model<OrderContract> {
     /**
      * 创建时间
      */
-    @TableField(value="CREATE_DATE" ,fill = FieldFill.INSERT)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
+    @TableField(value = "CREATE_DATE", fill = FieldFill.INSERT)
     private Date createDate;
     /**
      * 创建人
@@ -86,7 +90,6 @@ public class OrderContract extends Model<OrderContract> {
      * 修改时间
      */
     @TableField(value = "UPDATE_DATE", fill = FieldFill.UPDATE)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date updateDate;
     /**
      * 修改人

@@ -11,6 +11,7 @@ import com.rhdk.purchasingservice.common.utils.MsgClient;
 import com.rhdk.purchasingservice.common.utils.TokenUtil;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.pojo.dto.OrderContractDTO;
+import com.rhdk.purchasingservice.pojo.query.OrderContractQuery;
 import com.rhdk.purchasingservice.pojo.vo.OrderContractVO;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.LoggerFactory;
@@ -73,7 +74,7 @@ public class OrderContractController {
      */
     @ApiOperation(value = "合同表列表分页查询", notes = "合同表API")
     @RequestMapping(value = "/searchOrderContractListPage", method = RequestMethod.POST)
-    public ResponseEnvelope searchOrderContractListPage(@RequestBody OrderContractDTO dto) {
+    public ResponseEnvelope searchOrderContractListPage(@RequestBody OrderContractQuery dto) {
         return iOrderContractService.searchOrderContractListPage(dto);
     }
 

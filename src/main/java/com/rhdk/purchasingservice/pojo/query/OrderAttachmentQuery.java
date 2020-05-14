@@ -1,11 +1,10 @@
-package com.rhdk.purchasingservice.pojo.dto;
+package com.rhdk.purchasingservice.pojo.query;
 
+import com.rhdk.purchasingservice.pojo.dto.BaseDTO;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.Date;
 
 /**
  * <p>
@@ -20,7 +19,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderAttachmentDTO implements Serializable {
+public class OrderAttachmentQuery extends BaseDTO implements Serializable {
     private static final long serialVersionUID = 1L;
     @ApiModelProperty(value = "序号", hidden = true)
     private Long id;

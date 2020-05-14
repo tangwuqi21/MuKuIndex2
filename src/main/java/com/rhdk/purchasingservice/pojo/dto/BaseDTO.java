@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class BaseDTO {
-  private int current = 1;
-  private int size = 10;
+  private int currentPage = 1;
+  private int pageSize = 10;
 }

@@ -19,10 +19,10 @@ public class MybatisGenerator {
   static String outPath = "D:/GenJavaFile";
   static String author = "LMYOU";
   static String driverName = "oracle.jdbc.driver.OracleDriver";
-  static String url = "jdbc:oracle:thin:@192.168.30.96:1521:helowin";
-  static String username = "rh_finance";
-  static String password = "rh_finance";
-  static String[] tables = new String[] {"T_ORDER_ATTACHMENT","T_ORDER_CONTRACT"};
+  static String url = "jdbc:oracle:thin:@192.168.30.97:1521:helowin";
+  static String username = "RHDK_SSO";
+  static String password = "rhdk_sso";
+  static String[] tables = new String[] {"T_ORDER_DELIVEMIDDLE"};
   static String delete_falg = "DEL_FLAG";
 
   public static void main(String[] args) throws InterruptedException {

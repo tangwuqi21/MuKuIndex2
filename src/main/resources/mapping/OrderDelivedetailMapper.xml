@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rhdk.purchasingservice.mapper.OrderDelivedetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.rhdk.purchasingservice.pojo.entity.OrderDelivedetail">
+        <id column="ID" property="id"/>
+        <result column="MIDDLE_ID" property="middleId"/>
+        <result column="ASSET_NAME" property="assetName"/>
+        <result column="ITEM_NO" property="itemNo"/>
+        <result column="ASSET_ID" property="assetId"/>
+        <result column="ASSET_CAT_ID" property="assetCatId"/>
+        <result column="ASSET_CAT_SEARCH_KEY" property="assetCatSearchKey"/>
+        <result column="ASSET_NUMBER" property="assetNumber"/>
+        <result column="ASSET_UNIT" property="assetUnit"/>
+        <result column="CREATE_BY" property="createBy"/>
+        <result column="CREATE_DATE" property="createDate"/>
+        <result column="UPDATE_BY" property="updateBy"/>
+        <result column="UPDATE_DATE" property="updateDate"/>
+        <result column="DEL_FLAG" property="delFlag"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ID, MIDDLE_ID, ASSET_NAME, ITEM_NO, ASSET_ID,ASSET_CAT_ID,ASSET_CAT_SEARCH_KEY, ASSET_NUMBER, ASSET_UNIT,CREATE_BY, CREATE_DATE, UPDATE_BY, UPDATE_DATE, DEL_FLAG
+         </sql>
+
+</mapper>

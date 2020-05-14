@@ -1,8 +1,6 @@
 package com.rhdk.purchasingservice.pojo.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.rhdk.purchasingservice.pojo.dto.OrderAttachmentDTO;
-import com.rhdk.purchasingservice.pojo.entity.OrderAttachment;
 import io.swagger.annotations.ApiModelProperty;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -13,53 +11,49 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
- * 合同表
+ * 送货记录明细中间表
  * </p>
  *
  * @author LMYOU
- * @since 2020-05-08
+ * @since 2020-05-13
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OrderContractVO implements Serializable {
+public class OrderDelivemiddleVO implements Serializable {
     private static final long serialVersionUID = 1L;
     @ApiModelProperty(value = "ID")
     private Long id;
 
-    @ApiModelProperty(value = "采购合同ID")
-    private Long orderId;
+    @ApiModelProperty(value = "送货记录id")
+    private Long deliveryId;
 
-    @ApiModelProperty(value = "单据日期")
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date contractDate;
+    @ApiModelProperty(value = "单据号")
+    private String deliverydetailCode;
 
-    @ApiModelProperty(value = "单据编码")
-    private String contractCode;
+    @ApiModelProperty(value = "签收单号")
+    private String signNo;
 
-    @ApiModelProperty(value = "合同名称")
-    private String contractName;
+    @ApiModelProperty(value = "资产模板id")
+    private Long moduleId;
 
-    @ApiModelProperty(value = "往来单位")
-    private String contractCompany;
+    @ApiModelProperty(value = "单位")
+    private String assetUnit;
 
-    @ApiModelProperty(value = "合同类型,1-采购合同")
-    private Integer contractType;
+    @ApiModelProperty(value = "数量")
+    private String assetNumber;
 
-    private String contractTypeName;
+    @ApiModelProperty(value = "单价")
+    private Long assetPrice;
 
-    @ApiModelProperty(value = "合同金额")
-    private Long contractMoney;
-
-    @ApiModelProperty(value = "附件集合")
-    private List<OrderAttachment> attachmentList;
-
-    private String haveFile;
+    @ApiModelProperty(value = "累计金额")
+    private Long totalMoney;
 
     @ApiModelProperty(value = "删除标识，0-正常，1-已删除")
     private Integer delFlag;
@@ -81,10 +75,7 @@ public class OrderContractVO implements Serializable {
     @ApiModelProperty(value = "备注")
     private String remark;
 
-    @ApiModelProperty(value = "创建人名称")
-    private String createName;
-
-    @ApiModelProperty(value = "部门名称")
-    private String deptName;
+    @ApiModelProperty(value = "送货明细附件")
+    private List<Map<String,Object>> attachmentList;
 
 }

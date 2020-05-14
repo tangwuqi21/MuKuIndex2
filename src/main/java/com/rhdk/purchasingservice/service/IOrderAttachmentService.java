@@ -4,6 +4,7 @@ import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.rhdk.purchasingservice.pojo.dto.OrderAttachmentDTO;
 import com.rhdk.purchasingservice.pojo.entity.OrderAttachment;
+import com.rhdk.purchasingservice.pojo.query.OrderAttachmentQuery;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ import java.util.List;
  * @since 2020-05-08
  */
 public interface IOrderAttachmentService extends IService<OrderAttachment> {
-     ResponseEnvelope searchOrderAttachmentListPage(OrderAttachmentDTO DTO);
+     ResponseEnvelope searchOrderAttachmentListPage(OrderAttachmentQuery DTO);
 
      ResponseEnvelope searchOrderAttachmentOne(Long id);
 

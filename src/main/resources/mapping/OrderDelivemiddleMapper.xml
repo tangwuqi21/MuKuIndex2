@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rhdk.purchasingservice.mapper.OrderDelivemiddleMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.rhdk.purchasingservice.pojo.entity.OrderDelivemiddle">
+        <id column="ID" property="id"/>
+        <result column="DELIVERY_ID" property="deliveryId"/>
+        <result column="DELIVERYDETAIL_CODE" property="deliverydetailCode"/>
+        <result column="SIGN_NO" property="signNo"/>
+        <result column="MODULE_ID" property="moduleId"/>
+        <result column="ASSET_UNIT" property="assetUnit"/>
+        <result column="ASSET_NUMBER" property="assetNumber"/>
+        <result column="ASSET_PRICE" property="assetPrice"/>
+        <result column="TOTAL_MONEY" property="totalMoney"/>
+        <result column="DEL_FLAG" property="delFlag"/>
+        <result column="CREATE_DATE" property="createDate"/>
+        <result column="CREATE_BY" property="createBy"/>
+        <result column="UPDATE_DATE" property="updateDate"/>
+        <result column="UPDATE_BY" property="updateBy"/>
+        <result column="REMARK" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ID, DELIVERY_ID, DELIVERYDETAIL_CODE, SIGN_NO, MODULE_ID, ASSET_UNIT, ASSET_NUMBER, ASSET_PRICE, TOTAL_MONEY, DEL_FLAG, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY, REMARK
+         </sql>
+
+    <select id="getTitleMap" resultType="hashmap" parameterType="java.lang.Long">
+    select p.PRPT_ID,pr.name,p.ASSET_TEMP_ID,p.PRPT_order
+    from T_ASSET_TMPL_PRPTS p left join T_ASSET_PRPT_INFO pr on p.PRPT_ID=pr.id where p.ASSET_TEMP_ID=#{moduleId}  and p.PRPT_TYPE=1
+    ORDER BY p.PRPT_order asc
+    </select>
+</mapper>

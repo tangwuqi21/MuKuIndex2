@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.pojo.dto.OrderContractDTO;
 import com.rhdk.purchasingservice.pojo.entity.OrderContract;
+import com.rhdk.purchasingservice.pojo.query.OrderContractQuery;
 import com.rhdk.purchasingservice.pojo.vo.OrderContractVO;
 
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.Map;
  * @since 2020-05-08
  */
 public interface IOrderContractService extends IService<OrderContract> {
-     ResponseEnvelope searchOrderContractListPage(OrderContractDTO DTO);
+     ResponseEnvelope searchOrderContractListPage(OrderContractQuery DTO);
 
      ResponseEnvelope searchOrderContractOne(Long id);
 

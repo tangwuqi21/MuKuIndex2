@@ -1,6 +1,6 @@
-package com.rhdk.inventory.pojo.entity.dto;
+package com.rhdk.purchasingservice.pojo.entity.dto;
 
-import com.rhdk.inventory.pojo.dto.BaseDTO;
+import com.rhdk.purchasingservice.pojo.dto.BaseDTO;
 import lombok.Getter;
 import lombok.Setter;
 import java.io.Serializable;

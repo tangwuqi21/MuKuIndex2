@@ -3,6 +3,7 @@ package com.rhdk.purchasingservice.controller;
 
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.pojo.dto.OrderAttachmentDTO;
+import com.rhdk.purchasingservice.pojo.query.OrderAttachmentQuery;
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.annotations.Api;
@@ -38,7 +39,7 @@ public class OrderAttachmentController {
 
     @ApiOperation(value = "附件表列表分页查询", notes = "附件表API")
     @RequestMapping(value = "/searchOrderAttachmentListPage", method = RequestMethod.POST)
-    public ResponseEnvelope searchOrderAttachmentListPage(@RequestBody OrderAttachmentDTO dto) {
+    public ResponseEnvelope searchOrderAttachmentListPage(@RequestBody OrderAttachmentQuery dto) {
         return iOrderAttachmentService.searchOrderAttachmentListPage(dto);
     }
 

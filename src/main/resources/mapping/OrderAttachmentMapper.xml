@@ -26,4 +26,9 @@
     <update id="deleteAttachmentByParentId">
         update T_ORDER_ATTACHMENT set DEL_FLAG=1 where PARENT_ID=#{id}
     </update>
+
+    <select id="selectListByParentId" resultType="hashmap">
+        select ID as "id",ORGFILENAME as "orgfilename",FILEURL as "fileurl",ATTTYPE as "atttype" from T_ORDER_ATTACHMENT where DEL_FLAG=0
+        and PARENT_ID=#{id} and ATTTYPE=#{atttype}
+    </select>
 </mapper>
