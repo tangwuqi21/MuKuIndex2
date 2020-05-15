@@ -112,6 +112,12 @@ public class AssetEntityInfo extends Model<AssetEntityInfo> {
      */
     @TableField("ORG_ID")
     private Long orgId;
+
+    /**
+     * 资产标识 （0:待签收 1:签收 2:入库 3:消耗 99:虚资产-用于组装）
+     */
+    @TableField("ASSET_STATUS")
+    private Long assetStatus;
     /**
      * 逻辑删除（0:正常 1:删除）
      */

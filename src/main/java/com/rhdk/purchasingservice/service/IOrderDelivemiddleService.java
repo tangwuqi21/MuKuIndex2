@@ -6,6 +6,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.rhdk.purchasingservice.pojo.dto.OrderDelivemiddleDTO;
 import com.rhdk.purchasingservice.pojo.query.OrderDelivemiddleQuery;
 
+import java.util.List;
+import java.util.Map;
+
 
 /**
  * <p>
@@ -25,4 +28,6 @@ public interface IOrderDelivemiddleService extends IService<OrderDelivemiddle> {
      ResponseEnvelope updateOrderDelivemiddle(OrderDelivemiddleDTO DTO);
 
      ResponseEnvelope deleteOrderDelivemiddle(Long id);
+
+     List<Map<String, Object>> getTitleList(Long moduleId);
 }

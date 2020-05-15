@@ -32,6 +32,9 @@ public class OrderDelivemiddleDTO implements Serializable {
     @ApiModelProperty(value = "签收单号")
     private String signNo;
 
+    @ApiModelProperty(value = "资产业务编码")
+    private String itemNO;
+
     @ApiModelProperty(value = "资产类型状态，1-物管，2-量管")
     private String wmType;
 
@@ -45,7 +48,7 @@ public class OrderDelivemiddleDTO implements Serializable {
     private String assetUnit;
 
     @ApiModelProperty(value = "数量")
-    private String assetNumber;
+    private Long assetNumber;
 
     @ApiModelProperty(value = "单价")
     private Long assetPrice;

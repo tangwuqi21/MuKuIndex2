@@ -75,6 +75,22 @@ public class OrderDelivemiddleVO implements Serializable {
     @ApiModelProperty(value = "备注")
     private String remark;
 
+    @ApiModelProperty(value = "送货单号")
+    private String deliveryCode;
+    @ApiModelProperty(value = "送货单名称")
+    private String deliveryName;
+    @ApiModelProperty(value = "供应商id")
+    private Long supplierId;
+    @ApiModelProperty(value = "签收地址")
+    private String signAddress;
+    @ApiModelProperty(value = "合同编号")
+    private String contractCode;
+    @ApiModelProperty(value = "合同名称")
+    private String contractName;
+    @ApiModelProperty(value = "合同类型")
+    private Integer contractType;
+
+
     @ApiModelProperty(value = "送货明细附件")
     private List<Map<String,Object>> attachmentList;
 

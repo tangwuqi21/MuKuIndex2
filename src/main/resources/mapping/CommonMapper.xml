@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rhdk.purchasingservice.mapper.CommonMapper">
+
+    <select id="getContractInfoList" resultType="hashmap">
+    select o.id as "orderId",o.CONTRACT_COMPANY as "companyName",c.id as "contractId",c.CONTRACT_CODE as "contractCode",
+    c.CONTRACT_DATE as "contractDate",c.Contract_name as "contractName",c.contract_money as "contractMoney",c.Contract_type as "contractType"
+    from T_ASSET_ORDER o LEFT JOIN T_ORDER_CONTRACT c on o.CONTRACT_ID=c.id WHERE o.DEL_FLAG=0
+        <if test="contractName !=null and contractName !=''">
+            and c.Contract_name like ('%'||#{contractName}||'%')
+        </if>
+    </select>
+
+    <select id="getSupplyList" resultType="hashmap">
+    select t.id as "id",t.cus_name as "custName",t.code as "code",t.shortname as "shortName" from T_customer t where t.DEL_FLAG=0
+    <if test="companyName !=null and companyName !=''">
+        and t.cus_name like ('%'||#{companyName}||'%')
+    </if>
+    </select>
+
+    <select id="getAssetInfoList" resultType="hashmap">
+    SELECT t.id as "id",t.ASSET_CAT_ID as "assetCatId",t.NAME as "name",t.ITEM_NO as "itemNo",t.VER_NO as "verNO",t.WM_TYPE as "wmType" from T_ASSET_TMPL_INFO t where t.DEL_FLAG=0
+    </select>
+</mapper>

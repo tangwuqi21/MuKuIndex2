@@ -26,6 +26,10 @@ public enum ResultEnum {
   //附件上传不能为空
   FILE_NOTNULL(500, "附件不能为空"),
 
+  TEMPLATE_NOTFORMAT(500, "模板格式不正确"),
+
+  TEMPLATE_CELLNULL(500, "资产属性值不能为空"),
+
   DETAIL_NOTNULL(500, "记录明细不能为空");
 
   private Integer code;

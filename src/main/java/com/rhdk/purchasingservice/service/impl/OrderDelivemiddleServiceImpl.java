@@ -77,8 +77,13 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
         page = orderDelivemiddleMapper.selectPage(page, queryWrapper);
         List<OrderDelivemiddle> resultList = page.getRecords();
         List<OrderDelivemiddleVO> orderDelivemiddleVOList = resultList.stream().map(a -> {
+            Map<String, Object> billInfoMap = orderDelivemiddleMapper.getContractInfoByMId(a.getId());
             OrderDelivemiddleVO model = OrderDelivemiddleVO.builder()
                     .attachmentList(orderAttachmentMapper.selectListByParentId(a.getId(), 3))
+                    .deliveryCode(billInfoMap.get("deliveryCode").toString()).deliveryName(billInfoMap.get("deliveryName").toString())
+                    .supplierId(Long.valueOf(billInfoMap.get("supplierId").toString())).signAddress(billInfoMap.get("signAddress").toString())
+                    .contractCode(billInfoMap.get("contractCode").toString()).contractName(billInfoMap.get("contractName").toString())
+                    .contractType(Integer.valueOf(billInfoMap.get("contractType").toString()))
                     .build();
             BeanCopyUtil.copyPropertiesIgnoreNull(a, model);
             return model;
@@ -94,8 +99,17 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
 
     @Override
     public ResponseEnvelope searchOrderDelivemiddleOne(Long id) {
-
-        return ResultVOUtil.returnSuccess(this.selectOne(id));
+        OrderDelivemiddle orderDelivemiddle = this.selectOne(id);
+        Map<String, Object> billInfoMap = orderDelivemiddleMapper.getContractInfoByMId(id);
+        OrderDelivemiddleVO model = OrderDelivemiddleVO.builder()
+                .attachmentList(orderAttachmentMapper.selectListByParentId(id, 3))
+                .deliveryCode(billInfoMap.get("deliveryCode").toString()).deliveryName(billInfoMap.get("deliveryName").toString())
+                .supplierId(Long.valueOf(billInfoMap.get("supplierId").toString())).signAddress(billInfoMap.get("signAddress").toString())
+                .contractCode(billInfoMap.get("contractCode").toString()).contractName(billInfoMap.get("contractName").toString())
+                .contractType(Integer.valueOf(billInfoMap.get("contractType").toString()))
+                .build();
+        BeanCopyUtil.copyPropertiesIgnoreNull(orderDelivemiddle, model);
+        return ResultVOUtil.returnSuccess(model);
     }
 
     @Override
@@ -104,8 +118,19 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
         OrderDelivemiddle entity = new OrderDelivemiddle();
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
         orderDelivemiddleMapper.insert(entity);
+        //获取资产模板对应的表头信息
+        List<Map<String, Object>> titleMap = orderDelivemiddleMapper.getTitleList(dto.getModuleId());
+        //获取表头的下标
+        Map<Integer, String> titleIndexM = new HashMap<>();
+        Map<Integer, Long> titleIdM = new HashMap<>();
+        Map<String, Integer> titleNameM = new HashMap<>();
+        for (Map<String, Object> model : titleMap) {
+            titleIndexM.put(Integer.valueOf(model.get("PRPT_ORDER").toString()), model.get("CODE").toString());
+            titleIdM.put(Integer.valueOf(model.get("PRPT_ORDER").toString()), Long.valueOf(model.get("PRPT_ID").toString()));
+            titleNameM.put(model.get("NAME").toString(), Integer.valueOf(model.get("PRPT_ORDER").toString()));
+        }
         //进行附件清单的解析及数据源的入库操作
-        if ("1".equals(dto.getWmType())) {
+        if ("2".equals(dto.getWmType())) {
             /**
              *    这里需要进行区分附件的资产信息是物管还是量管，若是物管需要上传明细附件，
              *    若是量管则不需要进行明细附件的上传操作
@@ -138,15 +163,6 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
                 if (workbook == null) {
                     System.err.println("未读取到内容,请检查路径！");
                 }
-                //获取资产模板对应的表头信息
-                List<Map<String, Object>> titleMap = orderDelivemiddleMapper.getTitleMap(dto.getModuleId());
-                //获取表头的下标
-                List<Integer> titleIndexM = new ArrayList<>();
-                Map<Integer, Long> titleIdM = new HashMap<>();
-                for (Map<String, Object> model : titleMap) {
-                    titleIndexM.add(Integer.valueOf(model.get("PRPT_ORDER").toString()));
-                    titleIdM.put(Integer.valueOf(model.get("PRPT_ORDER").toString()), Long.valueOf(model.get("PRPT_ID").toString()));
-                }
                 //遍历工作簿中的sheet
                 for (int numSheet = 0; numSheet < workbook.getNumberOfSheets(); numSheet++) {
                     Sheet sheet = workbook.getSheetAt(numSheet);
@@ -154,8 +170,6 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
                     if (sheet == null) {
                         continue;
                     }
-                    //读取Excel的表头数据
-                    //Row row1 = sheet.getRow(0);
                     // 对于每个sheet，读取其中的每一行,从第二行开始读取
                     for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
                         Row row = sheet.getRow(rowNum);
@@ -163,37 +177,43 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
                             continue;
                         }
                         //这里默认第一列为资产名称,to do
-                        Cell cell = row.getCell(1);
+
                         AssetEntityInfo entityInfo = new AssetEntityInfo();
                         entityInfo.setAmount(1L);
                         entityInfo.setAssetCatId(dto.getAssetCatId());
                         entityInfo.setAssetTemplId(dto.getModuleId());
                         entityInfo.setAssetTemplVer(dto.getModuleVersion());
-                        entityInfo.setName(ExcleUtils.getValue(cell, formulaEvaluator));
+                        entityInfo.setItemNo(dto.getItemNO());
+                        entityInfo.setAssetStatus(0L);
+                        if (titleNameM.get("名称") != null) {
+                            Cell cell = row.getCell(titleNameM.get("名称"));
+                            entityInfo.setName(ExcleUtils.getValue(cell, formulaEvaluator));
+                        }
                         //1.入库资产实体表信息
                         assetEntityInfoMapper.insert(entityInfo);
-                        //入库每条资产实体对应的属性值（个性化的，不是共有的,从第二列开始）
-                        for (int columnNum = 1; columnNum < row.getLastCellNum(); columnNum++) {
-                            //只存储个性的属性，共性的直接跳过
-                            if (titleIndexM.contains(columnNum)) {
-                                Cell cell2 = row.getCell(columnNum);
-                                AssetEntityPrpt assetEntityPrpt = new AssetEntityPrpt();
-                                assetEntityPrpt.setAssetId(entityInfo.getId());
-                                assetEntityPrpt.setPrptId(titleIdM.get(columnNum));
-                                assetEntityPrpt.setVal(ExcleUtils.getValue(cell2, formulaEvaluator));
-                                //2.入库到资产实体属性值表中
-                                assetEntityPrptMapper.insert(assetEntityPrpt);
-                            }
+                        //入库每条资产实体对应的属性值（每个属性都需要入到资产属性值表中）
+                        for (int columnNum = 0; columnNum < row.getLastCellNum(); columnNum++) {
+                            //存储个性+共性的属性
+                            Cell cell2 = row.getCell(columnNum);
+                            AssetEntityPrpt assetEntityPrpt = new AssetEntityPrpt();
+                            assetEntityPrpt.setAssetId(entityInfo.getId());
+                            assetEntityPrpt.setPrptId(titleIdM.get(columnNum));
+                            assetEntityPrpt.setVal(ExcleUtils.getValue(cell2, formulaEvaluator));
+                            assetEntityPrpt.setCode(titleIndexM.get(columnNum));
+                            //2.入库到资产实体属性值表中
+                            assetEntityPrptMapper.insert(assetEntityPrpt);
                         }
                         //3.这里进行送货记录的详细表中入库
                         OrderDelivedetail orderDelivedetail = new OrderDelivedetail();
-                        orderDelivedetail.setAssetName(entityInfo.getName());
+                        if (entityInfo.getName() != null) {
+                            orderDelivedetail.setAssetName(entityInfo.getName());
+                        }
                         orderDelivedetail.setAssetId(entityInfo.getId());
                         orderDelivedetail.setAssetNumber(1L);
                         orderDelivedetail.setAssetCatId(dto.getAssetCatId());
                         orderDelivedetail.setMiddleId(entity.getId());
                         orderDelivedetail.setAssetUnit(dto.getAssetUnit());
-                        BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
+                        orderDelivedetail.setItemNo(dto.getItemNO());
                         orderDelivedetailMapper.insert(orderDelivedetail);
                     }
                 }
@@ -208,6 +228,27 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
                 e.printStackTrace();
             }
 
+        } else {
+            //执行量管的数据记录
+            AssetEntityInfo entityInfo = new AssetEntityInfo();
+            entityInfo.setAmount(dto.getAssetNumber());
+            entityInfo.setAssetCatId(dto.getAssetCatId());
+            entityInfo.setAssetTemplId(dto.getModuleId());
+            entityInfo.setAssetTemplVer(dto.getModuleVersion());
+            entityInfo.setItemNo(dto.getItemNO());
+            entityInfo.setAssetStatus(0L);
+            //1.入库资产实体表信息
+            assetEntityInfoMapper.insert(entityInfo);
+
+            //3.这里进行送货记录的详细表中入库
+            OrderDelivedetail orderDelivedetail = new OrderDelivedetail();
+            orderDelivedetail.setAssetId(entityInfo.getId());
+            orderDelivedetail.setAssetNumber(dto.getAssetNumber());
+            orderDelivedetail.setAssetCatId(dto.getAssetCatId());
+            orderDelivedetail.setMiddleId(entity.getId());
+            orderDelivedetail.setAssetUnit(dto.getAssetUnit());
+            orderDelivedetail.setItemNo(dto.getItemNO());
+            orderDelivedetailMapper.insert(orderDelivedetail);
         }
 
         return ResultVOUtil.returnSuccess();
@@ -227,6 +268,11 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
         return ResultVOUtil.returnSuccess();
     }
 
+    @Override
+    public List<Map<String, Object>> getTitleList(Long moduleId) {
+        return orderDelivemiddleMapper.getTitleList(moduleId);
+    }
+
 
     public OrderDelivemiddle selectOne(Long id) {
         OrderDelivemiddle entity = new OrderDelivemiddle();
@@ -235,5 +281,6 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
         queryWrapper.setEntity(entity);
         return orderDelivemiddleMapper.selectOne(queryWrapper);
     }
+
 
 }

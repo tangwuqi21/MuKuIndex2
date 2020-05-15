@@ -1,6 +1,7 @@
 package com.rhdk.purchasingservice.pojo.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import java.util.Date;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
@@ -59,7 +60,7 @@ public class OrderDelivemiddle extends Model<OrderDelivemiddle> {
      * 数量
      */
     @TableField("ASSET_NUMBER")
-    private String assetNumber;
+    private Long assetNumber;
     /**
      * 单价
      */
@@ -80,6 +81,7 @@ public class OrderDelivemiddle extends Model<OrderDelivemiddle> {
      * 创建时间
      */
     @TableField(value = "CREATE_DATE", fill = FieldFill.INSERT)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createDate;
     /**
      * 创建人
@@ -90,6 +92,7 @@ public class OrderDelivemiddle extends Model<OrderDelivemiddle> {
      * 修改时间
      */
     @TableField(value = "UPDATE_DATE", fill = FieldFill.UPDATE)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date updateDate;
     /**
      * 修改人

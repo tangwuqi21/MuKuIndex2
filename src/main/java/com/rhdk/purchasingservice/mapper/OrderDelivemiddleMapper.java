@@ -2,7 +2,6 @@ package com.rhdk.purchasingservice.mapper;
 
 import com.rhdk.purchasingservice.pojo.entity.OrderDelivemiddle;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.rhdk.purchasingservice.pojo.vo.OrderDelivemiddleVO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -18,5 +17,10 @@ import java.util.Map;
  * @since 2020-05-13
  */
 public interface OrderDelivemiddleMapper extends BaseMapper<OrderDelivemiddle> {
+
+        List<Map<String, Object>> getTitleList(@Param("moduleId") Long moduleId);
+
         List<Map<String, Object>> getTitleMap(@Param("moduleId") Long moduleId);
+
+        Map<String, Object> getContractInfoByMId(@Param("id") Long id);
 }
