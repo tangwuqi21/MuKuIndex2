@@ -18,7 +18,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class OrderContractDTO extends BaseDTO implements Serializable {
+public class OrderContractDTO  implements Serializable {
     private static final long serialVersionUID = 1L;
     @ApiModelProperty(value = "ID")
     private Long id;
@@ -50,21 +50,6 @@ public class OrderContractDTO extends BaseDTO implements Serializable {
     @ApiModelProperty(value = "附件")
     @NotNull(message = "合同附件不能为空")
     private List<OrderAttachmentDTO> attachmentList;
-
-    @ApiModelProperty(value = "删除标识，0-正常，1-已删除",hidden = true)
-    private Integer delFlag;
-
-    @ApiModelProperty(value = "创建时间",hidden = true)
-    private Date createDate;
-
-    @ApiModelProperty(value = "创建人",hidden = true)
-    private Long createBy;
-
-    @ApiModelProperty(value = "修改时间",hidden = true)
-    private Date updateDate;
-
-    @ApiModelProperty(value = "修改人",hidden = true)
-    private Long updateBy;
 
     @ApiModelProperty(value = "备注")
     private String remark;

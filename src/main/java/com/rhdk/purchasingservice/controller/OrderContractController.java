@@ -2,22 +2,13 @@ package com.rhdk.purchasingservice.controller;
 
 
 import cn.afterturn.easypoi.excel.ExcelExportUtil;
-import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
-import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
-import com.rhdk.purchasingservice.common.exception.RequestEmptyException;
-import com.rhdk.purchasingservice.common.utils.FileUtil;
-import com.rhdk.purchasingservice.common.utils.MsgClient;
-import com.rhdk.purchasingservice.common.utils.TokenUtil;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.pojo.dto.OrderContractDTO;
+import com.rhdk.purchasingservice.pojo.query.OrderContractQuery;
 import com.rhdk.purchasingservice.pojo.vo.OrderContractVO;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +64,7 @@ public class OrderContractController {
      */
     @ApiOperation(value = "合同表列表分页查询", notes = "合同表API")
     @RequestMapping(value = "/searchOrderContractListPage", method = RequestMethod.POST)
-    public ResponseEnvelope searchOrderContractListPage(@RequestBody OrderContractDTO dto) {
+    public ResponseEnvelope searchOrderContractListPage(@RequestBody OrderContractQuery dto) {
         return iOrderContractService.searchOrderContractListPage(dto);
     }
 

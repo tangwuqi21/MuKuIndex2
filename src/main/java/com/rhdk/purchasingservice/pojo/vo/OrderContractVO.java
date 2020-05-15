@@ -32,6 +32,9 @@ public class OrderContractVO implements Serializable {
     @ApiModelProperty(value = "ID")
     private Long id;
 
+    @ApiModelProperty(value = "采购合同ID")
+    private Long orderId;
+
     @ApiModelProperty(value = "单据日期")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date contractDate;

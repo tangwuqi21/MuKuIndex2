@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rhdk.purchasingservice.mapper.AssetEntityPrptMapper">
+
+        <!-- 通用查询映射结果 -->
+        <resultMap id="BaseResultMap" type="com.rhdk.purchasingservice.pojo.entity.AssetEntityPrpt">
+                    <id column="ID" property="id"/>
+                    <result column="ASSET_ID" property="assetId"/>
+                    <result column="PRPT_ID" property="prptId"/>
+                    <result column="CODE" property="code"/>
+                    <result column="PRPT_VAL_ID" property="prptValId"/>
+                    <result column="VAL" property="val"/>
+                    <result column="CREATE_BY" property="createBy"/>
+                    <result column="CREATE_DATE" property="createDate"/>
+                    <result column="UPDATE_BY" property="updateBy"/>
+                    <result column="UPDATE_DATE" property="updateDate"/>
+                    <result column="DEL_FLAG" property="delFlag"/>
+        </resultMap>
+
+        <!-- 通用查询结果列 -->
+        <sql id="Base_Column_List">
+        ID, ASSET_ID, PRPT_ID, CODE, PRPT_VAL_ID, VAL, CREATE_BY, CREATE_DATE, UPDATE_BY, UPDATE_DATE, DEL_FLAG
+         </sql>
+
+
+
+</mapper>

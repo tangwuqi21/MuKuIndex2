@@ -13,6 +13,7 @@ import com.rhdk.purchasingservice.pojo.dto.OrderAttachmentDTO;
 import com.rhdk.purchasingservice.pojo.dto.OrderContractDTO;
 import com.rhdk.purchasingservice.pojo.entity.OrderAttachment;
 import com.rhdk.purchasingservice.pojo.entity.OrderContract;
+import com.rhdk.purchasingservice.pojo.query.OrderContractQuery;
 import com.rhdk.purchasingservice.pojo.vo.OrderContractVO;
 import com.rhdk.purchasingservice.service.IOrderAttachmentService;
 import com.rhdk.purchasingservice.service.IOrderContractService;
@@ -52,18 +53,16 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
 
 
     @Override
-    public ResponseEnvelope searchOrderContractListPage(OrderContractDTO dto) {
+    public ResponseEnvelope searchOrderContractListPage(OrderContractQuery dto) {
         Page<OrderContract> page = new Page<OrderContract>();
-        page.setSize(dto.getSize());
-        page.setCurrent(dto.getCurrent());
+        page.setSize(dto.getPageSize());
+        page.setCurrent(dto.getCurrentPage());
         QueryWrapper<OrderContract> queryWrapper = new QueryWrapper<OrderContract>();
         OrderContract entity = new OrderContract();
         queryWrapper.orderByDesc("CREATE_DATE");
-        if(!StringUtils.isEmpty(dto.getContractCompany())){
-            String paramStr=dto.getContractCompany();
-            queryWrapper.like("CONTRACT_COMPANY",paramStr);
-            dto.setContractCompany(null);
-        }
+        List<Long> paramStr = orderContractMapper.getContractIdList(dto.getContractCompany());
+        queryWrapper.in("ID", paramStr);
+        dto.setContractCompany(null);
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
         queryWrapper.setEntity(entity);
         page = orderContractMapper.selectPage(page, queryWrapper);
@@ -71,9 +70,9 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
         logger.info("getFileList-获取合同附件列表开始");
         List<OrderContractVO> contractVOList = resultList.stream().map(a -> {
             //根据合同id去附件表里获取每个合同对应的附件
-            Map<String,String> userInfo=orderContractMapper.getUserNameByID(a.getCreateBy());
+            Map<String, String> userInfo = orderContractMapper.getUserNameByID(a.getCreateBy());
             OrderContractVO at = OrderContractVO.builder().attachmentList(iOrderAttachmentService.selectAttachmentList(a.getId()))
-                    .contractCode(a.getContractCode()).contractCompany(a.getContractCompany()).contractName(a.getContractName())
+                    .contractCode(a.getContractCode()).contractCompany(orderContractMapper.selectContractByCId(a.getId()).getContractCompany()).contractName(a.getContractName())
                     .contractDate(a.getContractDate()).contractMoney(a.getContractMoney()).id(a.getId()).contractType(a.getContractType())
                     .createBy(a.getCreateBy()).createDate(a.getCreateDate()).updateBy(a.getUpdateBy()).updateDate(a.getUpdateDate())
                     .delFlag(a.getDelFlag()).createName(userInfo.get("userName")).deptName(userInfo.get("deptName")).build();
@@ -91,11 +90,13 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
 
     @Override
     public ResponseEnvelope searchOrderContractOne(Long id) {
-        OrderContractVO orderContractVO=new OrderContractVO();
-        List<OrderAttachment> attachmentList=iOrderAttachmentService.selectAttachmentList(id);
-        OrderContract model=this.selectOne(id);
+        OrderContractVO orderContractVO = new OrderContractVO();
+        List<OrderAttachment> attachmentList = iOrderAttachmentService.selectAttachmentList(id);
+        OrderContract model = this.selectOne(id);
         BeanCopyUtil.copyPropertiesIgnoreNull(model, orderContractVO);
-        Map<String,String> userInfo=orderContractMapper.getUserNameByID(model.getCreateBy());
+        Map<String, String> userInfo = orderContractMapper.getUserNameByID(model.getCreateBy());
+        String companyName = orderContractMapper.getCompanyByContracId(id);
+        orderContractVO.setContractCompany(companyName);
         orderContractVO.setAttachmentList(attachmentList);
         orderContractVO.setCreateName(userInfo.get("userName"));
         orderContractVO.setDeptName(userInfo.get("deptName"));
@@ -115,6 +116,8 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
             orderContractMapper.insert(entity);
             logger.info("addContract-添加合同主体信息结束");
             //合同主体添加成功，进行上传文件的记录保存，并关联到对应合同主体
+            //添加到采购合同表中
+            orderContractMapper.insertOrderContract(entity.getId(), dto.getContractCompany(), entity.getCreateBy());
             logger.info("addAttachment-添加合同附件信息开始");
             for (OrderAttachmentDTO model : dto.getAttachmentList()) {
                 model.setParentId(entity.getId());
@@ -138,6 +141,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
         OrderContract entity = this.selectOne(dto.getId());
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
         orderContractMapper.updateById(entity);
+        orderContractMapper.updateContract(dto.getId(), dto.getContractCompany());
         //修改合同附件信息需要注意的是，先要把之前的合同附件信息全部物理删除，然后再进行新的附件信息添加
         Integer updateRows = iOrderAttachmentService.deleteAttachmentByParentId(dto.getId());
         if (updateRows > 0) {
@@ -168,20 +172,18 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
         QueryWrapper<OrderContract> queryWrapper = new QueryWrapper<OrderContract>();
         OrderContract entity = new OrderContract();
         queryWrapper.orderByDesc("CREATE_DATE");
-        if(!StringUtils.isEmpty(dto.getContractCompany())){
-            String paramStr=dto.getContractCompany();
-            queryWrapper.like("CONTRACT_COMPANY",paramStr);
-            dto.setContractCompany(null);
-        }
+        List<Long> paramStr = orderContractMapper.getContractIdList(dto.getContractCompany());
+        queryWrapper.in("ID", paramStr);
+        dto.setContractCompany(null);
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
         queryWrapper.setEntity(entity);
-        List<OrderContract> resultList=orderContractMapper.selectList(queryWrapper);
+        List<OrderContract> resultList = orderContractMapper.selectList(queryWrapper);
         List<OrderContractVO> contractVOList = resultList.stream().map(a -> {
             //根据合同id去附件表里获取每个合同对应的附件
-            Map<String,String> userInfo=orderContractMapper.getUserNameByID(a.getCreateBy());
-            OrderContractVO at = OrderContractVO.builder().haveFile(iOrderAttachmentService.selectAttachmentList(a.getId()).size()>0?"是":"否")
-                    .contractCode(a.getContractCode()).contractCompany(a.getContractCompany()).contractName(a.getContractName())
-                    .contractDate(a.getContractDate()).contractMoney(a.getContractMoney()).id(a.getId()).contractTypeName(a.getContractType()==1?"采购合同":"")
+            Map<String, String> userInfo = orderContractMapper.getUserNameByID(a.getCreateBy());
+            OrderContractVO at = OrderContractVO.builder().haveFile(iOrderAttachmentService.selectAttachmentList(a.getId()).size() > 0 ? "是" : "否")
+                    .contractCode(a.getContractCode()).contractCompany(orderContractMapper.selectContractByCId(a.getId()).getContractCompany()).contractName(a.getContractName())
+                    .contractDate(a.getContractDate()).contractMoney(a.getContractMoney()).id(a.getId()).contractTypeName(a.getContractType() == 1 ? "采购合同" : "")
                     .createDate(a.getCreateDate())
                     .createName(userInfo.get("userName")).deptName(userInfo.get("deptName")).build();
             return at;

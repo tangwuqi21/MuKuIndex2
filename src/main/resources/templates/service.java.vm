@@ -2,7 +2,7 @@ package ${package.Service};
 
 import ${package.Entity}.${entity};
 import ${superServiceClassPackage};
-import com.rhdk.inventory.pojo.entity.dto.${entity}DTO;
+import com.rhdk.purchasingservice.pojo.dto.${entity}DTO;
 
 
 /**

@@ -9,6 +9,7 @@ import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.mapper.OrderAttachmentMapper;
 import com.rhdk.purchasingservice.pojo.dto.OrderAttachmentDTO;
 import com.rhdk.purchasingservice.pojo.entity.OrderAttachment;
+import com.rhdk.purchasingservice.pojo.query.OrderAttachmentQuery;
 import com.rhdk.purchasingservice.service.IOrderAttachmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,10 +39,10 @@ public class OrderAttachmentServiceImpl extends ServiceImpl<OrderAttachmentMappe
     private OrderAttachmentMapper orderAttachmentMapper;
 
     @Override
-    public ResponseEnvelope searchOrderAttachmentListPage(OrderAttachmentDTO dto) {
+    public ResponseEnvelope searchOrderAttachmentListPage(OrderAttachmentQuery dto) {
         Page<OrderAttachment> page = new Page<OrderAttachment>();
-        page.setSize(dto.getSize());
-        page.setCurrent(dto.getCurrent());
+        page.setSize(dto.getPageSize());
+        page.setCurrent(dto.getCurrentPage());
         QueryWrapper<OrderAttachment> queryWrapper = new QueryWrapper<OrderAttachment>();
         OrderAttachment entity = new OrderAttachment();
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);

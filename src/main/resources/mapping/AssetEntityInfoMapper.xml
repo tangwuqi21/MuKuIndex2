@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rhdk.purchasingservice.mapper.AssetEntityInfoMapper">
+
+        <!-- 通用查询映射结果 -->
+        <resultMap id="BaseResultMap" type="com.rhdk.purchasingservice.pojo.entity.AssetEntityInfo">
+                    <id column="ID" property="id"/>
+                    <result column="ASSET_CAT_ID" property="assetCatId"/>
+                    <result column="ASSET_TEMPL_ID" property="assetTemplId"/>
+                    <result column="ASSET_TEMPL_VER" property="assetTemplVer"/>
+                    <result column="NAME" property="name"/>
+                    <result column="ITEM_NO" property="itemNo"/>
+                    <result column="WAREHOUSE_ID" property="warehouseId"/>
+                    <result column="ASSET_TYPE" property="assetType"/>
+                    <result column="CHECKIN_ID" property="checkinId"/>
+                    <result column="AMOUNT" property="amount"/>
+                    <result column="DSCP" property="dscp"/>
+                    <result column="CREATE_BY" property="createBy"/>
+                    <result column="CREATE_DATE" property="createDate"/>
+                    <result column="UPDATE_BY" property="updateBy"/>
+                    <result column="UPDATE_DATE" property="updateDate"/>
+                    <result column="ORG_ID" property="orgId"/>
+                    <result column="DEL_FLAG" property="delFlag"/>
+        </resultMap>
+
+        <!-- 通用查询结果列 -->
+        <sql id="Base_Column_List">
+        ID, ASSET_CAT_ID, ASSET_TEMPL_ID, ASSET_TEMPL_VER, NAME, ITEM_NO, WAREHOUSE_ID, ASSET_TYPE, CHECKIN_ID, AMOUNT, DSCP, CREATE_BY, CREATE_DATE, UPDATE_BY, UPDATE_DATE, ORG_ID, DEL_FLAG
+         </sql>
+
+
+
+</mapper>

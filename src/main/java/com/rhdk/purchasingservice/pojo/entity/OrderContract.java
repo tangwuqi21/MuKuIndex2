@@ -55,11 +55,6 @@ public class OrderContract extends Model<OrderContract> {
     @TableField("CONTRACT_NAME")
     private String contractName;
     /**
-     * 往来单位
-     */
-    @TableField("CONTRACT_COMPANY")
-    private String contractCompany;
-    /**
      * 合同类型,1-采购合同
      */
     @TableField("CONTRACT_TYPE")
@@ -69,11 +64,7 @@ public class OrderContract extends Model<OrderContract> {
      */
     @TableField("CONTRACT_MONEY")
     private Long contractMoney;
-    /**
-     * 附件id
-     */
-    @TableField("ATTACHMENT_ID")
-    private Long attachmentId;
+
     /**
      * 删除标识，0-正常，1-已删除
      */
