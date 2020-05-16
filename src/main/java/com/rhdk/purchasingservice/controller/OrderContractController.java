@@ -3,6 +3,9 @@ package com.rhdk.purchasingservice.controller;
 
 import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
+import com.igen.acc.rpc.thrift.IOrgService;
+import com.igen.acc.rpc.thrift.IUserService;
+import com.igen.auth.thrift.IAuthService;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.pojo.dto.OrderContractDTO;
 import com.rhdk.purchasingservice.pojo.query.OrderContractQuery;
@@ -19,20 +22,10 @@ import lombok.extern.slf4j.Slf4j;
 import com.rhdk.purchasingservice.service.IOrderContractService;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +48,6 @@ public class OrderContractController {
 
     @Autowired
     private IOrderContractService iOrderContractService;
-
 
     /**
      * 采购管理-合同列表查询

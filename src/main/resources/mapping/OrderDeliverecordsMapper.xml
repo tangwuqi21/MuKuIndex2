@@ -18,11 +18,12 @@
                     <result column="UPDATE_DATE" property="updateDate"/>
                     <result column="ORG_ID" property="orgId"/>
                     <result column="DEL_FLAG" property="delFlag"/>
+                    <result column="SIGN_STATUS" property="signStatus"/>
         </resultMap>
 
         <!-- 通用查询结果列 -->
         <sql id="Base_Column_List">
-        ID, DELIVERY_CODE, DELIVERY_NAME, DELIVERY_DATE, SUPPLIER_ID, SIGN_ADDRESS, ORDER_ID, REMARK, CREATE_BY, CREATE_DATE, UPDATE_BY, UPDATE_DATE, ORG_ID, DEL_FLAG
+        ID, DELIVERY_CODE, DELIVERY_NAME, DELIVERY_DATE,SIGN_STATUS, SUPPLIER_ID, SIGN_ADDRESS, ORDER_ID, REMARK, CREATE_BY, CREATE_DATE, UPDATE_BY, UPDATE_DATE, ORG_ID, DEL_FLAG
          </sql>
 
 

@@ -94,3 +94,7 @@ igen-rpc:
 feign:
   hystrix:
     enabled: false
+
+feignName:
+  assetService: ASSETSERVICE-DEV
+  inventoryService: INVENTORY-SERVICE-DEV

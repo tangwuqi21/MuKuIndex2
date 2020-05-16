@@ -108,6 +108,12 @@ public class OrderDeliverecords extends Model<OrderDeliverecords> {
     @TableLogic
     private Integer delFlag;
 
+    /**
+     * 逻辑删除（签收状态，0-未签收，1-部分签收，2-已签收）
+     */
+    @TableField("SIGN_STATUS")
+    private Integer signStatus;
+
 
     @Override
     protected Serializable pkVal() {

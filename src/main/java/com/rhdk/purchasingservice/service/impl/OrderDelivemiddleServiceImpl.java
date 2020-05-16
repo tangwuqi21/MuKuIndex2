@@ -120,14 +120,15 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
         orderDelivemiddleMapper.insert(entity);
         //获取资产模板对应的表头信息
         List<Map<String, Object>> titleMap = orderDelivemiddleMapper.getTitleList(dto.getModuleId());
+
+        //获取表格里的个性属性
+        List<Map<String, Object>> titleMap2 = orderDelivemiddleMapper.getTitleMap(dto.getModuleId());
         //获取表头的下标
-        Map<Integer, String> titleIndexM = new HashMap<>();
-        Map<Integer, Long> titleIdM = new HashMap<>();
+        Map<Integer, Integer> titleIdM = new HashMap<>();
         Map<String, Integer> titleNameM = new HashMap<>();
-        for (Map<String, Object> model : titleMap) {
-            titleIndexM.put(Integer.valueOf(model.get("PRPT_ORDER").toString()), model.get("CODE").toString());
-            titleIdM.put(Integer.valueOf(model.get("PRPT_ORDER").toString()), Long.valueOf(model.get("PRPT_ID").toString()));
-            titleNameM.put(model.get("NAME").toString(), Integer.valueOf(model.get("PRPT_ORDER").toString()));
+        for (int num=0;num<titleMap2.size(); num++) {
+            titleIdM.put(Integer.valueOf(titleMap2.get(num).get("PRPT_ORDER").toString()), num);
+            titleNameM.put(titleMap2.get(num).get("NAME").toString(),num);
         }
         //进行附件清单的解析及数据源的入库操作
         if ("2".equals(dto.getWmType())) {
@@ -192,14 +193,17 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
                         //1.入库资产实体表信息
                         assetEntityInfoMapper.insert(entityInfo);
                         //入库每条资产实体对应的属性值（每个属性都需要入到资产属性值表中）
-                        for (int columnNum = 0; columnNum < row.getLastCellNum(); columnNum++) {
+                        for (Map<String, Object> model : titleMap) {
                             //存储个性+共性的属性
-                            Cell cell2 = row.getCell(columnNum);
                             AssetEntityPrpt assetEntityPrpt = new AssetEntityPrpt();
                             assetEntityPrpt.setAssetId(entityInfo.getId());
-                            assetEntityPrpt.setPrptId(titleIdM.get(columnNum));
-                            assetEntityPrpt.setVal(ExcleUtils.getValue(cell2, formulaEvaluator));
-                            assetEntityPrpt.setCode(titleIndexM.get(columnNum));
+                            assetEntityPrpt.setPrptId(Long.valueOf(model.get("PRPT_ID").toString()));
+                            if(StringUtils.isEmpty(model.get("PRPT_VALUE").toString())){
+                                assetEntityPrpt.setVal(ExcleUtils.getValue(row.getCell(titleIdM.get(model.get("PRPT_ORDER"))), formulaEvaluator));
+                            }else{
+                                assetEntityPrpt.setVal(model.get("PRPT_VALUE").toString());
+                            }
+                            assetEntityPrpt.setCode(model.get("CODE").toString());
                             //2.入库到资产实体属性值表中
                             assetEntityPrptMapper.insert(assetEntityPrpt);
                         }
@@ -212,7 +216,6 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
                         orderDelivedetail.setAssetNumber(1L);
                         orderDelivedetail.setAssetCatId(dto.getAssetCatId());
                         orderDelivedetail.setMiddleId(entity.getId());
-                        orderDelivedetail.setAssetUnit(dto.getAssetUnit());
                         orderDelivedetail.setItemNo(dto.getItemNO());
                         orderDelivedetailMapper.insert(orderDelivedetail);
                     }
@@ -246,7 +249,6 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
             orderDelivedetail.setAssetNumber(dto.getAssetNumber());
             orderDelivedetail.setAssetCatId(dto.getAssetCatId());
             orderDelivedetail.setMiddleId(entity.getId());
-            orderDelivedetail.setAssetUnit(dto.getAssetUnit());
             orderDelivedetail.setItemNo(dto.getItemNO());
             orderDelivedetailMapper.insert(orderDelivedetail);
         }

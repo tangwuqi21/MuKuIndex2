@@ -33,7 +33,7 @@
     </select>
 
     <select id="getTitleList" resultType="hashmap" parameterType="java.lang.Long">
-      select p.PRPT_ID,pr.name,p.ASSET_TEMP_ID,p.PRPT_order,p.PK_FLAG,pr.code
+      select p.PRPT_ID,pr.name,p.ASSET_TEMP_ID,p.PRPT_order,p.PK_FLAG,pr.code,p.PRPT_VALUE
     from T_ASSET_TMPL_PRPTS p left join T_ASSET_PRPT_INFO pr on p.PRPT_ID=pr.id where p.ASSET_TEMP_ID=#{moduleId} and p.del_flag=0
     ORDER BY p.PRPT_order asc
     </select>
@@ -42,7 +42,7 @@
     select d.DELIVERY_CODE as "deliveryCode",d.DELIVERY_NAME as "deliveryName",
     d.SUPPLIER_ID as "supplierId",d.SIGN_ADDRESS as "signAddress",t.CONTRACT_CODE as "contractCode",t.CONTRACT_NAME as "contractName",t.CONTRACT_TYPE as "contractType"
     from T_ORDER_DELIVEMIDDLE m LEFT JOIN T_ORDER_DELIVERECORDS d on m.DELIVERY_ID=d.id
-    LEFT JOIN T_ASSET_ORDER c on d.order_id=c.id LEFT JOIN  T_ORDER_CONTRACT t on c.CONTRACT_ID=t.id
+    LEFT JOIN T_ORDER_CONTRACT c on d.order_id=c.id LEFT JOIN  T_CONTRACT t on c.CONTRACT_ID=t.id
     where  m.id=#{id} and m.DEL_FLAG=0
     </select>
 </mapper>

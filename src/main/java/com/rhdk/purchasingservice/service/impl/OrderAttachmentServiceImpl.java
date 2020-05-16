@@ -119,8 +119,8 @@ public class OrderAttachmentServiceImpl extends ServiceImpl<OrderAttachmentMappe
     }
 
     @Override
-    public Integer deleteAttachmentByParentId(Long id) {
-        return orderAttachmentMapper.deleteAttachmentByParentId(id);
+    public Integer deleteAttachmentByParentId(Long id,Long attType) {
+        return orderAttachmentMapper.deleteAttachmentByParentId(id,attType);
     }
 
 }

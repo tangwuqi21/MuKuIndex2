@@ -70,11 +70,6 @@ public class OrderDelivedetail extends Model<OrderDelivedetail> {
     @TableField("ASSET_NUMBER")
     private Long assetNumber;
     /**
-     * 单位
-     */
-    @TableField("ASSET_UNIT")
-    private String assetUnit;
-    /**
      * 创建人
      */
     @TableField(value = "CREATE_BY", fill = FieldFill.INSERT)

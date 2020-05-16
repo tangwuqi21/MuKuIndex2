@@ -18,7 +18,7 @@ import javax.validation.constraints.NotNull;
  * @create: 2020-04-28
  * @Description:
  */
-@FeignClient(value = "ASSETSERVICE-DEV", fallback = FeignExecptionConfig.class)
+@FeignClient(value = "${feignName.assetService}", fallback = FeignExecptionConfig.class)
 @Component
 public interface AssetServiceFeign {
     @RequestMapping(value = "/fileUploadService/uploadSingleFile", method = RequestMethod.POST)
