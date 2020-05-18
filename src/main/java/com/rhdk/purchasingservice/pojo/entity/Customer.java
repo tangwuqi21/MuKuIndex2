@@ -1,6 +1,7 @@
 package com.rhdk.purchasingservice.pojo.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
@@ -65,8 +66,9 @@ public class Customer extends Model<Customer> {
     /**
      * 创建日期
      */
-    @TableField("CREATE_DATE")
-    private LocalDateTime createDate;
+    @TableField(value ="CREATE_DATE",fill = FieldFill.INSERT)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
+    private Date createDate;
     /**
      * 修改人
      */
@@ -76,7 +78,8 @@ public class Customer extends Model<Customer> {
      * 修改日期
      */
     @TableField(value = "UPDATE_DATE", fill = FieldFill.UPDATE)
-    private LocalDateTime updateDate;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
+    private Date updateDate;
     /**
      * 逻辑删除（0:正常 1:删除）
      */
