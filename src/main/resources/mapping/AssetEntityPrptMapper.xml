@@ -29,4 +29,10 @@
             </foreach>
         </delete>
 
+    <update id="updateEntityprpts">
+        update T_ASSET_ENTITY_PRPT set DEL_FLAG=1 where ASSET_ID in
+        <foreach collection="assetIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </update>
 </mapper>

@@ -18,6 +18,13 @@
     </if>
     </select>
 
+    <select id="getIdsBySupplierName" resultType="java.lang.Long">
+        select t.id  from T_customer t where t.DEL_FLAG=0
+        <if test="companyName !=null and companyName !=''">
+            and t.cus_name like ('%'||#{companyName}||'%')
+        </if>
+    </select>
+
     <select id="getAssetInfoList" resultType="hashmap">
    	 SELECT t.id as "id",t.ASSET_CAT_ID as "assetCatId",t.NAME as "name",t.ITEM_NO as "itemNo",t.VER_NO as "verNO",t.WM_TYPE as "wmType",
 		 (select PRPT_VALUE from T_ASSET_TMPL_PRPTS where ASSET_TEMP_ID=t.id AND PRPT_ID=(select id from T_ASSET_PRPT_INFO where NAME='单位')) as "unit",

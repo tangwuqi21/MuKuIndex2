@@ -24,7 +24,7 @@
         ID, MIDDLE_ID, ASSET_NAME, ITEM_NO, ASSET_ID,ASSET_CAT_ID,ASSET_CAT_SEARCH_KEY, ASSET_NUMBER,CREATE_BY, CREATE_DATE, UPDATE_BY, UPDATE_DATE, DEL_FLAG
          </sql>
 
-    <select id="getAssetIds" parameterType="java.lang.Long" resultType="list">
+    <select id="getAssetIds" parameterType="java.lang.Long" resultType="java.lang.Long">
         select ASSET_ID from T_ORDER_DELIVEDETAIL where MIDDLE_ID=#{id} and DEL_FLAG=0
     </select>
 
@@ -51,5 +51,19 @@
             #{id,jdbcType=BIGINT}
         </foreach>
          and DEL_FLAG=0
+    </update>
+
+    <select id="getAssetIdsByDId" resultType="java.lang.Long">
+        select ASSET_ID from T_ORDER_DELIVEDETAIL where DEL_FLAG=0 and MIDDLE_ID in
+        <foreach collection="middleIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </select>
+
+    <update id="updateDetailsDel">
+        update T_ORDER_DELIVEDETAIL set DEL_FLAG=1 where ASSET_ID in
+        <foreach collection="assetIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id,jdbcType=BIGINT}
+        </foreach>
     </update>
 </mapper>

@@ -2,6 +2,7 @@ package com.rhdk.purchasingservice.mapper;
 
 import com.rhdk.purchasingservice.pojo.entity.AssetEntityPrpt;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import io.swagger.models.auth.In;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -17,4 +18,6 @@ import java.util.List;
  */
 public interface AssetEntityPrptMapper extends BaseMapper<AssetEntityPrpt> {
     Integer deleteEntityPrpts(@Param("detailAssetIds") List<Long> detailAssetIds);
+
+    Integer updateEntityprpts(@Param("assetIds") List<Long> assetIds);
 }

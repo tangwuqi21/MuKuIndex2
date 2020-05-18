@@ -61,4 +61,7 @@ public class OrderDelivemiddleQuery extends BaseDTO implements Serializable {
     @ApiModelProperty(value = "资产类别Id")
     private Long assetCatId;
 
+    @ApiModelProperty(value = "供应商名称")
+    private String supplierName;
+
 }

@@ -92,4 +92,10 @@ public class OrderDeliverecordsVO implements Serializable {
     @ApiModelProperty(value = "明细列表")
     private List<OrderDelivemiddleVO> delivemiddleVOList;
 
+    /**
+     * 签收状态（签收状态，0-未签收，1-部分签收，2-已签收）
+     */
+    @ApiModelProperty(value = "签收状态")
+    private Integer signStatus;
+
 }

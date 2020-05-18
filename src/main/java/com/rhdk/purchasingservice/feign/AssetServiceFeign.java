@@ -1,11 +1,8 @@
 package com.rhdk.purchasingservice.feign;
 
 import com.rhdk.purchasingservice.common.config.FeignExecptionConfig;
-import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
-import com.rhdk.purchasingservice.pojo.vo.DemoVo;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
