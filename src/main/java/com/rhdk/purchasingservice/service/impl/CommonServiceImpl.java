@@ -15,6 +15,7 @@ import com.rhdk.purchasingservice.pojo.query.CustomerQuery;
 import com.rhdk.purchasingservice.service.CommonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -63,6 +64,10 @@ public class CommonServiceImpl implements CommonService {
         page.setCurrent(dto.getCurrentPage());
         QueryWrapper<Customer> queryWrapper=new QueryWrapper<Customer>();
         Customer entity=new Customer();
+        if(!StringUtils.isEmpty(dto.getCusName())){
+            queryWrapper.like("CUS_NAME",dto.getCusName());
+            entity.setCusName(null);
+        }
         BeanCopyUtil.copyPropertiesIgnoreNull(dto,entity);
         queryWrapper.setEntity(entity);
         return ResultVOUtil.returnSuccess(commonMapper.selectPage(page,queryWrapper));
