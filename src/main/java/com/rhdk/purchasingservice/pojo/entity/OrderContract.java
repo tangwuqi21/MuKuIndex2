@@ -24,7 +24,7 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("T_ORDER_CONTRACT")
+@TableName("T_CONTRACT")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -98,6 +98,9 @@ public class OrderContract extends Model<OrderContract> {
      */
     @TableField("REMARK")
     private String remark;
+
+    @TableField("ORG_ID")
+    private Long orgId;
 
 
     @Override

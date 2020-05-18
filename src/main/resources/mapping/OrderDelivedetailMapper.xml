@@ -12,7 +12,6 @@
         <result column="ASSET_CAT_ID" property="assetCatId"/>
         <result column="ASSET_CAT_SEARCH_KEY" property="assetCatSearchKey"/>
         <result column="ASSET_NUMBER" property="assetNumber"/>
-        <result column="ASSET_UNIT" property="assetUnit"/>
         <result column="CREATE_BY" property="createBy"/>
         <result column="CREATE_DATE" property="createDate"/>
         <result column="UPDATE_BY" property="updateBy"/>
@@ -22,7 +21,35 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        ID, MIDDLE_ID, ASSET_NAME, ITEM_NO, ASSET_ID,ASSET_CAT_ID,ASSET_CAT_SEARCH_KEY, ASSET_NUMBER, ASSET_UNIT,CREATE_BY, CREATE_DATE, UPDATE_BY, UPDATE_DATE, DEL_FLAG
+        ID, MIDDLE_ID, ASSET_NAME, ITEM_NO, ASSET_ID,ASSET_CAT_ID,ASSET_CAT_SEARCH_KEY, ASSET_NUMBER,CREATE_BY, CREATE_DATE, UPDATE_BY, UPDATE_DATE, DEL_FLAG
          </sql>
 
+    <select id="getAssetIds" parameterType="java.lang.Long" resultType="list">
+        select ASSET_ID from T_ORDER_DELIVEDETAIL where MIDDLE_ID=#{id} and DEL_FLAG=0
+    </select>
+
+    <delete id="deleteDeliveDetails">
+        delete from T_ORDER_DELIVEDETAIL where ASSET_ID in
+        <foreach collection="detailAssetIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </delete>
+
+    <update id="updateDetails" >
+        update T_ORDER_DELIVEDETAIL set 1=1
+        <if test="dto.itemNO !=null and dto.itemNO !=''">
+        ,ITEM_NO=#{dto.itemNO}
+        </if>
+        <if test="dto.assetCatId !=null and dto.assetCatId !=''">
+            ,ASSET_CAT_ID=#{dto.assetCatId}
+        </if>
+        <if test="dto.assetNumber !=null and dto.assetNumber !=''">
+            ,ASSET_NUMBER=#{dto.assetNumber}
+        </if>
+        where ASSET_ID in
+        <foreach collection="detailAssetIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+         and DEL_FLAG=0
+    </update>
 </mapper>

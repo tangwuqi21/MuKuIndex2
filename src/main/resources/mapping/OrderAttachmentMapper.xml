@@ -24,11 +24,25 @@
          </sql>
 
     <update id="deleteAttachmentByParentId">
-        update T_ORDER_ATTACHMENT set DEL_FLAG=1 where PARENT_ID=#{id}
+        update T_ORDER_ATTACHMENT set DEL_FLAG=1 where PARENT_ID=#{id} and ATTTYPE=#{attType}
     </update>
 
     <select id="selectListByParentId" resultType="hashmap">
         select ID as "id",ORGFILENAME as "orgfilename",FILEURL as "fileurl",ATTTYPE as "atttype" from T_ORDER_ATTACHMENT where DEL_FLAG=0
         and PARENT_ID=#{id} and ATTTYPE=#{atttype}
     </select>
+
+    <update id="updateByParentIdAndType" parameterType="com.rhdk.purchasingservice.pojo.dto.OrderAttachmentDTO">
+        update T_ORDER_ATTACHMENT set UPDATE_DATE=sysdate
+        <if test="dto.orgfilename !=null and dto.orgfilename !=''">
+            ,ORGFILENAME=#{dto.orgfilename}
+        </if>
+        <if test="dto.fileurl !=null and dto.fileurl !=''">
+            ,FILEURL=#{dto.fileurl}
+        </if>
+        <if test="dto.discription !=null and dto.discription !=''">
+            ,DISCRIPTION=#{dto.discription}
+        </if>
+       where PARENT_ID=#{dto.parentId} and ATTTYPE=#{dto.atttype}
+    </update>
 </mapper>

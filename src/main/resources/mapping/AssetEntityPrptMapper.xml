@@ -22,6 +22,11 @@
         ID, ASSET_ID, PRPT_ID, CODE, PRPT_VAL_ID, VAL, CREATE_BY, CREATE_DATE, UPDATE_BY, UPDATE_DATE, DEL_FLAG
          </sql>
 
-
+        <delete id="deleteEntityPrpts">
+            delete from T_ASSET_ENTITY_PRPT where ASSET_ID in
+            <foreach collection="detailAssetIds" item="id" index="index" open="(" close=")" separator=",">
+                #{id,jdbcType=BIGINT}
+            </foreach>
+        </delete>
 
 </mapper>

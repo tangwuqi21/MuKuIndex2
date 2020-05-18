@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
  * @create: 2020-04-28
  * @Description:
  */
-@FeignClient(value = "INVENTORY-SERVICE-DEV",fallback = FeignExecptionConfig.class)
+@FeignClient(value = "${feignName.assetService}",fallback = FeignExecptionConfig.class)
 @Component
 public interface IDemoFeign {
     @RequestMapping(value="/asset/demo/searchDemoListPage",method= RequestMethod.POST)

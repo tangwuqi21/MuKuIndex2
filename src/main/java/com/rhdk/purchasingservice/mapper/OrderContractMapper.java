@@ -18,17 +18,16 @@ import java.util.Map;
  * @since 2020-05-08
  */
 public interface OrderContractMapper extends BaseMapper<OrderContract> {
-    Map<String, String> getUserNameByID(@Param("userId") Long userId);
 
     OrderContractVO selectContractById(@Param("orderId") Long orderId);
 
     OrderContractVO selectContractByCId(@Param("id") Long id);
 
-    void insertOrderContract(@Param("id") Long id,@Param("contractCompany") String contractCompany,@Param("createBy") Long createBy);
+    void insertOrderContract(@Param("id") Long id,@Param("contractCompany") String contractCompany,@Param("createBy") Long createBy,@Param("orgId") Long orgId);
 
     List<Long> getContractIdList(@Param("contractCompany") String contractCompany);
 
-    void updateContract(@Param("id") Long id, @Param("contractCompany") String contractCompany);
+    void updateContract(@Param("id") Long id, @Param("contractCompany") String contractCompany,@Param("userId") Long userId,@Param("orgId") Long orgId);
 
     String getCompanyByContracId(@Param("id")  Long id);
 }

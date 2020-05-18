@@ -29,5 +29,34 @@
          </sql>
 
 
+    <delete id="deleteEntitys">
+        delete from T_ASSET_ENTITY_INFO where id in
+        <foreach collection="detailAssetIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </delete>
 
+    <update id="updateEntityInfo">
+        update T_ASSET_ENTITY_INFO set 1=1
+        <if test="dto.itemNO !=null and dto.itemNO !=''">
+            ,ITEM_NO=#{dto.itemNO}
+        </if>
+        <if test="dto.assetCatId !=null and dto.assetCatId !=''">
+            ,ASSET_CAT_ID=#{dto.assetCatId}
+        </if>
+        <if test="dto.assetNumber !=null and dto.assetNumber !=''">
+            ,AMOUNT=#{dto.assetNumber}
+        </if>
+        <if test="dto.moduleId !=null and dto.moduleId !=''">
+            ,ASSET_TEMPL_ID=#{dto.moduleId}
+        </if>
+        <if test="dto.moduleVersion !=null and dto.moduleVersion !=''">
+            ,ASSET_TEMPL_VER=#{dto.moduleVersion}
+        </if>
+        where id in
+        <foreach collection="detailAssetIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+        and del_flag=0
+    </update>
 </mapper>

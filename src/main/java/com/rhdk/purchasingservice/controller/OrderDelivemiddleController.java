@@ -82,6 +82,7 @@ public class OrderDelivemiddleController {
     @RequestMapping(value = "/uploadFileCheck", method = RequestMethod.POST)
     public ResponseEnvelope uploadFileCheck(@NotNull MultipartFile file, Long moduleId) {
         //解析上传的Excel，并检查文件格式和内容是否正确
+        Map<String,Object> resultMap=new HashMap<>();
         String fileUrl = null;
         try {
             // 创建excel工作簿对象
@@ -132,6 +133,7 @@ public class OrderDelivemiddleController {
             }
             // 2.检查是否存在空列值
             // 对于每个sheet，读取其中的每一行,从第二行开始读取
+            resultMap.put("totalRow",sheet.getLastRowNum());
             for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
                 Row row = sheet.getRow(rowNum);
                 if (row == null) {
@@ -150,10 +152,11 @@ public class OrderDelivemiddleController {
             }
             //远程调用附件上传接口
             fileUrl = assetServiceFeign.uploadSingleFile(file, TokenUtil.getToken());
+            resultMap.put("fileUrl",fileUrl);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return ResultVOUtil.returnSuccess(fileUrl);
+        return ResultVOUtil.returnSuccess(resultMap);
     }
 
     @ApiOperation(value = "送货记录明细中间表更新", notes = "送货记录明细中间表API")

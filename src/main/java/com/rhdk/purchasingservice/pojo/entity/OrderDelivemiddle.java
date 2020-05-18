@@ -55,7 +55,7 @@ public class OrderDelivemiddle extends Model<OrderDelivemiddle> {
      * 单位
      */
     @TableField("ASSET_UNIT")
-    private String assetUnit;
+    private Long assetUnit;
     /**
      * 数量
      */

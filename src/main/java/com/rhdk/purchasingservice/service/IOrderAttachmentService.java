@@ -32,5 +32,5 @@ public interface IOrderAttachmentService extends IService<OrderAttachment> {
 
      List<OrderAttachment> selectAttachmentList(Long id);
 
-    Integer deleteAttachmentByParentId(Long id);
+    Integer deleteAttachmentByParentId(Long id,Long attType);
 }
