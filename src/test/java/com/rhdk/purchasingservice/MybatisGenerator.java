@@ -22,7 +22,7 @@ public class MybatisGenerator {
   static String url = "jdbc:oracle:thin:@192.168.30.97:1521:helowin";
   static String username = "RHDK_SSO";
   static String password = "rhdk_sso";
-  static String[] tables = new String[] {"T_ORDER_DELIVEMIDDLE"};
+  static String[] tables = new String[] {"T_CUSTOMER"};
   static String delete_falg = "DEL_FLAG";
 
   public static void main(String[] args) throws InterruptedException {

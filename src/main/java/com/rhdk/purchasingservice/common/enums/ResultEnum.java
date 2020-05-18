@@ -26,9 +26,13 @@ public enum ResultEnum {
   //附件上传不能为空
   FILE_NOTNULL(500, "附件不能为空"),
 
+  ID_NOTNULL(500, "更新操作主键id不能为空"),
+
   TEMPLATE_NOTFORMAT(500, "模板格式不正确"),
 
   TEMPLATE_CELLNULL(500, "资产属性值不能为空"),
+
+  TEMPLATE_ROWTWO(500, "附件内容有重复行"),
 
   DETAIL_NOTNULL(500, "记录明细不能为空");
 

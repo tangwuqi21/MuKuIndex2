@@ -19,15 +19,16 @@
         <result column="UPDATE_DATE" property="updateDate"/>
         <result column="UPDATE_BY" property="updateBy"/>
         <result column="REMARK" property="remark"/>
+        <result column="SIGN_STATUS" property="signStatus"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        ID, DELIVERY_ID, DELIVERYDETAIL_CODE, SIGN_NO, MODULE_ID, ASSET_UNIT, ASSET_NUMBER, ASSET_PRICE, TOTAL_MONEY, DEL_FLAG, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY, REMARK
+        ID, DELIVERY_ID, DELIVERYDETAIL_CODE, SIGN_NO,SIGN_STATUS, MODULE_ID, ASSET_UNIT, ASSET_NUMBER, ASSET_PRICE, TOTAL_MONEY, DEL_FLAG, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY, REMARK
          </sql>
 
     <select id="getTitleMap" resultType="hashmap" parameterType="java.lang.Long">
-    select p.PRPT_ID,pr.name,p.ASSET_TEMP_ID,p.PRPT_order,pr.code
+    select p.PRPT_ID,pr.name,p.ASSET_TEMP_ID,p.PRPT_order,pr.code,p.PK_FLAG
     from T_ASSET_TMPL_PRPTS p left join T_ASSET_PRPT_INFO pr on p.PRPT_ID=pr.id where p.ASSET_TEMP_ID=#{moduleId}  and p.PRPT_VALUE is null and p.del_flag=0
     ORDER BY p.PRPT_order asc
     </select>
@@ -40,9 +41,15 @@
 
     <select id="getContractInfoByMId" resultType="hashmap" parameterType="java.lang.Long">
     select d.DELIVERY_CODE as "deliveryCode",d.DELIVERY_NAME as "deliveryName",
-    d.SUPPLIER_ID as "supplierId",d.SIGN_ADDRESS as "signAddress",t.CONTRACT_CODE as "contractCode",t.CONTRACT_NAME as "contractName",t.CONTRACT_TYPE as "contractType"
+    d.SUPPLIER_ID as "supplierId",s.cus_name as "custName",d.SIGN_ADDRESS as "signAddress",t.CONTRACT_CODE as "contractCode",t.CONTRACT_NAME as "contractName",t.CONTRACT_TYPE as "contractType"
     from T_ORDER_DELIVEMIDDLE m LEFT JOIN T_ORDER_DELIVERECORDS d on m.DELIVERY_ID=d.id
     LEFT JOIN T_ORDER_CONTRACT c on d.order_id=c.id LEFT JOIN  T_CONTRACT t on c.CONTRACT_ID=t.id
+    left join T_CUSTOMER s on d.SUPPLIER_ID=s.id
     where  m.id=#{id} and m.DEL_FLAG=0
     </select>
+
+    <select id="getMIdsByDeliveryId" resultType="java.lang.Long" parameterType="java.lang.Long">
+        select id from T_ORDER_DELIVEMIDDLE where DELIVERY_ID=#{id} and del_flag=0
+    </select>
+
 </mapper>

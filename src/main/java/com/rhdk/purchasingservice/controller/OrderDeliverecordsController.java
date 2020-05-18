@@ -45,26 +45,26 @@ public class OrderDeliverecordsController {
     }
 
     @ApiOperation(value = "送货单详细查询", notes = "送货单API")
-    @RequestMapping(value = "/searchOrderDeliverecordsOne", method = RequestMethod.GET)
+    @RequestMapping(value = "/searchOrderDeliverecordsOne", method = RequestMethod.POST)
     public ResponseEnvelope searchOrderDeliverecordsOne(Long id) {
         return iOrderDeliverecordsService.searchOrderDeliverecordsOne(id);
     }
 
     @ApiOperation(value = "送货单添加", notes = "送货单API")
     @RequestMapping(value = "/addOrderDeliverecords", method = RequestMethod.POST)
-    public ResponseEnvelope addOrderDeliverecords(@RequestBody @Valid OrderDeliverecordsDTO dto) {
+    public ResponseEnvelope addOrderDeliverecords(@RequestBody @Valid OrderDeliverecordsDTO dto) throws Exception {
         return iOrderDeliverecordsService.addOrderDeliverecords(dto);
     }
 
     @ApiOperation(value = "送货单更新", notes = "送货单API")
     @RequestMapping(value = "/updateOrderDeliverecords", method = RequestMethod.POST)
-    public ResponseEnvelope updateOrderDeliverecords(@RequestBody OrderDeliverecordsDTO dto) {
+    public ResponseEnvelope updateOrderDeliverecords(@RequestBody OrderDeliverecordsDTO dto) throws Exception{
         return iOrderDeliverecordsService.updateOrderDeliverecords(dto);
     }
 
     @ApiOperation(value = "送货单删除", notes = "送货单API")
-    @RequestMapping(value = "/deleteOrderDeliverecords", method = RequestMethod.GET)
-    public ResponseEnvelope deleteOrderDeliverecords(Long id) {
+    @RequestMapping(value = "/deleteOrderDeliverecords", method = RequestMethod.POST)
+    public ResponseEnvelope deleteOrderDeliverecords(Long id) throws Exception{
         return iOrderDeliverecordsService.deleteOrderDeliverecords(id);
     }
 

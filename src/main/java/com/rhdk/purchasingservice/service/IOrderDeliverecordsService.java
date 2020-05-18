@@ -20,9 +20,9 @@ public interface IOrderDeliverecordsService extends IService<OrderDeliverecords>
 
      ResponseEnvelope searchOrderDeliverecordsOne(Long id);
 
-     ResponseEnvelope addOrderDeliverecords(OrderDeliverecordsDTO DTO);
+     ResponseEnvelope addOrderDeliverecords(OrderDeliverecordsDTO DTO) throws Exception;
 
-     ResponseEnvelope updateOrderDeliverecords(OrderDeliverecordsDTO DTO);
+     ResponseEnvelope updateOrderDeliverecords(OrderDeliverecordsDTO DTO) throws Exception;
 
-     ResponseEnvelope deleteOrderDeliverecords(Long id);
+     ResponseEnvelope deleteOrderDeliverecords(Long id) throws Exception;
 }

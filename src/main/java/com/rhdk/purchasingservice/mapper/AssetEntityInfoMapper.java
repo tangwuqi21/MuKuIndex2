@@ -20,4 +20,6 @@ public interface AssetEntityInfoMapper extends BaseMapper<AssetEntityInfo> {
     Integer deleteEntitys(@Param("detailAssetIds") List<Long> detailAssetIds);
 
     Integer updateEntityInfo(@Param("detailAssetIds") List<Long> detailAssetIds,@Param("dto") OrderDelivemiddleDTO model);
+
+    Integer updateEntitys(@Param("assetIds") List<Long> assetIds);
 }

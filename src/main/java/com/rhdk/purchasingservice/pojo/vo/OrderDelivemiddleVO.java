@@ -81,6 +81,8 @@ public class OrderDelivemiddleVO implements Serializable {
     private String deliveryName;
     @ApiModelProperty(value = "供应商id")
     private Long supplierId;
+    @ApiModelProperty(value = "供应商名称")
+    private String supplierName;
     @ApiModelProperty(value = "签收地址")
     private String signAddress;
     @ApiModelProperty(value = "合同编号")
@@ -89,6 +91,12 @@ public class OrderDelivemiddleVO implements Serializable {
     private String contractName;
     @ApiModelProperty(value = "合同类型")
     private Integer contractType;
+
+    /**
+     * 签收状态（签收状态，0-未签收，1-部分签收，2-已签收）
+     */
+    @ApiModelProperty(value = "签收状态")
+    private Integer signStatus;
 
 
     @ApiModelProperty(value = "送货明细附件")

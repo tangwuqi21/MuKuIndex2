@@ -6,6 +6,7 @@ import com.rhdk.purchasingservice.common.utils.*;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.feign.AssetServiceFeign;
 import com.rhdk.purchasingservice.pojo.dto.OrderDelivemiddleDTO;
+import com.rhdk.purchasingservice.pojo.dto.OrderDeliverecordsDTO;
 import com.rhdk.purchasingservice.pojo.query.OrderDelivemiddleQuery;
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -31,10 +32,7 @@ import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -66,14 +64,14 @@ public class OrderDelivemiddleController {
     }
 
     @ApiOperation(value = "送货记录明细中间表详细查询", notes = "送货记录明细中间表API")
-    @RequestMapping(value = "/searchOrderDelivemiddleOne", method = RequestMethod.GET)
+    @RequestMapping(value = "/searchOrderDelivemiddleOne", method = RequestMethod.POST)
     public ResponseEnvelope searchOrderDelivemiddleOne(Long id) {
         return iOrderDelivemiddleService.searchOrderDelivemiddleOne(id);
     }
 
     @ApiOperation(value = "送货记录明细中间表添加", notes = "送货记录明细中间表API")
     @RequestMapping(value = "/addOrderDelivemiddle", method = RequestMethod.POST)
-    public ResponseEnvelope addOrderDelivemiddle(@RequestBody OrderDelivemiddleDTO dto) {
+    public ResponseEnvelope addOrderDelivemiddle(@RequestBody OrderDelivemiddleDTO dto) throws Exception {
         return iOrderDelivemiddleService.addOrderDelivemiddle(dto);
     }
 
@@ -102,12 +100,16 @@ public class OrderDelivemiddleController {
             if (workbook == null) {
                 return ResultVOUtil.returnFail(ResultEnum.FILE_NOTNULL.getCode(), ResultEnum.FILE_NOTNULL.getMessage());
             }
-            //获取资产模板对应的表头信息
-            List<Map<String, Object>> titleMap = iOrderDelivemiddleService.getTitleList(moduleId);
+            //获取资产模板对应的个性表头信息
+            List<Map<String, Object>> titleMap = iOrderDelivemiddleService.getTitleMap(moduleId);
             //获取表头的下标
             Map<Integer, String> titleNameM = new HashMap<>();
-            for (Map<String, Object> model : titleMap) {
-                titleNameM.put(Integer.valueOf(model.get("PRPT_ORDER").toString()), model.get("NAME").toString());
+            List<Integer> collList=new ArrayList<>();
+            for (int conum=0;conum<titleMap.size();conum++) {
+                titleNameM.put(conum, titleMap.get(conum).get("NAME").toString());
+                if(titleMap.get(conum).get("PK_FLAG")!=null && Integer.valueOf(titleMap.get(conum).get("PK_FLAG").toString())==1){
+                    collList.add(conum);
+                }
             }
             Sheet sheet = workbook.getSheetAt(0);
             //当前sheet页面为空,继续遍历
@@ -134,21 +136,48 @@ public class OrderDelivemiddleController {
             // 2.检查是否存在空列值
             // 对于每个sheet，读取其中的每一行,从第二行开始读取
             resultMap.put("totalRow",sheet.getLastRowNum());
+            Set<String> collSet=new HashSet<String>();
+            boolean isRowNull = true;
+            boolean isCellNull = true;
+            boolean isDataT = true;
+            int rowNo=0;
+            String cellMsg="";
             for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
                 Row row = sheet.getRow(rowNum);
                 if (row == null) {
-                    continue;
+                    rowNo=rowNum+1;
+                    isRowNull = false;
+                    break;
                 }
                 //入库每条资产实体对应的属性值（个性化的，不是共有的,从第二列开始）
+                String collStr="";
                 for (int columnNum = 0; columnNum < row.getLastCellNum(); columnNum++) {
-                    if (StringUtils.isEmpty(ExcleUtils.getValue(row.getCell(columnNum), formulaEvaluator))) {
-                        isExcel = false;
+                  String cellValue=ExcleUtils.getValue(row.getCell(columnNum), formulaEvaluator);
+                    if (StringUtils.isEmpty(cellValue)) {
+                        isCellNull = false;
+                        cellMsg="第"+(rowNum+1)+"行，第"+(columnNum+1)+"列";
                         break;
                     }
+                    // 3.检查Excel中是否存在重复行，根据数据库中模板属性pk_flag取值
+                    if(collList.contains(columnNum)){
+                        collStr +=cellValue;
+                    }
+                }
+
+                if(!collSet.add(collStr)){
+                    isDataT = false;
+                    rowNo=rowNum+1;
+                    break;
                 }
             }
-            if (!isExcel) {
-                return ResultVOUtil.returnFail(ResultEnum.TEMPLATE_CELLNULL.getCode(), ResultEnum.TEMPLATE_CELLNULL.getMessage());
+            if (!isRowNull) {
+                return ResultVOUtil.returnFail(ResultEnum.TEMPLATE_CELLNULL.getCode(), "附件第"+rowNo+"行数据内容为空");
+            }
+            if (!isCellNull) {
+                return ResultVOUtil.returnFail(ResultEnum.TEMPLATE_CELLNULL.getCode(), "附件"+cellMsg+"数据内容为空");
+            }
+            if (!isDataT) {
+                return ResultVOUtil.returnFail(ResultEnum.TEMPLATE_ROWTWO.getCode(), "附件第"+rowNo+"行数据内容有重复");
             }
             //远程调用附件上传接口
             fileUrl = assetServiceFeign.uploadSingleFile(file, TokenUtil.getToken());
@@ -159,17 +188,16 @@ public class OrderDelivemiddleController {
         return ResultVOUtil.returnSuccess(resultMap);
     }
 
-    @ApiOperation(value = "送货记录明细中间表更新", notes = "送货记录明细中间表API")
-    @RequestMapping(value = "/updateOrderDelivemiddle", method = RequestMethod.POST)
-    public ResponseEnvelope updateOrderDelivemiddle(@RequestBody OrderDelivemiddleDTO dto) {
-        return iOrderDelivemiddleService.updateOrderDelivemiddle(dto);
+
+    @ApiOperation(value = "送货单明细更新", notes = "送货记录明细中间表API")
+    @RequestMapping(value = "/updateOrderMiddle", method = RequestMethod.POST)
+    public ResponseEnvelope updateOrderMiddle(@RequestBody OrderDelivemiddleDTO dto) throws Exception{
+        return iOrderDelivemiddleService.updateOrderMiddle(dto);
     }
 
-   /* @ApiOperation(value = "送货记录明细中间表删除", notes = "送货记录明细中间表API")
-    @RequestMapping(value = "/deleteOrderDelivemiddle", method = RequestMethod.GET)
-    public ResponseEnvelope deleteOrderDelivemiddle(Long id) {
-        return iOrderDelivemiddleService.deleteOrderDelivemiddle(id);
-    }*/
-
-
+    @ApiOperation(value = "送货明细删除", notes = "送货记录明细中间表API")
+    @RequestMapping(value = "/deleteOrderDetailrecords", method = RequestMethod.POST)
+    public ResponseEnvelope deleteOrderDetailrecords(Long id) throws Exception{
+        return iOrderDelivemiddleService.deleteOrderDetailrecords(id);
+    }
 }

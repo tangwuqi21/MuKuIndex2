@@ -105,6 +105,12 @@ public class OrderDelivemiddle extends Model<OrderDelivemiddle> {
     @TableField("REMARK")
     private String remark;
 
+    /**
+     * 逻辑删除（签收状态，0-未签收，1-部分签收，2-已签收）
+     */
+    @TableField("SIGN_STATUS")
+    private Integer signStatus;
+
 
     @Override
     protected Serializable pkVal() {
