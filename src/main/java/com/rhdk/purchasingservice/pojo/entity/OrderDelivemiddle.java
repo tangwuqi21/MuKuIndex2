@@ -52,20 +52,15 @@ public class OrderDelivemiddle extends Model<OrderDelivemiddle> {
     @TableField("MODULE_ID")
     private Long moduleId;
     /**
-     * 单位
+     * 属性id集合
      */
-    @TableField("ASSET_UNIT")
-    private Long assetUnit;
+    @TableField("PRPT_IDS")
+    private String prptIds;
     /**
      * 数量
      */
     @TableField("ASSET_NUMBER")
     private Long assetNumber;
-    /**
-     * 单价
-     */
-    @TableField("ASSET_PRICE")
-    private Long assetPrice;
     /**
      * 累计金额
      */

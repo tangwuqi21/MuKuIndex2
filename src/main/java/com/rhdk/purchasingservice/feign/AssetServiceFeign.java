@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 /**
  * @author: LMYOU
  * @create: 2020-04-28
- * @Description:
+ * @Description:经租系统，资产基础服务
  */
 @FeignClient(value = "${feignName.assetService}", fallback = FeignExecptionConfig.class)
 @Component

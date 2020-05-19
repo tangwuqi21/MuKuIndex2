@@ -22,7 +22,7 @@ public class MybatisGenerator {
   static String url = "jdbc:oracle:thin:@192.168.30.97:1521:helowin";
   static String username = "RHDK_SSO";
   static String password = "rhdk_sso";
-  static String[] tables = new String[] {"T_CUSTOMER"};
+  static String[] tables = new String[] {"T_ORDER_CONTRACT"};
   static String delete_falg = "DEL_FLAG";
 
   public static void main(String[] args) throws InterruptedException {
@@ -121,9 +121,10 @@ public class MybatisGenerator {
     //    TableFill gmtCreate = new TableFill("gmt_create", FieldFill.INSERT);
     TableFill gmtModified = new TableFill("UPDATE_DATE", FieldFill.UPDATE);
       TableFill createBy = new TableFill("CREATE_BY", FieldFill.INSERT);
+    TableFill createDate = new TableFill("CREATE_DATE", FieldFill.INSERT);
       TableFill updateBy = new TableFill("UPDATE_BY", FieldFill.UPDATE);
     ArrayList<TableFill> tableFills = new ArrayList<>();
-    //    tableFills.add(gmtCreate);
+    tableFills.add(createDate);
     tableFills.add(gmtModified);
     tableFills.add(createBy);
     tableFills.add(updateBy);

@@ -17,11 +17,13 @@ import java.util.List;
  */
 public interface CommonMapper extends BaseMapper<Customer> {
 
-    List<HashMap<String, Object>> getContractInfoList(@Param("contractName") String contractName);
-
     List<HashMap<String, Object>> getSupplyList(@Param("companyName") String companyName);
 
     List<HashMap<String, Object>> getAssetInfoList();
 
     List<Long> getIdsBySupplierName(@Param("companyName") String companyName);
+
+    List<HashMap<String, Object>> getCommonPrpts();
+
+    List<HashMap<String, Object>> getModulePrptsById(@Param("moduleId") Long moduleId);
 }

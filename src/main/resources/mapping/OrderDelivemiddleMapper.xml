@@ -9,9 +9,8 @@
         <result column="DELIVERYDETAIL_CODE" property="deliverydetailCode"/>
         <result column="SIGN_NO" property="signNo"/>
         <result column="MODULE_ID" property="moduleId"/>
-        <result column="ASSET_UNIT" property="assetUnit"/>
+        <result column="PRPT_IDS" property="prptIds"/>
         <result column="ASSET_NUMBER" property="assetNumber"/>
-        <result column="ASSET_PRICE" property="assetPrice"/>
         <result column="TOTAL_MONEY" property="totalMoney"/>
         <result column="DEL_FLAG" property="delFlag"/>
         <result column="CREATE_DATE" property="createDate"/>
@@ -24,7 +23,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        ID, DELIVERY_ID, DELIVERYDETAIL_CODE, SIGN_NO,SIGN_STATUS, MODULE_ID, ASSET_UNIT, ASSET_NUMBER, ASSET_PRICE, TOTAL_MONEY, DEL_FLAG, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY, REMARK
+        ID, DELIVERY_ID, DELIVERYDETAIL_CODE, SIGN_NO,SIGN_STATUS, MODULE_ID, PRPT_IDS, ASSET_NUMBER,TOTAL_MONEY, DEL_FLAG, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY, REMARK
          </sql>
 
     <select id="getTitleMap" resultType="hashmap" parameterType="java.lang.Long">

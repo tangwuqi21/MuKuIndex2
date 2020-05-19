@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rhdk.purchasingservice.mapper.PurcasingContractMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.rhdk.purchasingservice.pojo.entity.PurcasingContract">
+        <id column="ID" property="id"/>
+        <result column="CONTRACT_ID" property="contractId"/>
+        <result column="CONTRACT_COMPANY" property="contractCompany"/>
+        <result column="STATUS" property="status"/>
+        <result column="DSCP" property="dscp"/>
+        <result column="CREATE_BY" property="createBy"/>
+        <result column="CREATE_DATE" property="createDate"/>
+        <result column="UPDATE_BY" property="updateBy"/>
+        <result column="UPDATE_DATE" property="updateDate"/>
+        <result column="ORG_ID" property="orgId"/>
+        <result column="DEL_FLAG" property="delFlag"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ID, CONTRACT_ID, CONTRACT_COMPANY, STATUS, DSCP, CREATE_BY, CREATE_DATE, UPDATE_BY, UPDATE_DATE, ORG_ID, DEL_FLAG
+         </sql>
+
+
+</mapper>
