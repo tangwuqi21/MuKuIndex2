@@ -19,25 +19,9 @@ import java.io.Serializable;
 @Setter
 public class OrderDelivedetailQuery extends BaseDTO implements Serializable {
     private static final long serialVersionUID = 1L;
-    @ApiModelProperty(value = "自增id")
-    private Long id;
-
     @ApiModelProperty(value = "中间表id")
     private Long middleId;
 
-    @ApiModelProperty(value = "资产名称")
-    private String assetName;
-
-    @ApiModelProperty(value = "物料号")
-    private String itemNo;
-
-    @ApiModelProperty(value = "资产Id")
-    private Long assetId;
-
-    @ApiModelProperty(value = "数量（量化管理时必需）")
-    private Long assetNumber;
-
-    @ApiModelProperty(value = "单位")
-    private String assetUnit;
-
+    @ApiModelProperty(value = "资产模板id")
+    private Long moduleId;
 }
