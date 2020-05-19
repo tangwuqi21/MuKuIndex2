@@ -95,3 +95,11 @@ feign:
   hystrix:
     enabled: false
 
+igen-rpc:
+  server-name:
+    auth: IGEN-MCRSRV-AUTH_THRIFT
+    account: IGEN-MCRSRV-ACC_THRIFT
+
+feignName:
+  assetService: assetService-local
+  inventoryService: INVENTORY-SERVICE-local

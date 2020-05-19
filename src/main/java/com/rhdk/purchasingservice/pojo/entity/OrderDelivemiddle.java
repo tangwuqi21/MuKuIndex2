@@ -76,7 +76,6 @@ public class OrderDelivemiddle extends Model<OrderDelivemiddle> {
      * 创建时间
      */
     @TableField(value = "CREATE_DATE", fill = FieldFill.INSERT)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createDate;
     /**
      * 创建人
@@ -87,7 +86,6 @@ public class OrderDelivemiddle extends Model<OrderDelivemiddle> {
      * 修改时间
      */
     @TableField(value = "UPDATE_DATE", fill = FieldFill.UPDATE)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date updateDate;
     /**
      * 修改人

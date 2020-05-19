@@ -57,7 +57,6 @@ public class OrderAttachment extends Model<OrderAttachment> {
      * 创建日期
      */
     @TableField(value="CREATE_DATE", fill = FieldFill.INSERT)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createDate;
     /**
      * 创建人
@@ -65,7 +64,6 @@ public class OrderAttachment extends Model<OrderAttachment> {
     @TableField(value = "CREATE_BY", fill = FieldFill.INSERT)
     private Long createBy;
     @TableField(value = "UPDATE_DATE", fill = FieldFill.UPDATE)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date updateDate;
     @TableField(value = "UPDATE_BY", fill = FieldFill.UPDATE)
     private Long updateBy;

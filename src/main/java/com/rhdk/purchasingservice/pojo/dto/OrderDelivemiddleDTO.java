@@ -62,4 +62,10 @@ public class OrderDelivemiddleDTO implements Serializable {
     @ApiModelProperty(value = "资产类别Id")
     private Long assetCatId;
 
+    /**
+     * 签收状态（签收状态，0-未签收，1-部分签收，2-已签收）
+     */
+    @ApiModelProperty(value = "签收状态")
+    private Integer signStatus;
+
 }

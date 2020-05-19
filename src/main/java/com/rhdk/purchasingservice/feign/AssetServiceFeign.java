@@ -1,6 +1,8 @@
 package com.rhdk.purchasingservice.feign;
 
 import com.rhdk.purchasingservice.common.config.FeignExecptionConfig;
+import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
+import com.rhdk.purchasingservice.pojo.query.AssetQuery;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -20,4 +22,7 @@ import javax.validation.constraints.NotNull;
 public interface AssetServiceFeign {
     @RequestMapping(value = "/fileUploadService/uploadSingleFile", method = RequestMethod.POST)
     String uploadSingleFile(@NotNull MultipartFile file, @RequestHeader(value = "Authorization") String token);
+
+    @RequestMapping(value = "/assetEntityInfo/searchEntityInfoPage", method = RequestMethod.POST)
+    ResponseEnvelope searchEntityInfoPage(@NotNull AssetQuery assetQuery, @RequestHeader(value = "Authorization") String token);
 }

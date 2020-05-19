@@ -67,7 +67,6 @@ public class Customer extends Model<Customer> {
      * 创建日期
      */
     @TableField(value ="CREATE_DATE",fill = FieldFill.INSERT)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createDate;
     /**
      * 修改人
@@ -78,7 +77,6 @@ public class Customer extends Model<Customer> {
      * 修改日期
      */
     @TableField(value = "UPDATE_DATE", fill = FieldFill.UPDATE)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date updateDate;
     /**
      * 逻辑删除（0:正常 1:删除）

@@ -52,7 +52,6 @@ public class OrderDeliverecords extends Model<OrderDeliverecords> {
      * 单据日期
      */
     @TableField("DELIVERY_DATE")
-    @JsonFormat(pattern = "yyyy-MM-dd",timezone="GMT+8")
     private Date deliveryDate;
     /**
      * 供应商id
@@ -84,7 +83,6 @@ public class OrderDeliverecords extends Model<OrderDeliverecords> {
      * 创建日期
      */
     @TableField(value = "CREATE_DATE", fill = FieldFill.INSERT)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createDate;
     /**
      * 修改人
