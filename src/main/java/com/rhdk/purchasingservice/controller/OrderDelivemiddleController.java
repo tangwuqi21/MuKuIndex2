@@ -2,6 +2,7 @@ package com.rhdk.purchasingservice.controller;
 
 
 import com.rhdk.purchasingservice.common.enums.ResultEnum;
+import com.rhdk.purchasingservice.common.exception.RequestEmptyException;
 import com.rhdk.purchasingservice.common.utils.*;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.feign.AssetServiceFeign;
@@ -12,6 +13,9 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,9 +31,11 @@ import com.rhdk.purchasingservice.service.IOrderDelivemiddleService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
@@ -52,8 +58,12 @@ public class OrderDelivemiddleController {
     @Autowired
     private IOrderDelivemiddleService iOrderDelivemiddleService;
 
-    @Autowired
-    private AssetServiceFeign assetServiceFeign;
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(OrderDelivemiddleController.class);
+
+    @Resource
+    private Environment env;
+
+    private String folder;
 
 
     @ApiOperation(value = "送货记录明细中间表列表分页查询", notes = "送货记录明细中间表API")
@@ -191,7 +201,7 @@ public class OrderDelivemiddleController {
                 return ResultVOUtil.returnFail(ResultEnum.TEMPLATE_ROWTWO.getCode(), "附件第"+rowNo+"行数据内容有重复");
             }
             //远程调用附件上传接口
-            fileUrl = assetServiceFeign.uploadSingleFile(file, TokenUtil.getToken());
+            fileUrl = createFile(file);
             resultMap.put("unitValue",unitValue);
             resultMap.put("priceValue",priceValue);
             resultMap.put("fileUrl",fileUrl);
@@ -212,5 +222,29 @@ public class OrderDelivemiddleController {
     @RequestMapping(value = "/deleteOrderDetailrecords", method = RequestMethod.POST)
     public ResponseEnvelope deleteOrderDetailrecords(Long id) throws Exception{
         return iOrderDelivemiddleService.deleteOrderDetailrecords(id);
+    }
+
+    public String createFile(MultipartFile file){
+        logger.info("上传附件名: {}", file.getOriginalFilename());
+        Long userId = TokenUtil.getUserInfo().getUserId();
+        //上传附件到指定的文件地址
+        folder = env.getProperty("upload.path") + userId;
+        if (ObjectUtils.isEmpty(file)) {
+            throw new RequestEmptyException("上传的附件为空");
+        }
+        String certificateFile = null;
+        try {
+            certificateFile = file.getOriginalFilename();
+            String cert = FileUtil.getExtensionName(certificateFile);
+            //获取文件扩展名
+            certificateFile = folder + '/' + System.currentTimeMillis() + "." + cert;
+            File localFile = new File(certificateFile);
+            FileUtil.createFile(localFile, FileUtil.getSysName(System.getProperties().getProperty("os.name")));
+            file.transferTo(localFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+            logger.error("上传附件错误");
+        }
+        return certificateFile;
     }
 }
