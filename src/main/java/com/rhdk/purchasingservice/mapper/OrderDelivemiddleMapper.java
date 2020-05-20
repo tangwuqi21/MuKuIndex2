@@ -26,4 +26,6 @@ public interface OrderDelivemiddleMapper extends BaseMapper<OrderDelivemiddle> {
         Map<String, Object> getContractInfoByMId(@Param("id") Long id);
 
         List<Long> getMIdsByDeliveryId(@Param("id") Long id);
+
+        List<String> getAssetPrptValue(@Param("assetIds") String[] assetIds);
 }

@@ -7,14 +7,18 @@ import com.rhdk.purchasingservice.common.enums.ResultEnum;
 import com.rhdk.purchasingservice.common.utils.BeanCopyUtil;
 import com.rhdk.purchasingservice.common.utils.ExcleUtils;
 import com.rhdk.purchasingservice.common.utils.ResultVOUtil;
+import com.rhdk.purchasingservice.common.utils.TokenUtil;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.controller.OrderDelivemiddleController;
+import com.rhdk.purchasingservice.feign.AssetServiceFeign;
 import com.rhdk.purchasingservice.mapper.*;
 import com.rhdk.purchasingservice.pojo.entity.*;
 import com.rhdk.purchasingservice.pojo.dto.OrderDelivemiddleDTO;
+import com.rhdk.purchasingservice.pojo.query.AssetQuery;
 import com.rhdk.purchasingservice.pojo.query.OrderDelivemiddleQuery;
 import com.rhdk.purchasingservice.pojo.vo.OrderDelivemiddleVO;
 import com.rhdk.purchasingservice.service.IOrderDelivemiddleService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
@@ -25,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -71,6 +74,9 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
     @Autowired
     private CommonMapper commonMapper;
 
+    @Autowired
+    private AssetServiceFeign assetServiceFeign;
+
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(OrderDelivemiddleServiceImpl.class);
 
 
@@ -92,6 +98,11 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
         List<OrderDelivemiddle> resultList = page.getRecords();
         List<OrderDelivemiddleVO> orderDelivemiddleVOList = resultList.stream().map(a -> {
             Map<String, Object> billInfoMap = orderDelivemiddleMapper.getContractInfoByMId(a.getId());
+            AssetQuery assetQuery=new AssetQuery();
+            assetQuery.setAssetTempId(a.getModuleId());
+            assetQuery.setPrptIds(a.getPrptIds());
+            List<String> assetValue= (List<String>) assetServiceFeign.searchValByPrptIds(assetQuery, TokenUtil.getToken()).getData();
+            String assetValueStr= StringUtils.join(assetValue.toArray(), ",");
             OrderDelivemiddleVO model = OrderDelivemiddleVO.builder()
                     .attachmentList(orderAttachmentMapper.selectListByParentId(a.getId(), 3))
                     .deliveryCode(billInfoMap.get("deliveryCode").toString()).deliveryName(billInfoMap.get("deliveryName").toString())
@@ -99,6 +110,7 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
                     .supplierName(billInfoMap.get("custName").toString())
                     .contractCode(billInfoMap.get("contractCode").toString()).contractName(billInfoMap.get("contractName").toString())
                     .contractType(Integer.valueOf(billInfoMap.get("contractType").toString()))
+                    .prptValues(assetValueStr)
                     .build();
             BeanCopyUtil.copyPropertiesIgnoreNull(a, model);
             return model;

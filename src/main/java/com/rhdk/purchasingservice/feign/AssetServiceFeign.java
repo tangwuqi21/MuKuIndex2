@@ -23,6 +23,22 @@ public interface AssetServiceFeign {
     @RequestMapping(value = "/fileUploadService/uploadSingleFile", method = RequestMethod.POST)
     String uploadSingleFile(@NotNull MultipartFile file, @RequestHeader(value = "Authorization") String token);
 
+    /**
+     * 获取送货明细清单数据
+     * @param assetQuery
+     * @param token
+     * @return
+     */
     @RequestMapping(value = "/assetservice/assetEntityInfo/searchEntityInfoList", method = RequestMethod.POST)
     ResponseEnvelope searchEntityInfoPage(@NotNull AssetQuery assetQuery, @RequestHeader(value = "Authorization") String token);
+
+    /**
+     * 获取固有属性值
+     * @param assetQuery
+     * @param token
+     * @return
+     */
+    @RequestMapping(value = "/assetservice/assetTmplPrpts/searchValByPrptIds", method = RequestMethod.POST)
+    ResponseEnvelope searchValByPrptIds(@NotNull AssetQuery assetQuery, @RequestHeader(value = "Authorization") String token);
+
 }
