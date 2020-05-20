@@ -101,5 +101,5 @@ igen-rpc:
     account: IGEN-MCRSRV-ACC_THRIFT
 
 feignName:
-  assetService: assetService-local
+  assetService: ASSETSERVICE-LOCAL-YLM
   inventoryService: INVENTORY-SERVICE-local

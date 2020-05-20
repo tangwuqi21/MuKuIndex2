@@ -9,6 +9,7 @@ import com.rhdk.purchasingservice.common.utils.TokenUtil;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.feign.AssetServiceFeign;
 import com.rhdk.purchasingservice.mapper.OrderDelivedetailMapper;
+import com.rhdk.purchasingservice.mapper.OrderDelivemiddleMapper;
 import com.rhdk.purchasingservice.pojo.dto.OrderDelivedetailDTO;
 import com.rhdk.purchasingservice.pojo.entity.OrderDelivedetail;
 import com.rhdk.purchasingservice.pojo.entity.OrderDelivemiddle;
@@ -25,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -45,6 +47,9 @@ public class OrderDelivedetailServiceImpl extends ServiceImpl<OrderDelivedetailM
     private OrderDelivedetailMapper orderDelivedetailMapper;
 
     @Autowired
+    private OrderDelivemiddleMapper orderDelivemiddleMapper;
+
+    @Autowired
     private AssetServiceFeign assetServiceFeign;
 
     @Override
@@ -56,28 +61,27 @@ public class OrderDelivedetailServiceImpl extends ServiceImpl<OrderDelivedetailM
         OrderDelivedetail entity = new OrderDelivedetail();
         entity.setMiddleId(dto.getMiddleId());
         queryWrapper.setEntity(entity);
+        Map<String, Object> billInfoMap = orderDelivemiddleMapper.getContractInfoByMId(dto.getMiddleId());
         page = orderDelivedetailMapper.selectPage(page, queryWrapper);
         List<OrderDelivedetail> resultList = page.getRecords();
         List<Long> assetIds = new ArrayList<>();
-        List<OrderDelivedetailVO> orderDelivemiddleVOList = resultList.stream().map(a -> {
+        for(OrderDelivedetail a:resultList){
             assetIds.add(a.getAssetId());
-            OrderDelivedetailVO model = OrderDelivedetailVO.builder().build();
-            BeanCopyUtil.copyPropertiesIgnoreNull(a, model);
-            return model;
-        }).collect(Collectors.toList());
+        }
         //fegin调用资产服务，获取明细表格数据
         AssetQuery assetQuery=new AssetQuery();
         assetQuery.setAssetIds(assetIds);
         assetQuery.setAssetTemplId(dto.getModuleId());
-        ResponseEnvelope result= assetServiceFeign.searchEntityInfoPage(assetQuery, TokenUtil.getToken());
-        //HashMap<String,Object> titleMap=result.getData();
-        Page<OrderDelivedetailVO> page2 = new Page<OrderDelivedetailVO>();
-        page2.setRecords(orderDelivemiddleVOList);
-        page2.setSize(page.getSize());
-        page2.setCurrent(page.getCurrent());
-        page2.setTotal(page.getTotal());
-        page2.setOrders(page.getOrders());
-        return ResultVOUtil.returnSuccess();
+        Map<String, List<Object>> map = (Map<String, List<Object>>) assetServiceFeign.searchEntityInfoPage(assetQuery, TokenUtil.getToken()).getData();
+        Page pageResult = new Page<>();
+        pageResult.setRecords(map.get("content"));
+        pageResult.setSize(page.getSize());
+        pageResult.setTotal(page.getTotal());
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("content", pageResult);
+        resultMap.put("title", map.get("title"));
+        resultMap.put("contractInfo", billInfoMap);
+        return ResultVOUtil.returnSuccess(resultMap);
     }
 
     @Override
