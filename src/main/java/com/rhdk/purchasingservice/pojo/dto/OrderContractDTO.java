@@ -27,7 +27,7 @@ public class OrderContractDTO  implements Serializable {
     @NotNull(message = "单据日期不能为空")
     private Date contractDate;
 
-    @ApiModelProperty(value = "单据编码")
+    @ApiModelProperty(value = "单据编码",hidden = true)
     @NotNull(message = "单据编码不能为空")
     private String contractCode;
 

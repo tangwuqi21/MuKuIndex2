@@ -17,4 +17,13 @@ public class NumberUtils {
     Double accuracy_num = num / totle * 100;
     return df.format(accuracy_num) + "%";
   }
+
+  /**
+   * 生成业务编码
+   * @param type
+   * @return
+   */
+  public static String createCode(String type){
+    return type+System.currentTimeMillis();
+  }
 }

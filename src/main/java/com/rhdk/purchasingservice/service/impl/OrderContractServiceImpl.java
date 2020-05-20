@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.igen.acc.domain.dto.OrgUserDto;
 import com.rhdk.purchasingservice.common.enums.ResultEnum;
 import com.rhdk.purchasingservice.common.utils.BeanCopyUtil;
+import com.rhdk.purchasingservice.common.utils.NumberUtils;
 import com.rhdk.purchasingservice.common.utils.ResultVOUtil;
 import com.rhdk.purchasingservice.common.utils.TokenUtil;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
@@ -27,10 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -124,6 +122,9 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
             BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
             logger.info("addContract-添加合同主体信息开始");
             entity.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
+            //这里自动生成合同业务编码，规则为：HT+时间戳
+            String code= NumberUtils.createCode("HT");
+            entity.setContractCode(code);
             orderContractMapper.insert(entity);
             logger.info("addContract-添加合同主体信息结束");
             //合同主体添加成功，进行上传文件的记录保存，并关联到对应合同主体

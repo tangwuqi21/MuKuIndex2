@@ -5,10 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.igen.acc.domain.dto.OrgUserDto;
 import com.rhdk.purchasingservice.common.enums.ResultEnum;
-import com.rhdk.purchasingservice.common.utils.BeanCopyUtil;
-import com.rhdk.purchasingservice.common.utils.ExcleUtils;
-import com.rhdk.purchasingservice.common.utils.ResultVOUtil;
-import com.rhdk.purchasingservice.common.utils.TokenUtil;
+import com.rhdk.purchasingservice.common.utils.*;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.mapper.*;
 import com.rhdk.purchasingservice.pojo.dto.OrderAttachmentDTO;
@@ -163,6 +160,9 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
         OrderDeliverecords entity = new OrderDeliverecords();
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
         entity.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
+        //这里自动生成送货记录业务编码，规则为：SH+时间戳
+        String code= NumberUtils.createCode("SH");
+        entity.setDeliveryCode(code);
         orderDeliverecordsMapper.insert(entity);
         //保存送货记录附件信息
         if (CollectionUtils.isEmpty(dto.getAttachmentList())) {
