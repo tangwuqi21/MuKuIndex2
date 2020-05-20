@@ -27,5 +27,5 @@ public interface OrderDelivemiddleMapper extends BaseMapper<OrderDelivemiddle> {
 
         List<Long> getMIdsByDeliveryId(@Param("id") Long id);
 
-        List<String> getAssetPrptValue(@Param("assetIds") String[] assetIds);
+        List<Integer> getSignStatus(@Param("id") Long id);
 }
