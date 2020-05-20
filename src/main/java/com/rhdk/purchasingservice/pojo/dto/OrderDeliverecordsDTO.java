@@ -29,7 +29,6 @@ public class OrderDeliverecordsDTO implements Serializable {
     private Date deliveryDate;
 
     @ApiModelProperty(value = "单据编码")
-    @NotNull(message = "单据编码不能为空")
     private String deliveryCode;
 
     @ApiModelProperty(value = "送货记录名称")
