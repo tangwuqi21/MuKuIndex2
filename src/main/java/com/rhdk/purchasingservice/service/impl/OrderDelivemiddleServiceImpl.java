@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.rhdk.purchasingservice.common.enums.ResultEnum;
-import com.rhdk.purchasingservice.common.utils.BeanCopyUtil;
-import com.rhdk.purchasingservice.common.utils.ExcleUtils;
-import com.rhdk.purchasingservice.common.utils.ResultVOUtil;
-import com.rhdk.purchasingservice.common.utils.TokenUtil;
+import com.rhdk.purchasingservice.common.utils.*;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.controller.OrderDelivemiddleController;
 import com.rhdk.purchasingservice.feign.AssetServiceFeign;
@@ -144,6 +141,9 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
     public ResponseEnvelope addOrderDelivemiddle(OrderDelivemiddleDTO dto) throws Exception {
         OrderDelivemiddle entity = new OrderDelivemiddle();
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
+        //这里自动生成送货明细业务编码，规则为：SHD+时间戳
+        String code= NumberUtils.createCode("SHD");
+        entity.setDeliverydetailCode(code);
         orderDelivemiddleMapper.insert(entity);
         //获取资产模板所有的属性信息
         List<Map<String, Object>> titleMap = orderDelivemiddleMapper.getTitleList(dto.getModuleId());
@@ -210,6 +210,7 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
                     entityInfo.setAssetTemplVer(dto.getModuleVersion());
                     entityInfo.setItemNo(dto.getItemNO());
                     entityInfo.setAssetStatus(0L);
+                    entityInfo.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
                     if (titleNameM.get("名称") != null) {
                         Cell cell = row.getCell(titleNameM.get("名称"));
                         entityInfo.setName(ExcleUtils.getValue(cell, formulaEvaluator));
