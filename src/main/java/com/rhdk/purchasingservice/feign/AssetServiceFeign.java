@@ -23,6 +23,6 @@ public interface AssetServiceFeign {
     @RequestMapping(value = "/fileUploadService/uploadSingleFile", method = RequestMethod.POST)
     String uploadSingleFile(@NotNull MultipartFile file, @RequestHeader(value = "Authorization") String token);
 
-    @RequestMapping(value = "/assetEntityInfo/searchEntityInfoPage", method = RequestMethod.POST)
+    @RequestMapping(value = "/assetservice/assetEntityInfo/searchEntityInfoList", method = RequestMethod.POST)
     ResponseEnvelope searchEntityInfoPage(@NotNull AssetQuery assetQuery, @RequestHeader(value = "Authorization") String token);
 }

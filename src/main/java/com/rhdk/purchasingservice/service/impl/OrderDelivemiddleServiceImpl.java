@@ -8,6 +8,7 @@ import com.rhdk.purchasingservice.common.utils.BeanCopyUtil;
 import com.rhdk.purchasingservice.common.utils.ExcleUtils;
 import com.rhdk.purchasingservice.common.utils.ResultVOUtil;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
+import com.rhdk.purchasingservice.controller.OrderDelivemiddleController;
 import com.rhdk.purchasingservice.mapper.*;
 import com.rhdk.purchasingservice.pojo.entity.*;
 import com.rhdk.purchasingservice.pojo.dto.OrderDelivemiddleDTO;
@@ -19,6 +20,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,6 +70,9 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
 
     @Autowired
     private CommonMapper commonMapper;
+
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(OrderDelivemiddleServiceImpl.class);
+
 
     @Override
     public ResponseEnvelope searchOrderDelivemiddleListPage(OrderDelivemiddleQuery dto) {
@@ -171,7 +176,7 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
             }
             //判断excel文件打开是否正确
             if (workbook == null) {
-                System.err.println("未读取到内容,请检查路径！");
+                logger.info("未读取到内容,请检查路径！");
             }
             //遍历工作簿中的sheet
             for (int numSheet = 0; numSheet < workbook.getNumberOfSheets(); numSheet++) {
