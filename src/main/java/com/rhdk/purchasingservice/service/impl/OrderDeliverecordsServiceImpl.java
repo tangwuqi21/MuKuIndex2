@@ -95,35 +95,36 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
         queryWrapper.setEntity(entity);
         page = orderDeliverecordsMapper.selectPage(page, queryWrapper);
-        Map<Integer,String> supplierMap=new HashMap<>();
-        List<HashMap<String, Object>> resultMap= (List<HashMap<String, Object>>) assetServiceFeign.getSupplyList(null,TokenUtil.getToken()).getData();
-        for(HashMap<String, Object> model:resultMap){
-            supplierMap.put(Integer.valueOf(model.get("id").toString()),model.get("custName").toString());
+        Map<Integer, String> supplierMap = new HashMap<>();
+        List<HashMap<String, Object>> resultMap = (List<HashMap<String, Object>>) assetServiceFeign.getSupplyList(null, TokenUtil.getToken()).getData();
+        for (HashMap<String, Object> model : resultMap) {
+            supplierMap.put(Integer.valueOf(model.get("id").toString()), model.get("custName").toString());
         }
         //获取源单信息，获取附件列表信息
         List<OrderDeliverecords> resultList = page.getRecords();
         List<OrderDeliverecordsVO> orderDeliverecordsVOList = resultList.stream().map(a -> {
             OrderContractVO orderContract = orderContractMapper.selectContractById(a.getOrderId());
             OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
-            List<Integer> signStatList=orderDelivemiddleMapper.getSignStatus(a.getId());
-            Integer status=0;
-            if(signStatList.size()==1 && signStatList.contains(0)){
-                status=0;
-            }else if(signStatList.size()==1 && signStatList.contains(2))
-            {
-                status=2;
-            }else if(signStatList.size()>=1){
-                status=1;
+            List<Integer> signStatList = orderDelivemiddleMapper.getSignStatus(a.getId());
+            Integer status = 0;
+            if (signStatList.size() == 1 && signStatList.contains(0)) {
+                status = 0;
+            } else if (signStatList.size() == 1 && signStatList.contains(2)) {
+                status = 2;
+            } else if (signStatList.size() >= 1) {
+                status = 1;
             }
             OrderDeliverecordsVO orderDeliverecordsVO = OrderDeliverecordsVO.builder()
-                    .contractCode(orderContract.getContractCode())
-                    .contractName(orderContract.getContractName())
-                    .contractType(orderContract.getContractType())
                     .supplierName(supplierMap.get(a.getSupplierId()))
                     .signStatus(status)
                     .attachmentList(orderAttachmentMapper.selectListByParentId(a.getId(), 2))
                     .createName(userDto.getUserInfo().getName()).deptName(userDto.getGroupName())
                     .build();
+            if (orderContract != null) {
+                orderDeliverecordsVO.setContractType(orderContract.getContractType());
+                orderDeliverecordsVO.setContractCode(orderContract.getContractCode());
+                orderDeliverecordsVO.setContractName(orderContract.getContractName());
+            }
             BeanCopyUtil.copyPropertiesIgnoreNull(a, orderDeliverecordsVO);
             return orderDeliverecordsVO;
         }).collect(Collectors.toList());
@@ -142,20 +143,21 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
         OrderDeliverecordsVO orderDeliverecordsVO = new OrderDeliverecordsVO();
         OrderContractVO orderContract = orderContractMapper.selectContractById(entity.getOrderId());
         OrgUserDto userDto = commonService.getOrgUserById(entity.getOrgId(), entity.getCreateBy());
-        List<Integer> signStatList=orderDelivemiddleMapper.getSignStatus(id);
-        Integer status=0;
-        if(signStatList.size()==1 && signStatList.contains(0)){
-            status=0;
-        }else if(signStatList.size()==1 && signStatList.contains(2))
-        {
-            status=2;
-        }else if(signStatList.size()>=1){
-            status=1;
+        List<Integer> signStatList = orderDelivemiddleMapper.getSignStatus(id);
+        Integer status = 0;
+        if (signStatList.size() == 1 && signStatList.contains(0)) {
+            status = 0;
+        } else if (signStatList.size() == 1 && signStatList.contains(2)) {
+            status = 2;
+        } else if (signStatList.size() >= 1) {
+            status = 1;
         }
         BeanCopyUtil.copyPropertiesIgnoreNull(entity, orderDeliverecordsVO);
-        orderDeliverecordsVO.setContractCode(orderContract.getContractCode());
-        orderDeliverecordsVO.setContractName(orderContract.getContractName());
-        orderDeliverecordsVO.setContractType(orderContract.getContractType());
+        if (orderContract != null) {
+            orderDeliverecordsVO.setContractCode(orderContract.getContractCode());
+            orderDeliverecordsVO.setContractName(orderContract.getContractName());
+            orderDeliverecordsVO.setContractType(orderContract.getContractType());
+        }
         orderDeliverecordsVO.setCreateName(userDto.getUserInfo().getName());
         orderDeliverecordsVO.setDeptName(userDto.getGroupName());
         orderDeliverecordsVO.setSignStatus(status);
@@ -178,8 +180,8 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
         entity.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
         //这里自动生成送货记录业务编码，规则为：SH+时间戳
-        if(StringUtils.isEmpty(entity.getDeliveryCode())){
-            String code= NumberUtils.createCode("SH");
+        if (StringUtils.isEmpty(entity.getDeliveryCode())) {
+            String code = NumberUtils.createCode("SH");
             entity.setDeliveryCode(code);
         }
         orderDeliverecordsMapper.insert(entity);
@@ -213,7 +215,7 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ResponseEnvelope updateOrderDeliverecords(OrderDeliverecordsDTO dto) throws Exception {
-        if(StringUtils.isEmpty(dto.getId())){
+        if (StringUtils.isEmpty(dto.getId())) {
             return ResultVOUtil.returnFail(ResultEnum.ID_NOTNULL.getCode(), ResultEnum.ID_NOTNULL.getMessage());
         }
         OrderDeliverecords entity = this.selectOne(dto.getId());
@@ -226,7 +228,7 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
             return ResultVOUtil.returnFail(ResultEnum.FILE_NOTNULL.getCode(), ResultEnum.FILE_NOTNULL.getMessage());
         }
         for (OrderAttachmentDTO model : dto.getAttachmentList()) {
-            if(StringUtils.isEmpty(model.getId())){
+            if (StringUtils.isEmpty(model.getId())) {
                 return ResultVOUtil.returnFail(ResultEnum.ID_NOTNULL.getCode(), ResultEnum.ID_NOTNULL.getMessage());
             }
             OrderAttachment orderAttachment = new OrderAttachment();
@@ -238,7 +240,7 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
         //更新中间表相关字段
         if (dto.getOrderDelivemiddleDTOList().size() > 0) {
             for (OrderDelivemiddleDTO model : dto.getOrderDelivemiddleDTOList()) {
-                if(StringUtils.isEmpty(model.getId())){
+                if (StringUtils.isEmpty(model.getId())) {
                     return ResultVOUtil.returnFail(ResultEnum.ID_NOTNULL.getCode(), ResultEnum.ID_NOTNULL.getMessage());
                 }
                 OrderDelivemiddle orderDelivemiddle = new OrderDelivemiddle();
@@ -259,9 +261,9 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
                                 //通过明细中间表找到明细表，通过明细表，去到资产实体表中进行之前的数据删除，然后删除明细中间表的数据
                                 List<Long> detailAssetIds = orderDelivedetailMapper.getAssetIds(model.getId());
                                 //删除资产实体表相关信息
-                                assetServiceFeign.deleteEntitys(detailAssetIds,TokenUtil.getToken());
+                                assetServiceFeign.deleteEntitys(detailAssetIds, TokenUtil.getToken());
                                 //删除资产实体属性值表
-                                assetServiceFeign.deleteEntityPrpts(detailAssetIds,TokenUtil.getToken());
+                                assetServiceFeign.deleteEntityPrpts(detailAssetIds, TokenUtil.getToken());
                                 //删除明细表的数据
                                 orderDelivedetailMapper.deleteDeliveDetails(detailAssetIds);
                                 //解析新的模板并进行数据的入库（入库到资产实体表，资产实体属性值表，送货明细表）
@@ -279,16 +281,16 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
                         //量管的资产，更新明细表和资产实体表中的数量
                         List<Long> detailAssetIds = orderDelivedetailMapper.getAssetIds(model.getId());
                         orderDelivedetailMapper.updateDetails(detailAssetIds, model);
-                        assetServiceFeign.updateEntityInfo(detailAssetIds, model,TokenUtil.getToken());
+                        assetServiceFeign.updateEntityInfo(detailAssetIds, model, TokenUtil.getToken());
                     }
                 } else {
                     //切换了资产模板，需要清空之前的资产明细数据并重新解析Excel表格进行数据的上传
                     //通过明细中间表找到明细表，通过明细表，去到资产实体表中进行之前的数据删除，然后删除明细中间表的数据
                     List<Long> detailAssetIds = orderDelivedetailMapper.getAssetIds(model.getId());
                     //删除资产实体表相关信息
-                    assetServiceFeign.deleteEntitys(detailAssetIds,TokenUtil.getToken());
+                    assetServiceFeign.deleteEntitys(detailAssetIds, TokenUtil.getToken());
                     //删除资产实体属性值表
-                    assetServiceFeign.deleteEntityPrpts(detailAssetIds,TokenUtil.getToken());
+                    assetServiceFeign.deleteEntityPrpts(detailAssetIds, TokenUtil.getToken());
                     //删除明细表的数据
                     orderDelivedetailMapper.deleteDeliveDetails(detailAssetIds);
                     //解析新的模板并进行数据的入库（入库到资产实体表，资产实体属性值表，送货明细表）
@@ -384,7 +386,7 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
                     entityInfo.setName(ExcleUtils.getValue(cell, formulaEvaluator));
                 }
                 //1.入库资产实体表信息
-                entityInfo=assetServiceFeign.addAssetEntityInfo(entityInfo,TokenUtil.getToken()).getData();
+                entityInfo = assetServiceFeign.addAssetEntityInfo(entityInfo, TokenUtil.getToken()).getData();
                 //入库每条资产实体对应的属性值（每个属性都需要入到资产属性值表中）
                 for (Map<String, Object> model : titleMap) {
                     //存储个性+共性的属性
@@ -400,7 +402,7 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
                     }
                     assetEntityPrpt.setCode(model.get("CODE").toString());
                     //2.入库到资产实体属性值表中
-                    assetEntityPrpt=assetServiceFeign.addAssetEntityPrpt(assetEntityPrpt,TokenUtil.getToken()).getData();
+                    assetEntityPrpt = assetServiceFeign.addAssetEntityPrpt(assetEntityPrpt, TokenUtil.getToken()).getData();
                 }
                 //3.这里进行送货记录的详细表中入库
                 OrderDelivedetail orderDelivedetail = new OrderDelivedetail();

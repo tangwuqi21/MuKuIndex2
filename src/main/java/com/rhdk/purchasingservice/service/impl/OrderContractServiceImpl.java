@@ -13,10 +13,12 @@ import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.controller.OrderContractController;
 import com.rhdk.purchasingservice.mapper.OrderAttachmentMapper;
 import com.rhdk.purchasingservice.mapper.OrderContractMapper;
+import com.rhdk.purchasingservice.mapper.PurcasingContractMapper;
 import com.rhdk.purchasingservice.pojo.dto.OrderAttachmentDTO;
 import com.rhdk.purchasingservice.pojo.dto.OrderContractDTO;
 import com.rhdk.purchasingservice.pojo.entity.OrderAttachment;
 import com.rhdk.purchasingservice.pojo.entity.OrderContract;
+import com.rhdk.purchasingservice.pojo.entity.PurcasingContract;
 import com.rhdk.purchasingservice.pojo.query.OrderContractQuery;
 import com.rhdk.purchasingservice.pojo.vo.OrderContractVO;
 import com.rhdk.purchasingservice.service.CommonService;
@@ -28,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,6 +59,9 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
 
     @Autowired
     private OrderAttachmentMapper orderAttachmentMapper;
+
+    @Autowired
+    private PurcasingContractMapper purcasingContractMapper;
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(OrderContractController.class);
 
@@ -123,7 +129,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
             logger.info("addContract-添加合同主体信息开始");
             entity.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
             //这里自动生成合同业务编码，规则为：HT+时间戳
-            String code= NumberUtils.createCode("HT");
+            String code = NumberUtils.createCode("HT");
             entity.setContractCode(code);
             orderContractMapper.insert(entity);
             logger.info("addContract-添加合同主体信息结束");
@@ -165,7 +171,11 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
             model.setParentId(entity.getId());
             model.setAtttype(1);
             BeanCopyUtil.copyPropertiesIgnoreNull(model, orderAttachment);
-            orderAttachmentMapper.updateById(orderAttachment);
+            if (model.getId() != null) {
+                orderAttachmentMapper.updateById(orderAttachment);
+            } else {
+                orderAttachmentMapper.insert(orderAttachment);
+            }
         }
         logger.info("updateAttachment-修改合同附件信息结束");
         return ResultVOUtil.returnSuccess();
@@ -201,8 +211,23 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     public ResponseEnvelope deleteOrderContract(Long id) {
         //物理删除送货明细附件表
         orderAttachmentMapper.deleteAttachmentByParentId(id, 1L);
+        PurcasingContract entity = new PurcasingContract();
+        entity.setId(id);
+        QueryWrapper<PurcasingContract> queryWrapper = new QueryWrapper<>();
+        queryWrapper.setEntity(entity);
+        entity = purcasingContractMapper.selectOne(queryWrapper);
+        //删除采购合同表
+        purcasingContractMapper.deleteById(id);
         //物理删除合同表
-        orderContractMapper.deleteById(id);
+        orderContractMapper.deleteById(entity.getContractId());
+        return ResultVOUtil.returnSuccess();
+    }
+
+    @Override
+    public ResponseEnvelope deleteContractList(List<Long> ids) {
+        for (Long id : ids) {
+            deleteOrderContract(id);
+        }
         return ResultVOUtil.returnSuccess();
     }
 
