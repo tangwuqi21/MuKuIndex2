@@ -96,7 +96,10 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
             // 2.查询合作伙伴信息
             PurcasingContract purcasingContract = purcasingContractMapper.selectById(orderDeliverecord.getOrderId());
             // 3.查询合同信息
-            OrderContract orderContract = orderContractMapper.selectById(purcasingContract.getContractId());
+            OrderContract orderContract = new OrderContract();
+            if(purcasingContract!=null){
+                orderContract=orderContractMapper.selectById(purcasingContract.getContractId());
+            }
             // 4.查询模板名称
             AssetTmplInfo assetTmplInfo = assetServiceFeign.searchAssetTmplInfoOne(a.getModuleId(), TokenUtil.getToken()).getData();
             // 5.查询供应商名称
@@ -116,7 +119,7 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
                     .prptValues(assetValueStr)
                     .moduleName(assetTmplInfo.getName())
                     .build();
-            if(orderContract!=null){
+            if(purcasingContract !=null && orderContract!=null){
                 model.setContractCode(orderContract.getContractCode());
                 model.setContractName(orderContract.getContractName());
                 model.setContractType(orderContract.getContractType());
@@ -141,7 +144,10 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
         // 2.查询合作伙伴信息
         PurcasingContract purcasingContract = purcasingContractMapper.selectById(orderDeliverecord.getOrderId());
         // 3.查询合同信息
-        OrderContract orderContract = orderContractMapper.selectById(purcasingContract.getContractId());
+        OrderContract orderContract = new OrderContract();
+        if(purcasingContract!=null){
+            orderContract=orderContractMapper.selectById(purcasingContract.getContractId());
+        }
         // 4.查询模板名称
         AssetTmplInfo assetTmplInfo = assetServiceFeign.searchAssetTmplInfoOne(orderDelivemiddle.getModuleId(), TokenUtil.getToken()).getData();
         // 5.查询供应商名称
@@ -161,7 +167,7 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
                 .moduleName(assetTmplInfo.getName())
                 .prptValues(assetValueStr)
                 .build();
-        if(orderContract!=null){
+        if(purcasingContract!=null && orderContract!=null){
             model.setContractCode(orderContract.getContractCode());
             model.setContractName(orderContract.getContractName());
             model.setContractType(orderContract.getContractType());

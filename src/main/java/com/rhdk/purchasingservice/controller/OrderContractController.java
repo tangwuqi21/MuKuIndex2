@@ -10,6 +10,7 @@ import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.pojo.dto.OrderContractDTO;
 import com.rhdk.purchasingservice.pojo.query.OrderContractQuery;
 import com.rhdk.purchasingservice.pojo.vo.OrderContractVO;
+import org.apache.ibatis.annotations.Param;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.annotations.Api;
@@ -131,7 +132,7 @@ public class OrderContractController {
 
     @ApiOperation(value = "合同批量删除", notes = "合同表API")
     @RequestMapping(value = "/deleteContractList", method = RequestMethod.POST)
-    public ResponseEnvelope deleteContractList(List<Long> ids) throws Exception{
+    public ResponseEnvelope deleteContractList(@RequestParam("ids") List<Long> ids) throws Exception{
         return iOrderContractService.deleteContractList(ids);
     }
 }
