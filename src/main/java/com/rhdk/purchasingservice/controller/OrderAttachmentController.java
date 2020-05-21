@@ -44,7 +44,7 @@ public class OrderAttachmentController {
     }
 
     @ApiOperation(value = "附件表详细查询", notes = "附件表API")
-    @RequestMapping(value = "/searchOrderAttachmentOne", method = RequestMethod.GET)
+    @RequestMapping(value = "/searchOrderAttachmentOne", method = RequestMethod.POST)
     public ResponseEnvelope searchOrderAttachmentOne(Long id) {
         return iOrderAttachmentService.searchOrderAttachmentOne(id);
     }
@@ -62,7 +62,7 @@ public class OrderAttachmentController {
     }
 
     @ApiOperation(value = "附件表删除", notes = "附件表API")
-    @RequestMapping(value = "/deleteOrderAttachment", method = RequestMethod.GET)
+    @RequestMapping(value = "/deleteOrderAttachment", method = RequestMethod.POST)
     public ResponseEnvelope deleteOrderAttachment(Long id) {
         return iOrderAttachmentService.deleteOrderAttachment(id);
     }
