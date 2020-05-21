@@ -43,6 +43,9 @@ public class OrderDelivemiddleVO implements Serializable {
     @ApiModelProperty(value = "资产模板id")
     private Long moduleId;
 
+    @ApiModelProperty(value = "资产模板名称")
+    private String moduleName;
+
     @ApiModelProperty(value = "属性集合")
     private String prptIds;
 

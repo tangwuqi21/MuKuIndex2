@@ -29,4 +29,6 @@ public interface IOrderContractService extends IService<OrderContract> {
      ResponseEnvelope updateOrderContract(OrderContractDTO DTO);
 
     List<OrderContractVO> getContractInforList(OrderContractDTO dto);
+
+    ResponseEnvelope deleteOrderContract(Long id);
 }

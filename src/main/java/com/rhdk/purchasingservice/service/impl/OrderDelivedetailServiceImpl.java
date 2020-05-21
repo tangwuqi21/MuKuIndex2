@@ -8,11 +8,15 @@ import com.rhdk.purchasingservice.common.utils.ResultVOUtil;
 import com.rhdk.purchasingservice.common.utils.TokenUtil;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.feign.AssetServiceFeign;
+import com.rhdk.purchasingservice.mapper.CommonMapper;
 import com.rhdk.purchasingservice.mapper.OrderDelivedetailMapper;
 import com.rhdk.purchasingservice.mapper.OrderDelivemiddleMapper;
+import com.rhdk.purchasingservice.mapper.OrderDeliverecordsMapper;
 import com.rhdk.purchasingservice.pojo.dto.OrderDelivedetailDTO;
+import com.rhdk.purchasingservice.pojo.entity.AssetTmplInfo;
 import com.rhdk.purchasingservice.pojo.entity.OrderDelivedetail;
 import com.rhdk.purchasingservice.pojo.entity.OrderDelivemiddle;
+import com.rhdk.purchasingservice.pojo.entity.OrderDeliverecords;
 import com.rhdk.purchasingservice.pojo.query.AssetQuery;
 import com.rhdk.purchasingservice.pojo.query.OrderDelivedetailQuery;
 import com.rhdk.purchasingservice.pojo.vo.OrderDelivedetailVO;
@@ -50,6 +54,12 @@ public class OrderDelivedetailServiceImpl extends ServiceImpl<OrderDelivedetailM
     private OrderDelivemiddleMapper orderDelivemiddleMapper;
 
     @Autowired
+    private OrderDeliverecordsMapper orderDeliverecordsMapper;
+
+    @Autowired
+    private CommonMapper commonMapper;
+
+    @Autowired
     private AssetServiceFeign assetServiceFeign;
 
     @Override
@@ -61,7 +71,11 @@ public class OrderDelivedetailServiceImpl extends ServiceImpl<OrderDelivedetailM
         OrderDelivedetail entity = new OrderDelivedetail();
         entity.setMiddleId(dto.getMiddleId());
         queryWrapper.setEntity(entity);
-        Map<String, Object> billInfoMap = orderDelivemiddleMapper.getContractInfoByMId(dto.getMiddleId());
+        OrderDelivemiddle orderDelivemiddle=orderDelivemiddleMapper.selectById(dto.getMiddleId());
+        // 1.查询送货信息
+        OrderDeliverecords orderDeliverecord=orderDeliverecordsMapper.getDeliverecordInfo(orderDelivemiddle.getDeliveryId());
+        // 4.查询模板名称
+        AssetTmplInfo assetTmplInfo=commonMapper.getAssetTemplInfo(orderDelivemiddle.getModuleId());
         page = orderDelivedetailMapper.selectPage(page, queryWrapper);
         List<OrderDelivedetail> resultList = page.getRecords();
         List<Long> assetIds = new ArrayList<>();
@@ -80,7 +94,9 @@ public class OrderDelivedetailServiceImpl extends ServiceImpl<OrderDelivedetailM
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("content", pageResult);
         resultMap.put("title", map.get("title"));
-        resultMap.put("contractInfo", billInfoMap);
+        resultMap.put("detailCode", orderDelivemiddle.getDeliverydetailCode());
+        resultMap.put("deliverName", orderDeliverecord.getDeliveryName());
+        resultMap.put("moduleName", assetTmplInfo.getName());
         return ResultVOUtil.returnSuccess(resultMap);
     }
 

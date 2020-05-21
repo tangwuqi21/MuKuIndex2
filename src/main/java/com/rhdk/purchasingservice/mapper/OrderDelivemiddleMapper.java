@@ -23,8 +23,6 @@ public interface OrderDelivemiddleMapper extends BaseMapper<OrderDelivemiddle> {
 
         List<Map<String, Object>> getTitleMap(@Param("moduleId") Long moduleId);
 
-        Map<String, Object> getContractInfoByMId(@Param("id") Long id);
-
         List<Long> getMIdsByDeliveryId(@Param("id") Long id);
 
         List<Integer> getSignStatus(@Param("id") Long id);

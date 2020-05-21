@@ -17,4 +17,6 @@ import java.util.List;
  */
 public interface OrderDeliverecordsMapper extends BaseMapper<OrderDeliverecords> {
     List<Long> getIdsBySupplierId(@Param("supplierIds") List<Long> supplierIds);
+
+    OrderDeliverecords getDeliverecordInfo(@Param("deliveryId") Long deliveryId);
 }

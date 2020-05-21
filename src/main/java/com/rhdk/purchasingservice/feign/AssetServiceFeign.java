@@ -41,4 +41,7 @@ public interface AssetServiceFeign {
     @RequestMapping(value = "/assetservice/assetTmplPrpts/searchValByPrptIds", method = RequestMethod.POST)
     ResponseEnvelope searchValByPrptIds(@NotNull AssetQuery assetQuery, @RequestHeader(value = "Authorization") String token);
 
+
+
+
 }

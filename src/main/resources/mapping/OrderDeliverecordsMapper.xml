@@ -33,5 +33,8 @@
         </foreach>
     </select>
 
+    <select id="getDeliverecordInfo" resultType="com.rhdk.purchasingservice.pojo.entity.OrderDeliverecords" parameterType="java.lang.Long">
+        select <include refid="Base_Column_List"/> from T_ORDER_DELIVERECORDS where DEL_FLAG=0 and id=#{deliveryId}
+    </select>
 
 </mapper>

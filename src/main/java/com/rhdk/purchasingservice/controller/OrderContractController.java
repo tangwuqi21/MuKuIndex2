@@ -122,4 +122,10 @@ public class OrderContractController {
         }
     }
 
+    @ApiOperation(value = "合同明细删除", notes = "合同表API")
+    @RequestMapping(value = "/deleteOrderContract", method = RequestMethod.POST)
+    public ResponseEnvelope deleteOrderContract(Long id) throws Exception{
+        return iOrderContractService.deleteOrderContract(id);
+    }
+
 }
