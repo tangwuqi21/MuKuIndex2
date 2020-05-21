@@ -8,7 +8,6 @@ import com.rhdk.purchasingservice.common.utils.ResultVOUtil;
 import com.rhdk.purchasingservice.common.utils.TokenUtil;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.feign.AssetServiceFeign;
-import com.rhdk.purchasingservice.mapper.CommonMapper;
 import com.rhdk.purchasingservice.mapper.OrderDelivedetailMapper;
 import com.rhdk.purchasingservice.mapper.OrderDelivemiddleMapper;
 import com.rhdk.purchasingservice.mapper.OrderDeliverecordsMapper;
@@ -19,8 +18,6 @@ import com.rhdk.purchasingservice.pojo.entity.OrderDelivemiddle;
 import com.rhdk.purchasingservice.pojo.entity.OrderDeliverecords;
 import com.rhdk.purchasingservice.pojo.query.AssetQuery;
 import com.rhdk.purchasingservice.pojo.query.OrderDelivedetailQuery;
-import com.rhdk.purchasingservice.pojo.vo.OrderDelivedetailVO;
-import com.rhdk.purchasingservice.pojo.vo.OrderDelivemiddleVO;
 import com.rhdk.purchasingservice.service.IOrderDelivedetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,7 +28,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -57,9 +53,6 @@ public class OrderDelivedetailServiceImpl extends ServiceImpl<OrderDelivedetailM
     private OrderDeliverecordsMapper orderDeliverecordsMapper;
 
     @Autowired
-    private CommonMapper commonMapper;
-
-    @Autowired
     private AssetServiceFeign assetServiceFeign;
 
     @Override
@@ -75,7 +68,7 @@ public class OrderDelivedetailServiceImpl extends ServiceImpl<OrderDelivedetailM
         // 1.查询送货信息
         OrderDeliverecords orderDeliverecord=orderDeliverecordsMapper.getDeliverecordInfo(orderDelivemiddle.getDeliveryId());
         // 4.查询模板名称
-        AssetTmplInfo assetTmplInfo=commonMapper.getAssetTemplInfo(orderDelivemiddle.getModuleId());
+        AssetTmplInfo assetTmplInfo= (AssetTmplInfo) assetServiceFeign.searchAssetTmplInfoOne(orderDelivemiddle.getModuleId(),TokenUtil.getToken()).getData();
         page = orderDelivedetailMapper.selectPage(page, queryWrapper);
         List<OrderDelivedetail> resultList = page.getRecords();
         List<Long> assetIds = new ArrayList<>();

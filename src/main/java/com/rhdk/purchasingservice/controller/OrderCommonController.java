@@ -35,13 +35,6 @@ public class OrderCommonController {
     private CommonService commonService;
 
 
-
-    @ApiOperation(value = "客户管理列表分页查询" , notes = "客户管理API" )
-    @RequestMapping(value = "/searchCustomerListPage" , method = RequestMethod.POST)
-    public ResponseEnvelope searchCustomerListPage(@RequestBody CustomerQuery customerQuery){
-        return commonService.searchCustomerListPage(customerQuery);
-    }
-
     @ApiOperation(value = "合同列表查询", notes = "需提供采购合同id，合同名称、往来单位、源单类型、源单编码")
     @RequestMapping(value = "/getContractInfoList", method = RequestMethod.POST)
     public ResponseEnvelope getContractInfoList(@RequestBody OrderContractQuery orderContractQuery) {
@@ -49,23 +42,4 @@ public class OrderCommonController {
     }
 
 
-    @ApiOperation(value = "资产品名列表查询", notes = "需提供资产模板名称，模板id，物管类型，模板版本号，资产类型id")
-    @RequestMapping(value = "/getAssetInfoList", method = RequestMethod.POST)
-    public ResponseEnvelope getAssetInfoList() {
-        return commonService.getAssetInfoList();
-    }
-
-
-    @ApiOperation(value = "获取模板公共属性集合", notes = "提供了资产属性id和属性名称")
-    @RequestMapping(value = "/getCommonPrpts", method = RequestMethod.POST)
-    public ResponseEnvelope getCommonPrpts() {
-        return commonService.getCommonPrpts();
-    }
-
-
-    @ApiOperation(value = "根据模板id来获取模板公共属性的默认值", notes = "提供了资产属性id和属性值")
-    @RequestMapping(value = "/getModulePrptsById", method = RequestMethod.POST)
-    public ResponseEnvelope getModulePrptsById(Long moduleId) {
-        return commonService.getModulePrptsById(moduleId);
-    }
 }

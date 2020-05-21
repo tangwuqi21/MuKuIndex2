@@ -53,12 +53,6 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
     private OrderDelivemiddleMapper orderDelivemiddleMapper;
 
     @Autowired
-    private AssetEntityInfoMapper assetEntityInfoMapper;
-
-    @Autowired
-    private AssetEntityPrptMapper assetEntityPrptMapper;
-
-    @Autowired
     private OrderAttachmentMapper orderAttachmentMapper;
 
     @Autowired
@@ -66,9 +60,6 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
 
     @Autowired
     private OrderDeliverecordsMapper orderDeliverecordsMapper;
-
-    @Autowired
-    private CommonMapper commonMapper;
 
     @Autowired
     private PurcasingContractMapper purcasingContractMapper;
@@ -92,7 +83,7 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
         queryWrapper.setEntity(entity);
         if (!StringUtils.isEmpty(dto.getSupplierName())) {
-            List<Long> supplierIds = commonMapper.getIdsBySupplierName(dto.getSupplierName());
+            List<Long> supplierIds = (List<Long>) assetServiceFeign.getIdsBySupplierName(dto.getSupplierName(), TokenUtil.getToken());
             List<Long> deliverIds = orderDeliverecordsMapper.getIdsBySupplierId(supplierIds);
             queryWrapper.in("DELIVERY_ID", deliverIds);
         }
@@ -107,9 +98,9 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
             // 3.查询合同信息
             OrderContract orderContract = orderContractMapper.selectById(purcasingContract.getContractId());
             // 4.查询模板名称
-            AssetTmplInfo assetTmplInfo = commonMapper.getAssetTemplInfo(a.getModuleId());
+            AssetTmplInfo assetTmplInfo = assetServiceFeign.searchAssetTmplInfoOne(a.getModuleId(), TokenUtil.getToken()).getData();
             // 5.查询供应商名称
-            Customer customer = commonMapper.getCustomerInfo(orderDeliverecord.getSupplierId());
+            Customer customer = assetServiceFeign.searchCustomerOne(orderDeliverecord.getSupplierId(), TokenUtil.getToken()).getData();
             AssetQuery assetQuery = new AssetQuery();
             assetQuery.setAssetTempId(a.getModuleId());
             assetQuery.setPrptIds(a.getPrptIds());
@@ -122,12 +113,14 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
                     .supplierId(orderDeliverecord.getSupplierId())
                     .signAddress(orderDeliverecord.getSignAddress())
                     .supplierName(customer.getCusName())
-                    .contractCode(orderContract.getContractCode())
-                    .contractName(orderContract.getContractName())
-                    .contractType(orderContract.getContractType())
                     .prptValues(assetValueStr)
                     .moduleName(assetTmplInfo.getName())
                     .build();
+            if(orderContract!=null){
+                model.setContractCode(orderContract.getContractCode());
+                model.setContractName(orderContract.getContractName());
+                model.setContractType(orderContract.getContractType());
+            }
             BeanCopyUtil.copyPropertiesIgnoreNull(a, model);
             return model;
         }).collect(Collectors.toList());
@@ -150,9 +143,9 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
         // 3.查询合同信息
         OrderContract orderContract = orderContractMapper.selectById(purcasingContract.getContractId());
         // 4.查询模板名称
-        AssetTmplInfo assetTmplInfo = commonMapper.getAssetTemplInfo(orderDelivemiddle.getModuleId());
+        AssetTmplInfo assetTmplInfo = assetServiceFeign.searchAssetTmplInfoOne(orderDelivemiddle.getModuleId(), TokenUtil.getToken()).getData();
         // 5.查询供应商名称
-        Customer customer = commonMapper.getCustomerInfo(orderDeliverecord.getSupplierId());
+        Customer customer = assetServiceFeign.searchCustomerOne(orderDeliverecord.getSupplierId(), TokenUtil.getToken()).getData();
         AssetQuery assetQuery = new AssetQuery();
         assetQuery.setAssetTempId(orderDelivemiddle.getModuleId());
         assetQuery.setPrptIds(orderDelivemiddle.getPrptIds());
@@ -165,12 +158,14 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
                 .supplierId(orderDeliverecord.getSupplierId())
                 .signAddress(orderDeliverecord.getSignAddress())
                 .supplierName(customer.getCusName())
-                .contractCode(orderContract.getContractCode())
-                .contractName(orderContract.getContractName())
-                .contractType(orderContract.getContractType())
                 .moduleName(assetTmplInfo.getName())
                 .prptValues(assetValueStr)
                 .build();
+        if(orderContract!=null){
+            model.setContractCode(orderContract.getContractCode());
+            model.setContractName(orderContract.getContractName());
+            model.setContractType(orderContract.getContractType());
+        }
         BeanCopyUtil.copyPropertiesIgnoreNull(orderDelivemiddle, model);
         return ResultVOUtil.returnSuccess(model);
 
@@ -187,7 +182,6 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
         orderDelivemiddleMapper.insert(entity);
         //获取资产模板所有的属性信息
         List<Map<String, Object>> titleMap = orderDelivemiddleMapper.getTitleList(dto.getModuleId());
-
         //获取表格里的个性属性
         List<Map<String, Object>> titleMap2 = orderDelivemiddleMapper.getTitleMap(dto.getModuleId());
         //获取表头的下标
@@ -256,7 +250,7 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
                         entityInfo.setName(ExcleUtils.getValue(cell, formulaEvaluator));
                     }
                     //1.入库资产实体表信息
-                    assetEntityInfoMapper.insert(entityInfo);
+                    entityInfo=assetServiceFeign.addAssetEntityInfo(entityInfo,TokenUtil.getToken()).getData();
                     //入库每条资产实体对应的属性值（每个属性都需要入到资产属性值表中）
                     for (Map<String, Object> model : titleMap) {
                         //存储个性+共性的属性
@@ -272,7 +266,7 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
                         }
                         assetEntityPrpt.setCode(model.get("CODE").toString());
                         //2.入库到资产实体属性值表中
-                        assetEntityPrptMapper.insert(assetEntityPrpt);
+                        assetEntityPrpt=assetServiceFeign.addAssetEntityPrpt(assetEntityPrpt,TokenUtil.getToken()).getData();
                     }
                     //3.这里进行送货记录的详细表中入库
                     OrderDelivedetail orderDelivedetail = new OrderDelivedetail();
@@ -304,7 +298,7 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
             entityInfo.setItemNo(dto.getItemNO());
             entityInfo.setAssetStatus(0L);
             //1.入库资产实体表信息
-            assetEntityInfoMapper.insert(entityInfo);
+            entityInfo=assetServiceFeign.addAssetEntityInfo(entityInfo,TokenUtil.getToken()).getData();
 
             //3.这里进行送货记录的详细表中入库
             OrderDelivedetail orderDelivedetail = new OrderDelivedetail();
@@ -338,9 +332,9 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
         List<Long> assetIds = orderDelivedetailMapper.getAssetIdsByDId(middleIds);
         orderDelivedetailMapper.updateDetailsDel(assetIds);
         //物理删除资产实体表
-        assetEntityInfoMapper.updateEntitys(assetIds);
+        assetServiceFeign.updateEntitys(assetIds,TokenUtil.getToken());
         //物理删除资产实体属性值表
-        assetEntityPrptMapper.updateEntityprpts(assetIds);
+        assetServiceFeign.updateEntityprpts(assetIds,TokenUtil.getToken());
         //物理删除送货中间表
         for (Long no : middleIds) {
             orderDelivemiddleMapper.deleteById(no);
@@ -362,9 +356,9 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
         List<Long> assetIds = orderDelivedetailMapper.getAssetIdsByDId(middleIds);
         orderDelivedetailMapper.updateDetailsDel(assetIds);
         //物理删除资产实体表
-        assetEntityInfoMapper.updateEntitys(assetIds);
+        assetServiceFeign.updateEntitys(assetIds,TokenUtil.getToken());
         //物理删除资产实体属性值表
-        assetEntityPrptMapper.updateEntityprpts(assetIds);
+        assetServiceFeign.updateEntityprpts(assetIds,TokenUtil.getToken());
         return ResultVOUtil.returnSuccess();
     }
 
