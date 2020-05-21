@@ -217,6 +217,18 @@
             <version>2.1</version>
             <scope>test</scope>
         </dependency>
+
+        <!--引入fegin远程传输file文件包-->
+        <dependency>
+            <groupId>io.github.openfeign.form</groupId>
+            <artifactId>feign-form</artifactId>
+            <version>3.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.openfeign.form</groupId>
+            <artifactId>feign-form-spring</artifactId>
+            <version>3.0.3</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>

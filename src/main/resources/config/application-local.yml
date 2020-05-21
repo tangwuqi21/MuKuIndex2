@@ -1,10 +1,6 @@
 server:
   port: 30002
 
-#上传与下载路径
-upload:
-  path: D:/attachments/
-
 spring:
   profiles:
     active: local
