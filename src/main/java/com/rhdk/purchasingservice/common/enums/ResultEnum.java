@@ -34,6 +34,8 @@ public enum ResultEnum {
 
   TEMPLATE_ROWTWO(500, "附件内容有重复行"),
 
+  CREATE_FILEERROR(500, "附件创建失败，请重新上传"),
+
   DETAIL_NOTNULL(500, "记录明细不能为空");
 
   private Integer code;

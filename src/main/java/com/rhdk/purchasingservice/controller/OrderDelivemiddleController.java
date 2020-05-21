@@ -5,6 +5,7 @@ import com.rhdk.purchasingservice.common.enums.ResultEnum;
 import com.rhdk.purchasingservice.common.exception.RequestEmptyException;
 import com.rhdk.purchasingservice.common.utils.*;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
+import com.rhdk.purchasingservice.feign.AssetServiceFeign;
 import com.rhdk.purchasingservice.pojo.dto.OrderDelivemiddleDTO;
 import com.rhdk.purchasingservice.pojo.query.OrderDelivemiddleQuery;
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
@@ -59,10 +60,8 @@ public class OrderDelivemiddleController {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(OrderDelivemiddleController.class);
 
-    @Resource
-    private Environment env;
-
-    private String folder;
+    @Autowired
+    private AssetServiceFeign assetServiceFeign;
 
 
     @ApiOperation(value = "送货记录明细中间表列表分页查询", notes = "送货记录明细中间表API")
@@ -187,9 +186,12 @@ public class OrderDelivemiddleController {
             if (!isDataT) {
                 return ResultVOUtil.returnFail(ResultEnum.TEMPLATE_ROWTWO.getCode(), "附件第"+rowNo+"行数据内容有重复");
             }
-            //远程调用附件上传接口
-            fileUrl = createFile(file);
+            //调用附件上传接口
+            fileUrl = assetServiceFeign.uploadSingleFile(file,TokenUtil.getToken());
             resultMap.put("fileUrl",fileUrl);
+            if(StringUtils.isEmpty(resultMap.get("fileUrl"))){
+                return ResultVOUtil.returnFail(ResultEnum.CREATE_FILEERROR.getCode(), ResultEnum.CREATE_FILEERROR.getMessage());
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -209,27 +211,4 @@ public class OrderDelivemiddleController {
         return iOrderDelivemiddleService.deleteOrderDetailrecords(id);
     }
 
-    public String createFile(MultipartFile file){
-        logger.info("上传附件名: {}", file.getOriginalFilename());
-        Long userId = TokenUtil.getUserInfo().getUserId();
-        //上传附件到指定的文件地址
-        folder = env.getProperty("upload.path") + userId;
-        if (ObjectUtils.isEmpty(file)) {
-            throw new RequestEmptyException("上传的附件为空");
-        }
-        String certificateFile = null;
-        try {
-            certificateFile = file.getOriginalFilename();
-            String cert = FileUtil.getExtensionName(certificateFile);
-            //获取文件扩展名
-            certificateFile = folder + '/' + System.currentTimeMillis() + "." + cert;
-            File localFile = new File(certificateFile);
-            FileUtil.createFile(localFile, FileUtil.getSysName(System.getProperties().getProperty("os.name")));
-            file.transferTo(localFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-            logger.error("上传附件错误");
-        }
-        return certificateFile;
-    }
 }
