@@ -35,4 +35,11 @@
          ORDER BY p.PRPT_ORDER asc
     </select>
 
+    <select id="getAssetTemplInfo" parameterType="java.lang.Long" resultType="com.rhdk.purchasingservice.pojo.entity.AssetTmplInfo">
+        select t.* from T_ASSET_TMPL_INFO t where t.DEL_FLAG=0 and t.id=#{moduleId}
+    </select>
+
+    <select id="getCustomerInfo" parameterType="java.lang.Long" resultType="com.rhdk.purchasingservice.pojo.entity.Customer">
+        select * from T_CUSTOMER where DEL_FLAG=0 and id=#{supplierId}
+    </select>
 </mapper>

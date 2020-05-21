@@ -196,6 +196,15 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
         return contractVOList;
     }
 
+    @Override
+    public ResponseEnvelope deleteOrderContract(Long id) {
+        //物理删除送货明细附件表
+        orderAttachmentMapper.deleteAttachmentByParentId(id, 1L);
+        //物理删除合同表
+        orderContractMapper.deleteById(id);
+        return ResultVOUtil.returnSuccess();
+    }
+
     public OrderContract selectOne(Long id) {
         OrderContract entity = new OrderContract();
         entity.setId(id);

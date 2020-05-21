@@ -110,11 +110,22 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
         List<OrderDeliverecordsVO> orderDeliverecordsVOList = resultList.stream().map(a -> {
             OrderContractVO orderContract = orderContractMapper.selectContractById(a.getOrderId());
             OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
+            List<Integer> signStatList=orderDelivemiddleMapper.getSignStatus(a.getId());
+            Integer status=0;
+            if(signStatList.size()==1 && signStatList.contains(0)){
+                status=0;
+            }else if(signStatList.size()==1 && signStatList.contains(2))
+            {
+                status=2;
+            }else if(signStatList.size()>=1){
+                status=1;
+            }
             OrderDeliverecordsVO orderDeliverecordsVO = OrderDeliverecordsVO.builder()
                     .contractCode(orderContract.getContractCode())
                     .contractName(orderContract.getContractName())
                     .contractType(orderContract.getContractType())
                     .supplierName(supplierMap.get(a.getSupplierId()))
+                    .signStatus(status)
                     .attachmentList(orderAttachmentMapper.selectListByParentId(a.getId(), 2))
                     .createName(userDto.getUserInfo().getName()).deptName(userDto.getGroupName())
                     .build();
@@ -136,12 +147,23 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
         OrderDeliverecordsVO orderDeliverecordsVO = new OrderDeliverecordsVO();
         OrderContractVO orderContract = orderContractMapper.selectContractById(entity.getOrderId());
         OrgUserDto userDto = commonService.getOrgUserById(entity.getOrgId(), entity.getCreateBy());
+        List<Integer> signStatList=orderDelivemiddleMapper.getSignStatus(id);
+        Integer status=0;
+        if(signStatList.size()==1 && signStatList.contains(0)){
+            status=0;
+        }else if(signStatList.size()==1 && signStatList.contains(2))
+        {
+            status=2;
+        }else if(signStatList.size()>=1){
+            status=1;
+        }
         BeanCopyUtil.copyPropertiesIgnoreNull(entity, orderDeliverecordsVO);
         orderDeliverecordsVO.setContractCode(orderContract.getContractCode());
         orderDeliverecordsVO.setContractName(orderContract.getContractName());
         orderDeliverecordsVO.setContractType(orderContract.getContractType());
         orderDeliverecordsVO.setCreateName(userDto.getUserInfo().getName());
         orderDeliverecordsVO.setDeptName(userDto.getGroupName());
+        orderDeliverecordsVO.setSignStatus(status);
         orderDeliverecordsVO.setAttachmentList(orderAttachmentMapper.selectListByParentId(entity.getId(), 2));
         //添加送货记录明细信息
         OrderDelivemiddleQuery orderDelivemiddleQuery = new OrderDelivemiddleQuery();

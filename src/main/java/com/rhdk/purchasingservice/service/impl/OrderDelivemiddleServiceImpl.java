@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.rhdk.purchasingservice.common.enums.ResultEnum;
 import com.rhdk.purchasingservice.common.utils.*;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
-import com.rhdk.purchasingservice.controller.OrderDelivemiddleController;
 import com.rhdk.purchasingservice.feign.AssetServiceFeign;
 import com.rhdk.purchasingservice.mapper.*;
 import com.rhdk.purchasingservice.pojo.entity.*;
@@ -72,6 +71,12 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
     private CommonMapper commonMapper;
 
     @Autowired
+    private PurcasingContractMapper purcasingContractMapper;
+
+    @Autowired
+    private OrderContractMapper orderContractMapper;
+
+    @Autowired
     private AssetServiceFeign assetServiceFeign;
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(OrderDelivemiddleServiceImpl.class);
@@ -86,28 +91,42 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
         OrderDelivemiddle entity = new OrderDelivemiddle();
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
         queryWrapper.setEntity(entity);
-        if(!StringUtils.isEmpty(dto.getSupplierName())){
-            List<Long> supplierIds=commonMapper.getIdsBySupplierName(dto.getSupplierName());
-            List<Long> deliverIds=orderDeliverecordsMapper.getIdsBySupplierId(supplierIds);
-            queryWrapper.in("DELIVERY_ID",deliverIds);
+        if (!StringUtils.isEmpty(dto.getSupplierName())) {
+            List<Long> supplierIds = commonMapper.getIdsBySupplierName(dto.getSupplierName());
+            List<Long> deliverIds = orderDeliverecordsMapper.getIdsBySupplierId(supplierIds);
+            queryWrapper.in("DELIVERY_ID", deliverIds);
         }
         page = orderDelivemiddleMapper.selectPage(page, queryWrapper);
         List<OrderDelivemiddle> resultList = page.getRecords();
         List<OrderDelivemiddleVO> orderDelivemiddleVOList = resultList.stream().map(a -> {
-            Map<String, Object> billInfoMap = orderDelivemiddleMapper.getContractInfoByMId(a.getId());
-            AssetQuery assetQuery=new AssetQuery();
+            //改造
+            // 1.查询送货信息
+            OrderDeliverecords orderDeliverecord = orderDeliverecordsMapper.getDeliverecordInfo(a.getDeliveryId());
+            // 2.查询合作伙伴信息
+            PurcasingContract purcasingContract = purcasingContractMapper.selectById(orderDeliverecord.getOrderId());
+            // 3.查询合同信息
+            OrderContract orderContract = orderContractMapper.selectById(purcasingContract.getContractId());
+            // 4.查询模板名称
+            AssetTmplInfo assetTmplInfo = commonMapper.getAssetTemplInfo(a.getModuleId());
+            // 5.查询供应商名称
+            Customer customer = commonMapper.getCustomerInfo(orderDeliverecord.getSupplierId());
+            AssetQuery assetQuery = new AssetQuery();
             assetQuery.setAssetTempId(a.getModuleId());
             assetQuery.setPrptIds(a.getPrptIds());
-            List<String> assetValue= (List<String>) assetServiceFeign.searchValByPrptIds(assetQuery, TokenUtil.getToken()).getData();
-            String assetValueStr= StringUtils.join(assetValue.toArray(), ",");
+            List<String> assetValue = (List<String>) assetServiceFeign.searchValByPrptIds(assetQuery, TokenUtil.getToken()).getData();
+            String assetValueStr = StringUtils.join(assetValue.toArray(), ",");
             OrderDelivemiddleVO model = OrderDelivemiddleVO.builder()
                     .attachmentList(orderAttachmentMapper.selectListByParentId(a.getId(), 3))
-                    .deliveryCode(billInfoMap.get("deliveryCode").toString()).deliveryName(billInfoMap.get("deliveryName").toString())
-                    .supplierId(Long.valueOf(billInfoMap.get("supplierId").toString())).signAddress(billInfoMap.get("signAddress").toString())
-                    .supplierName(billInfoMap.get("custName").toString())
-                    .contractCode(billInfoMap.get("contractCode").toString()).contractName(billInfoMap.get("contractName").toString())
-                    .contractType(Integer.valueOf(billInfoMap.get("contractType").toString()))
+                    .deliveryCode(orderDeliverecord.getDeliveryCode())
+                    .deliveryName(orderDeliverecord.getDeliveryName())
+                    .supplierId(orderDeliverecord.getSupplierId())
+                    .signAddress(orderDeliverecord.getSignAddress())
+                    .supplierName(customer.getCusName())
+                    .contractCode(orderContract.getContractCode())
+                    .contractName(orderContract.getContractName())
+                    .contractType(orderContract.getContractType())
                     .prptValues(assetValueStr)
+                    .moduleName(assetTmplInfo.getName())
                     .build();
             BeanCopyUtil.copyPropertiesIgnoreNull(a, model);
             return model;
@@ -124,16 +143,37 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
     @Override
     public ResponseEnvelope searchOrderDelivemiddleOne(Long id) {
         OrderDelivemiddle orderDelivemiddle = this.selectOne(id);
-        Map<String, Object> billInfoMap = orderDelivemiddleMapper.getContractInfoByMId(id);
+        // 1.查询送货信息
+        OrderDeliverecords orderDeliverecord = orderDeliverecordsMapper.getDeliverecordInfo(orderDelivemiddle.getDeliveryId());
+        // 2.查询合作伙伴信息
+        PurcasingContract purcasingContract = purcasingContractMapper.selectById(orderDeliverecord.getOrderId());
+        // 3.查询合同信息
+        OrderContract orderContract = orderContractMapper.selectById(purcasingContract.getContractId());
+        // 4.查询模板名称
+        AssetTmplInfo assetTmplInfo = commonMapper.getAssetTemplInfo(orderDelivemiddle.getModuleId());
+        // 5.查询供应商名称
+        Customer customer = commonMapper.getCustomerInfo(orderDeliverecord.getSupplierId());
+        AssetQuery assetQuery = new AssetQuery();
+        assetQuery.setAssetTempId(orderDelivemiddle.getModuleId());
+        assetQuery.setPrptIds(orderDelivemiddle.getPrptIds());
+        List<String> assetValue = (List<String>) assetServiceFeign.searchValByPrptIds(assetQuery, TokenUtil.getToken()).getData();
+        String assetValueStr = StringUtils.join(assetValue.toArray(), ",");
         OrderDelivemiddleVO model = OrderDelivemiddleVO.builder()
                 .attachmentList(orderAttachmentMapper.selectListByParentId(id, 3))
-                .deliveryCode(billInfoMap.get("deliveryCode").toString()).deliveryName(billInfoMap.get("deliveryName").toString())
-                .supplierId(Long.valueOf(billInfoMap.get("supplierId").toString())).signAddress(billInfoMap.get("signAddress").toString())
-                .contractCode(billInfoMap.get("contractCode").toString()).contractName(billInfoMap.get("contractName").toString())
-                .contractType(Integer.valueOf(billInfoMap.get("contractType").toString()))
+                .deliveryCode(orderDeliverecord.getDeliveryCode())
+                .deliveryName(orderDeliverecord.getDeliveryName())
+                .supplierId(orderDeliverecord.getSupplierId())
+                .signAddress(orderDeliverecord.getSignAddress())
+                .supplierName(customer.getCusName())
+                .contractCode(orderContract.getContractCode())
+                .contractName(orderContract.getContractName())
+                .contractType(orderContract.getContractType())
+                .moduleName(assetTmplInfo.getName())
+                .prptValues(assetValueStr)
                 .build();
         BeanCopyUtil.copyPropertiesIgnoreNull(orderDelivemiddle, model);
         return ResultVOUtil.returnSuccess(model);
+
     }
 
     @Override
@@ -142,7 +182,7 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
         OrderDelivemiddle entity = new OrderDelivemiddle();
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
         //这里自动生成送货明细业务编码，规则为：SHD+时间戳
-        String code= NumberUtils.createCode("SHD");
+        String code = NumberUtils.createCode("SHD");
         entity.setDeliverydetailCode(code);
         orderDelivemiddleMapper.insert(entity);
         //获取资产模板所有的属性信息
@@ -317,7 +357,7 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
         //物理删除送货明细附件表
         orderAttachmentMapper.deleteAttachmentByParentId(id, 3L);
         //物理删除送货明细表
-        List<Long> middleIds=new ArrayList<>();
+        List<Long> middleIds = new ArrayList<>();
         middleIds.add(id);
         List<Long> assetIds = orderDelivedetailMapper.getAssetIdsByDId(middleIds);
         orderDelivedetailMapper.updateDetailsDel(assetIds);
