@@ -85,9 +85,10 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
         List<OrderContractVO> contractVOList = resultList.stream().map(a -> {
             //根据合同id去附件表里获取每个合同对应的附件
             OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
+            OrderContractVO mo=orderContractMapper.selectContractByCId(a.getId());
             OrderContractVO at = OrderContractVO.builder().attachmentList(iOrderAttachmentService.selectAttachmentList(a.getId()))
-                    .contractCode(a.getContractCode()).contractCompany(orderContractMapper.selectContractByCId(a.getId()).getContractCompany()).contractName(a.getContractName())
-                    .contractDate(a.getContractDate()).contractMoney(a.getContractMoney()).id(a.getId()).contractType(a.getContractType())
+                    .contractCode(a.getContractCode()).contractCompany(mo.getContractCompany()).contractName(a.getContractName())
+                    .contractDate(a.getContractDate()).contractMoney(a.getContractMoney()).id(mo.getOrderId()).contractType(a.getContractType())
                     .createBy(a.getCreateBy()).createDate(a.getCreateDate()).updateBy(a.getUpdateBy()).updateDate(a.getUpdateDate())
                     .delFlag(a.getDelFlag()).createName(userDto.getUserInfo().getName()).deptName(userDto.getGroupName()).build();
             return at;
