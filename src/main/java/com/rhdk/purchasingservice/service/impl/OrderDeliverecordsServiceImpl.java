@@ -124,6 +124,10 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
                 orderDeliverecordsVO.setContractType(orderContract.getContractType());
                 orderDeliverecordsVO.setContractCode(orderContract.getContractCode());
                 orderDeliverecordsVO.setContractName(orderContract.getContractName());
+            } else {
+                orderDeliverecordsVO.setContractCode("--");
+                orderDeliverecordsVO.setContractName("--");
+                orderDeliverecordsVO.setContractType(0);
             }
             BeanCopyUtil.copyPropertiesIgnoreNull(a, orderDeliverecordsVO);
             return orderDeliverecordsVO;
@@ -157,6 +161,10 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
             orderDeliverecordsVO.setContractCode(orderContract.getContractCode());
             orderDeliverecordsVO.setContractName(orderContract.getContractName());
             orderDeliverecordsVO.setContractType(orderContract.getContractType());
+        } else {
+            orderDeliverecordsVO.setContractCode("--");
+            orderDeliverecordsVO.setContractName("--");
+            orderDeliverecordsVO.setContractType(0);
         }
         orderDeliverecordsVO.setCreateName(userDto.getUserInfo().getName());
         orderDeliverecordsVO.setDeptName(userDto.getGroupName());
