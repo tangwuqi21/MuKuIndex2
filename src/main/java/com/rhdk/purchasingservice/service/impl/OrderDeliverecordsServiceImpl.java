@@ -7,6 +7,7 @@ import com.igen.acc.domain.dto.OrgUserDto;
 import com.rhdk.purchasingservice.common.enums.ResultEnum;
 import com.rhdk.purchasingservice.common.utils.*;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
+import com.rhdk.purchasingservice.feign.AssetServiceFeign;
 import com.rhdk.purchasingservice.mapper.*;
 import com.rhdk.purchasingservice.pojo.dto.OrderAttachmentDTO;
 import com.rhdk.purchasingservice.pojo.dto.OrderDelivedetailDTO;
@@ -64,12 +65,6 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
     private IOrderDelivemiddleService iOrderDelivemiddleService;
 
     @Autowired
-    private AssetEntityInfoMapper assetEntityInfoMapper;
-
-    @Autowired
-    private AssetEntityPrptMapper assetEntityPrptMapper;
-
-    @Autowired
     private OrderAttachmentMapper orderAttachmentMapper;
 
     @Autowired
@@ -85,7 +80,7 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
     private CommonService commonService;
 
     @Autowired
-    private CommonMapper commonMapper;
+    private AssetServiceFeign assetServiceFeign;
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(OrderDeliverecordsServiceImpl.class);
 
@@ -101,7 +96,7 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
         queryWrapper.setEntity(entity);
         page = orderDeliverecordsMapper.selectPage(page, queryWrapper);
         Map<Integer,String> supplierMap=new HashMap<>();
-        List<HashMap<String, Object>> resultMap=commonMapper.getSupplyList(null);
+        List<HashMap<String, Object>> resultMap= (List<HashMap<String, Object>>) assetServiceFeign.getSupplyList(null,TokenUtil.getToken()).getData();
         for(HashMap<String, Object> model:resultMap){
             supplierMap.put(Integer.valueOf(model.get("id").toString()),model.get("custName").toString());
         }
@@ -183,8 +178,10 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
         entity.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
         //这里自动生成送货记录业务编码，规则为：SH+时间戳
-        String code= NumberUtils.createCode("SH");
-        entity.setDeliveryCode(code);
+        if(StringUtils.isEmpty(entity.getDeliveryCode())){
+            String code= NumberUtils.createCode("SH");
+            entity.setDeliveryCode(code);
+        }
         orderDeliverecordsMapper.insert(entity);
         //保存送货记录附件信息
         if (CollectionUtils.isEmpty(dto.getAttachmentList())) {
@@ -262,9 +259,9 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
                                 //通过明细中间表找到明细表，通过明细表，去到资产实体表中进行之前的数据删除，然后删除明细中间表的数据
                                 List<Long> detailAssetIds = orderDelivedetailMapper.getAssetIds(model.getId());
                                 //删除资产实体表相关信息
-                                assetEntityInfoMapper.deleteEntitys(detailAssetIds);
+                                assetServiceFeign.deleteEntitys(detailAssetIds,TokenUtil.getToken());
                                 //删除资产实体属性值表
-                                assetEntityPrptMapper.deleteEntityPrpts(detailAssetIds);
+                                assetServiceFeign.deleteEntityPrpts(detailAssetIds,TokenUtil.getToken());
                                 //删除明细表的数据
                                 orderDelivedetailMapper.deleteDeliveDetails(detailAssetIds);
                                 //解析新的模板并进行数据的入库（入库到资产实体表，资产实体属性值表，送货明细表）
@@ -282,16 +279,16 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
                         //量管的资产，更新明细表和资产实体表中的数量
                         List<Long> detailAssetIds = orderDelivedetailMapper.getAssetIds(model.getId());
                         orderDelivedetailMapper.updateDetails(detailAssetIds, model);
-                        assetEntityInfoMapper.updateEntityInfo(detailAssetIds, model);
+                        assetServiceFeign.updateEntityInfo(detailAssetIds, model,TokenUtil.getToken());
                     }
                 } else {
                     //切换了资产模板，需要清空之前的资产明细数据并重新解析Excel表格进行数据的上传
                     //通过明细中间表找到明细表，通过明细表，去到资产实体表中进行之前的数据删除，然后删除明细中间表的数据
                     List<Long> detailAssetIds = orderDelivedetailMapper.getAssetIds(model.getId());
                     //删除资产实体表相关信息
-                    assetEntityInfoMapper.deleteEntitys(detailAssetIds);
+                    assetServiceFeign.deleteEntitys(detailAssetIds,TokenUtil.getToken());
                     //删除资产实体属性值表
-                    assetEntityPrptMapper.deleteEntityPrpts(detailAssetIds);
+                    assetServiceFeign.deleteEntityPrpts(detailAssetIds,TokenUtil.getToken());
                     //删除明细表的数据
                     orderDelivedetailMapper.deleteDeliveDetails(detailAssetIds);
                     //解析新的模板并进行数据的入库（入库到资产实体表，资产实体属性值表，送货明细表）
@@ -387,7 +384,7 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
                     entityInfo.setName(ExcleUtils.getValue(cell, formulaEvaluator));
                 }
                 //1.入库资产实体表信息
-                assetEntityInfoMapper.insert(entityInfo);
+                entityInfo=assetServiceFeign.addAssetEntityInfo(entityInfo,TokenUtil.getToken()).getData();
                 //入库每条资产实体对应的属性值（每个属性都需要入到资产属性值表中）
                 for (Map<String, Object> model : titleMap) {
                     //存储个性+共性的属性
@@ -403,7 +400,7 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
                     }
                     assetEntityPrpt.setCode(model.get("CODE").toString());
                     //2.入库到资产实体属性值表中
-                    assetEntityPrptMapper.insert(assetEntityPrpt);
+                    assetEntityPrpt=assetServiceFeign.addAssetEntityPrpt(assetEntityPrpt,TokenUtil.getToken()).getData();
                 }
                 //3.这里进行送货记录的详细表中入库
                 OrderDelivedetail orderDelivedetail = new OrderDelivedetail();

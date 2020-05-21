@@ -5,7 +5,6 @@ import com.rhdk.purchasingservice.common.enums.ResultEnum;
 import com.rhdk.purchasingservice.common.exception.RequestEmptyException;
 import com.rhdk.purchasingservice.common.utils.*;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
-import com.rhdk.purchasingservice.feign.AssetServiceFeign;
 import com.rhdk.purchasingservice.pojo.dto.OrderDelivemiddleDTO;
 import com.rhdk.purchasingservice.pojo.query.OrderDelivemiddleQuery;
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
@@ -113,11 +112,9 @@ public class OrderDelivemiddleController {
             List<Map<String, Object>> titleMap = iOrderDelivemiddleService.getTitleMap(moduleId);
             //获取表头的下标
             Map<Integer, String> titleNameM = new HashMap<>();
-            Map<String, Integer> titleNameI = new HashMap<>();
             List<Integer> collList=new ArrayList<>();
             for (int conum=0;conum<titleMap.size();conum++) {
                 titleNameM.put(conum, titleMap.get(conum).get("NAME").toString());
-                titleNameI.put(titleMap.get(conum).get("NAME").toString(),conum);
                 if(titleMap.get(conum).get("PK_FLAG")!=null && Integer.valueOf(titleMap.get(conum).get("PK_FLAG").toString())==1){
                     collList.add(conum);
                 }
@@ -153,8 +150,6 @@ public class OrderDelivemiddleController {
             boolean isDataT = true;
             int rowNo=0;
             String cellMsg="";
-            String unitValue="";
-            String priceValue="";
             for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
                 Row row = sheet.getRow(rowNum);
                 if (row == null) {
@@ -182,14 +177,6 @@ public class OrderDelivemiddleController {
                     rowNo=rowNum+1;
                     break;
                 }
-
-                //判断模板上传是否包含单位和单价两个属性，如果有则以模板中的单位和单价值为准，如果无，则以库中的模板单位单价值为准
-                if(titleNameI.get("单位")!=null){
-                    unitValue=ExcleUtils.getValue(row.getCell(titleNameI.get("单位")), formulaEvaluator);
-                }
-                if(titleNameI.get("单价")!=null){
-                    priceValue=ExcleUtils.getValue(row.getCell(titleNameI.get("单价")), formulaEvaluator);
-                }
             }
             if (!isRowNull) {
                 return ResultVOUtil.returnFail(ResultEnum.TEMPLATE_CELLNULL.getCode(), "附件第"+rowNo+"行数据内容为空");
@@ -202,8 +189,6 @@ public class OrderDelivemiddleController {
             }
             //远程调用附件上传接口
             fileUrl = createFile(file);
-            resultMap.put("unitValue",unitValue);
-            resultMap.put("priceValue",priceValue);
             resultMap.put("fileUrl",fileUrl);
         } catch (Exception e) {
             e.printStackTrace();
