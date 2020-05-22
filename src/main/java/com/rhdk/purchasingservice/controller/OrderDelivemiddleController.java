@@ -5,6 +5,7 @@ import com.rhdk.purchasingservice.common.enums.ResultEnum;
 import com.rhdk.purchasingservice.common.exception.RequestEmptyException;
 import com.rhdk.purchasingservice.common.utils.*;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
+import com.rhdk.purchasingservice.feign.AssetFileServiceFeign;
 import com.rhdk.purchasingservice.feign.AssetServiceFeign;
 import com.rhdk.purchasingservice.pojo.dto.OrderDelivemiddleDTO;
 import com.rhdk.purchasingservice.pojo.query.OrderDelivemiddleQuery;
@@ -61,7 +62,7 @@ public class OrderDelivemiddleController {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(OrderDelivemiddleController.class);
 
     @Autowired
-    private AssetServiceFeign assetServiceFeign;
+    private AssetFileServiceFeign assetServiceFeign;
 
 
     @ApiOperation(value = "送货记录明细中间表列表分页查询", notes = "送货记录明细中间表API")
