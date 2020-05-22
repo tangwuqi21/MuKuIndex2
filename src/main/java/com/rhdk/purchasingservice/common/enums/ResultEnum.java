@@ -36,7 +36,15 @@ public enum ResultEnum {
 
   CREATE_FILEERROR(500, "附件创建失败，请重新上传"),
 
-  DETAIL_NOTNULL(500, "记录明细不能为空");
+  DETAIL_NOTNULL(500, "记录明细不能为空"),
+
+  DELIVER_MIDDLDETAILENULL(500, "送货记录明细详情信息为空"),
+
+  FEGIN_TEMPLINFONULL(500, "远程调用模板信息为空"),
+
+  FEGIN_DETAILLISTNULL(500, "远程获取资产明细清单信息为空"),
+
+  DELIVER_MIDDLENULL(500, "送货记录明细信息为空");
 
   private Integer code;
 

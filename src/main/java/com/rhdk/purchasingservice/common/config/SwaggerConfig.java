@@ -2,6 +2,8 @@ package com.rhdk.purchasingservice.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.ParameterBuilder;
 import springfox.documentation.builders.PathSelectors;
@@ -20,6 +22,7 @@ import java.util.List;
  * @date 2017-07-10 22:12:31
  */
 @Configuration
+@Import(BeanValidatorPluginsConfiguration.class)
 public class SwaggerConfig {
 
   @Bean

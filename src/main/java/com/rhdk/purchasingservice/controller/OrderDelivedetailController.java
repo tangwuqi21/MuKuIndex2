@@ -3,6 +3,7 @@ package com.rhdk.purchasingservice.controller;
 
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.pojo.dto.OrderDelivedetailDTO;
+import com.rhdk.purchasingservice.pojo.entity.OrderDelivedetail;
 import com.rhdk.purchasingservice.pojo.query.OrderDelivedetailQuery;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,7 +46,7 @@ public class OrderDelivedetailController {
 
     @ApiOperation(value = "送货明细详细查询", notes = "送货明细API")
     @RequestMapping(value = "/searchOrderDelivedetailOne", method = RequestMethod.GET)
-    public ResponseEnvelope searchOrderDelivedetailOne(Long id) {
+    public ResponseEnvelope<OrderDelivedetail> searchOrderDelivedetailOne(Long id) {
         return iOrderDelivedetailService.searchOrderDelivedetailOne(id);
     }
 

@@ -35,7 +35,7 @@ public class ResourceServer extends ResourceServerConfigurerAdapter {
         http.cors().configurationSource(CorsConfigurationSource());
         http.anonymous().and()
                 .authorizeRequests()
-                .antMatchers("/swagger-ui.html", "/webjars/**", "/swagger-resources/**","/v2/api-docs/**").permitAll()
+                .antMatchers("/swagger-ui.html","/doc.html", "/webjars/**", "/swagger-resources/**","/v2/api-docs/**").permitAll()
 //                .antMatchers(HttpMethod.GET, "/my").access("#oauth2.hasScope('my-resource.read')")
                 .anyRequest().authenticated();
 

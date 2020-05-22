@@ -1,6 +1,7 @@
 package com.rhdk.purchasingservice.controller;
 
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.rhdk.purchasingservice.common.enums.ResultEnum;
 import com.rhdk.purchasingservice.common.utils.ExcleUtils;
 import com.rhdk.purchasingservice.common.utils.FileUtil;
@@ -10,6 +11,7 @@ import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.feign.AssetServiceFeign;
 import com.rhdk.purchasingservice.pojo.dto.OrderDelivemiddleDTO;
 import com.rhdk.purchasingservice.pojo.query.OrderDelivemiddleQuery;
+import com.rhdk.purchasingservice.pojo.vo.OrderDelivemiddleVO;
 import com.rhdk.purchasingservice.service.IOrderDelivemiddleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -65,13 +67,13 @@ public class OrderDelivemiddleController {
 
     @ApiOperation(value = "送货记录明细中间表列表分页查询", notes = "送货记录明细中间表API")
     @RequestMapping(value = "/searchOrderDelivemiddleListPage", method = RequestMethod.POST)
-    public ResponseEnvelope searchOrderDelivemiddleListPage(@RequestBody OrderDelivemiddleQuery dto) {
+    public ResponseEnvelope<IPage<OrderDelivemiddleVO>> searchOrderDelivemiddleListPage(@RequestBody OrderDelivemiddleQuery dto) {
         return iOrderDelivemiddleService.searchOrderDelivemiddleListPage(dto);
     }
 
     @ApiOperation(value = "送货记录明细中间表详细查询", notes = "送货记录明细中间表API")
     @RequestMapping(value = "/searchOrderDelivemiddleOne", method = RequestMethod.POST)
-    public ResponseEnvelope searchOrderDelivemiddleOne(Long id) {
+    public ResponseEnvelope<OrderDelivemiddleVO> searchOrderDelivemiddleOne(Long id) {
         return iOrderDelivemiddleService.searchOrderDelivemiddleOne(id);
     }
 
