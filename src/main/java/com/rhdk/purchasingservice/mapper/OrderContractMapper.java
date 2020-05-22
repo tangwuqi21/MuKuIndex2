@@ -28,6 +28,4 @@ public interface OrderContractMapper extends BaseMapper<OrderContract> {
     List<Long> getContractIdList(@Param("contractCompany") String contractCompany);
 
     void updateContract(@Param("id") Long id, @Param("contractCompany") String contractCompany,@Param("userId") Long userId,@Param("orgId") Long orgId);
-
-    String getCompanyByContracId(@Param("id")  Long id);
 }

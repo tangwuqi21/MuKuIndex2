@@ -74,7 +74,9 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
         QueryWrapper<OrderContract> queryWrapper = new QueryWrapper<OrderContract>();
         OrderContract entity = new OrderContract();
         queryWrapper.orderByDesc("CREATE_DATE");
+        logger.info("searchOrderContractListPage-获取合同id列表开始");
         List<Long> paramStr = orderContractMapper.getContractIdList(dto.getContractCompany());
+        logger.info("searchOrderContractListPage-获取合同id列表结束，获取了"+paramStr.size()+"条");
         queryWrapper.in("ID", paramStr);
         dto.setContractCompany(null);
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
@@ -107,11 +109,11 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     public ResponseEnvelope searchOrderContractOne(Long id) {
         OrderContractVO orderContractVO = new OrderContractVO();
         List<OrderAttachment> attachmentList = iOrderAttachmentService.selectAttachmentList(id);
-        OrderContract model = this.selectOne(id);
-        BeanCopyUtil.copyPropertiesIgnoreNull(model, orderContractVO);
+        PurcasingContract model = purcasingContractMapper.selectById(id);
         OrgUserDto userDto = commonService.getOrgUserById(model.getOrgId(), model.getCreateBy());
-        String companyName = orderContractMapper.getCompanyByContracId(id);
-        orderContractVO.setContractCompany(companyName);
+        OrderContract orderContract=this.selectOne(model.getContractId());
+        BeanCopyUtil.copyPropertiesIgnoreNull(orderContract, orderContractVO);
+        orderContractVO.setContractCompany(model.getContractCompany());
         orderContractVO.setAttachmentList(attachmentList);
         orderContractVO.setCreateName(userDto.getUserInfo().getName());
         orderContractVO.setDeptName(userDto.getGroupName());
@@ -142,7 +144,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
                 model.setParentId(entity.getId());
             }
             List<Long> fileList = iOrderAttachmentService.insertAttachmentListOfIdList(dto.getAttachmentList());
-            logger.info("addAttachment-添加合同附件信息结束");
+            logger.info("addAttachment-添加合同附件信息结束,附件添加了"+fileList.size()+"条");
             if (fileList.size() > 0) {
                 return ResultVOUtil.returnSuccess();
             } else {

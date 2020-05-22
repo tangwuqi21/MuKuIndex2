@@ -53,9 +53,4 @@
     <update id="updateContract">
         update T_ORDER_CONTRACT set CONTRACT_COMPANY=#{contractCompany},UPDATE_DATE=sysdate,UPDATE_BY=#{userId},ORG_ID=#{orgId} where CONTRACT_ID=#{id} and DEL_FLAG=0
     </update>
-
-    <select id="getCompanyByContracId" resultType="java.lang.String">
-        select CONTRACT_COMPANY from T_ORDER_CONTRACT where DEL_FLAG=0
-        and CONTRACT_ID=#{id}
-    </select>
 </mapper>
