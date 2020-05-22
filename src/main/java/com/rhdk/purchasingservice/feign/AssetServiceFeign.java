@@ -31,7 +31,7 @@ public interface AssetServiceFeign {
      * @return
      */
     @RequestMapping(value = "/assetservice/assetEntityInfo/searchEntityInfoList", method = RequestMethod.POST)
-    ResponseEnvelope searchEntityInfoPage(@NotNull AssetQuery assetQuery, @RequestHeader(value = "Authorization") String token);
+    ResponseEnvelope searchEntityInfoPage(@RequestBody AssetQuery assetQuery, @RequestHeader(value = "Authorization") String token);
 
     /**
      * 获取固有属性值
@@ -40,7 +40,7 @@ public interface AssetServiceFeign {
      * @return
      */
     @RequestMapping(value = "/assetservice/assetTmplPrpts/searchValByPrptIds", method = RequestMethod.POST)
-    ResponseEnvelope searchValByPrptIds(@NotNull AssetQuery assetQuery, @RequestHeader(value = "Authorization") String token);
+    ResponseEnvelope searchValByPrptIds(@RequestBody AssetQuery assetQuery, @RequestHeader(value = "Authorization") String token);
 
 
     /**
