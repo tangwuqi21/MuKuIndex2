@@ -3,6 +3,7 @@ package com.rhdk.purchasingservice.controller;
 
 import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.igen.acc.rpc.thrift.IOrgService;
 import com.igen.acc.rpc.thrift.IUserService;
 import com.igen.auth.thrift.IAuthService;
@@ -57,7 +58,7 @@ public class OrderContractController {
      */
     @ApiOperation(value = "合同表列表分页查询", notes = "合同表API")
     @RequestMapping(value = "/searchOrderContractListPage", method = RequestMethod.POST)
-    public ResponseEnvelope searchOrderContractListPage(@RequestBody OrderContractQuery dto) {
+    public ResponseEnvelope<IPage<OrderContractVO>> searchOrderContractListPage(@RequestBody OrderContractQuery dto) {
         return iOrderContractService.searchOrderContractListPage(dto);
     }
 
@@ -68,7 +69,7 @@ public class OrderContractController {
      */
     @ApiOperation(value = "合同表详细查询", notes = "合同表API")
     @RequestMapping(value = "/searchOrderContractOne", method = RequestMethod.POST)
-    public ResponseEnvelope searchOrderContractOne(Long id) {
+    public ResponseEnvelope<OrderContractVO> searchOrderContractOne(Long id) {
         return iOrderContractService.searchOrderContractOne(id);
     }
 

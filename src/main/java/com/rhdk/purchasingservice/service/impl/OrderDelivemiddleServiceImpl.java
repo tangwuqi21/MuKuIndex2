@@ -382,6 +382,19 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
         //更新送货记录内容
         orderDelivemiddleMapper.updateById(entity);
+        //更新送货记录表中的签收状态
+        List<Integer> signStatList = orderDelivemiddleMapper.getSignStatus(entity.getDeliveryId());
+        Integer status = 0;
+        if (signStatList.size() == 1 && signStatList.contains(0)) {
+            status = 0;
+        } else if (signStatList.size() == 1 && signStatList.contains(2)) {
+            status = 2;
+        } else if (signStatList.size() >= 1) {
+            status = 1;
+        }
+        OrderDeliverecords orderDeliverecords=orderDeliverecordsMapper.selectById(entity.getDeliveryId());
+        orderDeliverecords.setSignStatus(status);
+        orderDeliverecordsMapper.updateById(orderDeliverecords);
         return ResultVOUtil.returnSuccess();
     }
 

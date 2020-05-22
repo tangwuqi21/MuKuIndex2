@@ -63,7 +63,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     @Autowired
     private PurcasingContractMapper purcasingContractMapper;
 
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(OrderContractController.class);
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(OrderContractServiceImpl.class);
 
 
     @Override
@@ -77,7 +77,9 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
         logger.info("searchOrderContractListPage-获取合同id列表开始");
         List<Long> paramStr = orderContractMapper.getContractIdList(dto.getContractCompany());
         logger.info("searchOrderContractListPage-获取合同id列表结束，获取了"+paramStr.size()+"条");
-        queryWrapper.in("ID", paramStr);
+        if(paramStr.size()>0){
+            queryWrapper.in("ID", paramStr);
+        }
         dto.setContractCompany(null);
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
         queryWrapper.setEntity(entity);
@@ -209,7 +211,9 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
         queryWrapper.orderByDesc("CREATE_DATE");
         logger.info("getContractInforList-获取导出合同主体id列表信息开始");
         List<Long> paramStr = orderContractMapper.getContractIdList(dto.getContractCompany());
-        queryWrapper.in("ID", paramStr);
+        if(paramStr.size()>0){
+            queryWrapper.in("ID", paramStr);
+        }
         dto.setContractCompany(null);
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
         queryWrapper.setEntity(entity);

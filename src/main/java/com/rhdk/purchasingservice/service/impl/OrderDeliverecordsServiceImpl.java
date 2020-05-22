@@ -95,12 +95,15 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
         queryWrapper.setEntity(entity);
         page = orderDeliverecordsMapper.selectPage(page, queryWrapper);
         Map<Integer, String> supplierMap = new HashMap<>();
+        logger.info("searchOrderDeliverecordsListPage--fegin远程获取供应商列表信息开始");
         List<HashMap<String, Object>> resultMap = (List<HashMap<String, Object>>) assetServiceFeign.getSupplyList(null, TokenUtil.getToken()).getData();
+        logger.info("searchOrderDeliverecordsListPage--fegin远程获取供应商列表信息共："+resultMap.size()+"条，结束");
         for (HashMap<String, Object> model : resultMap) {
             supplierMap.put(Integer.valueOf(model.get("id").toString()), model.get("custName").toString());
         }
         //获取源单信息，获取附件列表信息
         List<OrderDeliverecords> resultList = page.getRecords();
+        logger.info("searchOrderDeliverecordsListPage--获取送货单信息开始");
         List<OrderDeliverecordsVO> orderDeliverecordsVOList = resultList.stream().map(a -> {
             OrderContractVO orderContract = orderContractMapper.selectContractById(a.getOrderId());
             OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
@@ -115,7 +118,6 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
             }
             OrderDeliverecordsVO orderDeliverecordsVO = OrderDeliverecordsVO.builder()
                     .supplierName(supplierMap.get(a.getSupplierId()))
-                    .signStatus(status)
                     .attachmentList(orderAttachmentMapper.selectListByParentId(a.getId(), 2))
                     .createName(userDto.getUserInfo().getName()).deptName(userDto.getGroupName())
                     .build();
@@ -129,8 +131,10 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
                 orderDeliverecordsVO.setContractType(0);
             }
             BeanCopyUtil.copyPropertiesIgnoreNull(a, orderDeliverecordsVO);
+            orderDeliverecordsVO.setSignStatus(status);
             return orderDeliverecordsVO;
         }).collect(Collectors.toList());
+        logger.info("searchOrderDeliverecordsListPage--获取送货单信息共："+orderDeliverecordsVOList.size()+"条，结束");
         Page<OrderDeliverecordsVO> page2 = new Page<OrderDeliverecordsVO>();
         page2.setRecords(orderDeliverecordsVOList);
         page2.setSize(page.getSize());
@@ -144,6 +148,7 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
     public ResponseEnvelope searchOrderDeliverecordsOne(Long id) {
         OrderDeliverecords entity = this.selectOne(id);
         OrderDeliverecordsVO orderDeliverecordsVO = new OrderDeliverecordsVO();
+        logger.info("searchOrderDeliverecordsOne--获取单个送货单信息开始");
         OrderContractVO orderContract = orderContractMapper.selectContractById(entity.getOrderId());
         OrgUserDto userDto = commonService.getOrgUserById(entity.getOrgId(), entity.getCreateBy());
         List<Integer> signStatList = orderDelivemiddleMapper.getSignStatus(id);
@@ -191,7 +196,9 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
             String code = NumberUtils.createCode("SH");
             entity.setDeliveryCode(code);
         }
+        logger.info("addOrderDeliverecords--新增送货单信息开始");
         orderDeliverecordsMapper.insert(entity);
+        logger.info("addOrderDeliverecords--新增送货单信息结束");
         //保存送货记录附件信息
         if (CollectionUtils.isEmpty(dto.getAttachmentList())) {
             return ResultVOUtil.returnFail(ResultEnum.FILE_NOTNULL.getCode(), ResultEnum.FILE_NOTNULL.getMessage());
@@ -206,6 +213,7 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
             if (CollectionUtils.isEmpty(dto.getOrderDelivemiddleDTOList())) {
                 return ResultVOUtil.returnFail(ResultEnum.DETAIL_NOTNULL.getCode(), ResultEnum.DETAIL_NOTNULL.getMessage());
             }
+            logger.info("addOrderDeliverecords--新增送货单明细信息开始");
             for (OrderDelivemiddleDTO delivemiddleDTO : dto.getOrderDelivemiddleDTOList()) {
                 delivemiddleDTO.setDeliveryId(entity.getId());
                 ResponseEnvelope result = iOrderDelivemiddleService.addOrderDelivemiddle(delivemiddleDTO);
@@ -213,6 +221,7 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
                     break;
                 }
             }
+            logger.info("addOrderDeliverecords--新增送货单明细信息结束");
         } else {
             return ResultVOUtil.returnFail(ResultEnum.DETAIL_NOTNULL.getCode(), "保存附件发生异常");
         }

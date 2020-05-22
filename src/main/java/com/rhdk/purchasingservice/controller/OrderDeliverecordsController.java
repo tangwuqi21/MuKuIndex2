@@ -1,9 +1,11 @@
 package com.rhdk.purchasingservice.controller;
 
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.pojo.dto.OrderDeliverecordsDTO;
 import com.rhdk.purchasingservice.pojo.query.OrderDeliverecordsQuery;
+import com.rhdk.purchasingservice.pojo.vo.OrderDeliverecordsVO;
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.annotations.Api;
@@ -40,13 +42,13 @@ public class OrderDeliverecordsController {
 
     @ApiOperation(value = "送货单列表分页查询", notes = "送货单API")
     @RequestMapping(value = "/searchOrderDeliverecordsListPage", method = RequestMethod.POST)
-    public ResponseEnvelope searchOrderDeliverecordsListPage(@RequestBody OrderDeliverecordsQuery dto) {
+    public ResponseEnvelope<IPage<OrderDeliverecordsVO>> searchOrderDeliverecordsListPage(@RequestBody OrderDeliverecordsQuery dto) {
         return iOrderDeliverecordsService.searchOrderDeliverecordsListPage(dto);
     }
 
     @ApiOperation(value = "送货单详细查询", notes = "送货单API")
     @RequestMapping(value = "/searchOrderDeliverecordsOne", method = RequestMethod.POST)
-    public ResponseEnvelope searchOrderDeliverecordsOne(Long id) {
+    public ResponseEnvelope<OrderDeliverecordsVO> searchOrderDeliverecordsOne(Long id) {
         return iOrderDeliverecordsService.searchOrderDeliverecordsOne(id);
     }
 
