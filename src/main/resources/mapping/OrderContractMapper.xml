@@ -38,10 +38,6 @@
     where o.contract_id=#{id} and o.DEL_FLAG=0 and c.DEL_FLAG=0
     </select>
 
-    <insert id="insertOrderContract">
-        insert into T_ORDER_CONTRACT(id,CONTRACT_ID,CONTRACT_COMPANY,CREATE_BY,CREATE_DATE,ORG_ID) values(T_ASSET_ORDER_SEQ.nextval,#{id},#{contractCompany},#{createBy},sysdate,#{orgId})
-    </insert>
-
     <select id="getContractIdList" resultType="java.lang.Long" parameterType="java.lang.String">
         select CONTRACT_ID from T_ORDER_CONTRACT where DEL_FLAG=0
         <if test="contractCompany !=null and contractCompany !=''">
