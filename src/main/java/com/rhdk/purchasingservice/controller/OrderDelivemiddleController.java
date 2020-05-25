@@ -103,4 +103,11 @@ public class OrderDelivemiddleController {
         return iOrderDelivemiddleService.deleteOrderDetailrecords(id);
     }
 
+
+    @ApiOperation(value = "送货明细附件删除", notes = "送货记录明细中间表API")
+    @RequestMapping(value = "/deleteDetailFile", method = RequestMethod.POST)
+    public ResponseEnvelope deleteDetailFile(@RequestBody OrderDelivemiddleDTO dto) throws Exception{
+        return iOrderDelivemiddleService.deleteDetailFile(dto);
+    }
+
 }

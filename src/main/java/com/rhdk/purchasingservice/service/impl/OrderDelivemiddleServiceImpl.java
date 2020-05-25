@@ -500,5 +500,25 @@ public class OrderDelivemiddleServiceImpl extends ServiceImpl<OrderDelivemiddleM
         }
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEnvelope deleteDetailFile(OrderDelivemiddleDTO dto) {
+        //1.删除附件信息
+        //物理删除送货明细附件表
+        orderAttachmentMapper.deleteAttachmentByParentId(dto.getId(), 3L);
+        //2.删除送货记录明细信息
+        List<Long> middleIds = new ArrayList<>();
+        middleIds.add(dto.getId());
+        List<Long> assetIds = orderDelivedetailMapper.getAssetIdsByDId(middleIds);
+        Long[] strArray = new Long[assetIds.size()];
+        assetIds.toArray(strArray);
+        orderDelivedetailMapper.deleteDeliveDetails(assetIds);
+        //3.删除资产信息实体类
+        assetServiceFeign.deleteEntitys(strArray,TokenUtil.getToken());
+        //4.删除资产属性值信息
+        assetServiceFeign.deleteEntityPrpts(strArray,TokenUtil.getToken());
+        return ResultVOUtil.returnSuccess();
+    }
+
 
 }

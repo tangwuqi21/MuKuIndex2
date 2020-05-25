@@ -40,4 +40,6 @@ public interface IOrderDelivemiddleService extends IService<OrderDelivemiddle> {
     ResponseEnvelope uploadFileCheck(MultipartFile file, Long moduleId) throws Exception;
 
     void updateAssetStatus(OrderDelivemiddleDTO dto);
+
+    ResponseEnvelope deleteDetailFile(OrderDelivemiddleDTO dto);
 }

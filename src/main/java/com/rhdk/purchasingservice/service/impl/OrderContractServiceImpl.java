@@ -90,7 +90,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
             //根据合同id去附件表里获取每个合同对应的附件
             OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
             OrderContractVO mo=orderContractMapper.selectContractByCId(a.getId());
-            OrderContractVO at = OrderContractVO.builder().attachmentList(iOrderAttachmentService.selectAttachmentList(a.getId()))
+            OrderContractVO at = OrderContractVO.builder().attachmentList(iOrderAttachmentService.selectAttachmentList(mo.getOrderId()))
                     .contractCode(a.getContractCode()).contractCompany(mo.getContractCompany()).contractName(a.getContractName())
                     .contractDate(a.getContractDate()).contractMoney(a.getContractMoney()).id(mo.getOrderId()).contractType(a.getContractType())
                     .createBy(a.getCreateBy()).createDate(a.getCreateDate()).updateBy(a.getUpdateBy()).updateDate(a.getUpdateDate())
