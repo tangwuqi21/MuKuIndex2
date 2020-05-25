@@ -5,6 +5,7 @@ import com.rhdk.purchasingservice.pojo.entity.OrderDelivemiddle;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.rhdk.purchasingservice.pojo.dto.OrderDelivemiddleDTO;
 import com.rhdk.purchasingservice.pojo.query.OrderDelivemiddleQuery;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileNotFoundException;
 import java.util.List;
@@ -35,4 +36,10 @@ public interface IOrderDelivemiddleService extends IService<OrderDelivemiddle> {
      ResponseEnvelope deleteOrderDetailrecords(Long id);
 
     ResponseEnvelope updateOrderMiddle(OrderDelivemiddleDTO dto);
+
+    ResponseEnvelope uploadFileCheck(MultipartFile file, Long moduleId) throws Exception;
+
+    void updateAssetStatus(OrderDelivemiddleDTO dto);
+
+    ResponseEnvelope deleteDetailFile(OrderDelivemiddleDTO dto);
 }

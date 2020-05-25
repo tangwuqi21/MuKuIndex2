@@ -89,6 +89,12 @@ public class AssetEntityPrpt extends Model<AssetEntityPrpt> {
     @TableLogic
     private Integer delFlag;
 
+    /**
+     * 保存状态，（0-暂存，1-已提交）
+     */
+    @TableField("SAVE_STATUS")
+    private Long saveStatus;
+
 
     @Override
     protected Serializable pkVal() {

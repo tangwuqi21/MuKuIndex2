@@ -144,7 +144,7 @@ public interface AssetServiceFeign {
             value = "/assetservice/assetEntityInfo/deleteEntitys",
             method = RequestMethod.POST)
     ResponseEnvelope deleteEntitys(
-            @RequestParam("assetIds") List<Long> assetIds,
+            @RequestParam("assetIds") Long[] assetIds,
             @RequestHeader(value = "Authorization") String token);
 
     /**
@@ -158,7 +158,7 @@ public interface AssetServiceFeign {
             value = "/assetservice/assetEntityInfo/updateEntityInfo",
             method = RequestMethod.POST)
     ResponseEnvelope updateEntityInfo(
-            @RequestParam("assetIds") List<Long> assetIds,
+            @RequestParam("assetIds") Long[] assetIds,
             @RequestBody OrderDelivemiddleDTO model,
             @RequestHeader(value = "Authorization") String token);
 
@@ -173,7 +173,7 @@ public interface AssetServiceFeign {
             value = "/assetservice/assetEntityInfo/updateEntitys",
             method = RequestMethod.POST)
     ResponseEnvelope updateEntitys(
-            @RequestParam("assetIds") List<Long> assetIds,
+            @RequestParam("assetIds") Long[] assetIds,
             @RequestHeader(value = "Authorization") String token);
 
     /**
@@ -200,7 +200,7 @@ public interface AssetServiceFeign {
             value = "/assetservice/assetEntityPrpt/deleteEntityPrpts",
             method = RequestMethod.POST)
     ResponseEnvelope deleteEntityPrpts(
-            @RequestParam("assetIds") List<Long> assetIds,
+            @RequestParam("assetIds") Long[] assetIds,
             @RequestHeader(value = "Authorization") String token);
 
     /**
@@ -214,7 +214,7 @@ public interface AssetServiceFeign {
             value = "/assetservice/assetEntityPrpt/updateEntityprpts",
             method = RequestMethod.POST)
     ResponseEnvelope updateEntityprpts(
-            @RequestParam("assetIds") List<Long> assetIds,
+            @RequestParam("assetIds") Long[] assetIds,
             @RequestHeader(value = "Authorization") String token);
 
     /**
@@ -230,4 +230,25 @@ public interface AssetServiceFeign {
     ResponseEnvelope addBeatchAtta(
             @RequestBody List<OrderAttachmentDTO> dto,
             @RequestHeader(value = "Authorization") String token);
+
+
+    /**
+     * 根据资产模板id来获取资产id集合并将资产状态从暂存改变为待签收
+     * @param assetIds
+     * @return
+     */
+    @RequestMapping(
+            value = "/assetservice/assetEntityInfo/updateEntitysStatus",
+            method = RequestMethod.POST)
+    ResponseEnvelope<List<Long>> updateEntitysStatus(@RequestParam("assetIds") Long[] assetIds,@RequestHeader(value = "Authorization") String token);
+
+    /**
+     * 根据资产id集合将资产属性值状态从暂存改变为待签收
+     * @param assetIds
+     * @return
+     */
+    @RequestMapping(
+            value = "/assetservice/assetEntityPrpt/updateAssetprptsStatus",
+            method = RequestMethod.POST)
+    ResponseEnvelope updateAssetprptsStatus(@RequestParam("assetIds") Long[] assetIds, @RequestHeader(value = "Authorization") String token);
 }

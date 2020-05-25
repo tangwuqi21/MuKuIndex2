@@ -114,7 +114,7 @@ public class AssetEntityInfo extends Model<AssetEntityInfo> {
     private Long orgId;
 
     /**
-     * 资产标识 （0:待签收 1:签收 2:入库 3:消耗 99:虚资产-用于组装）
+     * 资产标识 （-2：暂存状态，-1:装配草稿状态,0:待签收 1:签收 2:入库 3:消耗 99:虚资产-用于组装）
      */
     @TableField("ASSET_STATUS")
     private Long assetStatus;
