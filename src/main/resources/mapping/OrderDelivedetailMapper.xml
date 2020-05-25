@@ -66,4 +66,28 @@
             #{id,jdbcType=BIGINT}
         </foreach>
     </update>
+
+    <update id="updateAssetStatus" parameterType="com.rhdk.purchasingservice.pojo.query.AssetQuery">
+        update T_ORDER_DELIVEDETAIL set SAVE_STATUS=1
+        <if test="assetQuery.middleId !=null and assetQuery.middleId !=''">
+            ,MIDDLE_ID=#{assetQuery.middleId}
+        </if>
+        where DEL_FLAG=0 and ASSET_ID in
+        <foreach collection="assetQuery.assetIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </update>
+
+    <select id="getAssetIdsBYStatus" parameterType="com.rhdk.purchasingservice.pojo.dto.OrderDelivemiddleDTO" resultType="java.lang.Long">
+        select ASSET_ID from T_ORDER_DELIVEDETAIL where DEL_FLAG=0
+        <if test="dto.itemNO !=null and dto.itemNO !=''">
+            and ITEM_NO=#{dto.itemNO}
+        </if>
+        <if test="dto.assetCatId !=null and dto.assetCatId !=''">
+            and ASSET_CAT_ID=#{dto.assetCatId}
+        </if>
+        <if test="dto.saveStatus !=null and dto.saveStatus !=''">
+            and SAVE_STATUS=#{dto.saveStatus}
+        </if>
+    </select>
 </mapper>

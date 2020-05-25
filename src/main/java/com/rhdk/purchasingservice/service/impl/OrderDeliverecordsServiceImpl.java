@@ -97,7 +97,7 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
         Map<Integer, String> supplierMap = new HashMap<>();
         logger.info("searchOrderDeliverecordsListPage--fegin远程获取供应商列表信息开始");
         List<HashMap<String, Object>> resultMap = (List<HashMap<String, Object>>) assetServiceFeign.getSupplyList(null, TokenUtil.getToken()).getData();
-        logger.info("searchOrderDeliverecordsListPage--fegin远程获取供应商列表信息共："+resultMap.size()+"条，结束");
+        logger.info("searchOrderDeliverecordsListPage--fegin远程获取供应商列表信息共：" + resultMap.size() + "条，结束");
         for (HashMap<String, Object> model : resultMap) {
             supplierMap.put(Integer.valueOf(model.get("id").toString()), model.get("custName").toString());
         }
@@ -134,7 +134,7 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
             orderDeliverecordsVO.setSignStatus(status);
             return orderDeliverecordsVO;
         }).collect(Collectors.toList());
-        logger.info("searchOrderDeliverecordsListPage--获取送货单信息共："+orderDeliverecordsVOList.size()+"条，结束");
+        logger.info("searchOrderDeliverecordsListPage--获取送货单信息共：" + orderDeliverecordsVOList.size() + "条，结束");
         Page<OrderDeliverecordsVO> page2 = new Page<OrderDeliverecordsVO>();
         page2.setRecords(orderDeliverecordsVOList);
         page2.setSize(page.getSize());
@@ -216,6 +216,7 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
             logger.info("addOrderDeliverecords--新增送货单明细信息开始");
             for (OrderDelivemiddleDTO delivemiddleDTO : dto.getOrderDelivemiddleDTOList()) {
                 delivemiddleDTO.setDeliveryId(entity.getId());
+                delivemiddleDTO.setToken(TokenUtil.getToken());
                 ResponseEnvelope result = iOrderDelivemiddleService.addOrderDelivemiddle(delivemiddleDTO);
                 if (result.getCode() != 0) {
                     break;
@@ -276,14 +277,16 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
                                 //明细附件发生了改变，需要重新解析数据表格进行数据的上传
                                 //通过明细中间表找到明细表，通过明细表，去到资产实体表中进行之前的数据删除，然后删除明细中间表的数据
                                 List<Long> detailAssetIds = orderDelivedetailMapper.getAssetIds(model.getId());
+                                Long[] strArray = new Long[detailAssetIds.size()];
+                                detailAssetIds.toArray(strArray);
                                 //删除资产实体表相关信息
-                                assetServiceFeign.deleteEntitys(detailAssetIds, TokenUtil.getToken());
+                                assetServiceFeign.deleteEntitys(strArray, TokenUtil.getToken());
                                 //删除资产实体属性值表
-                                assetServiceFeign.deleteEntityPrpts(detailAssetIds, TokenUtil.getToken());
+                                assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
                                 //删除明细表的数据
                                 orderDelivedetailMapper.deleteDeliveDetails(detailAssetIds);
-                                //解析新的模板并进行数据的入库（入库到资产实体表，资产实体属性值表，送货明细表）
-                                insertDevieryandAsset(model);
+                                //变更资产实体表，资产实体属性值表，送货明细表的三种资产状态）
+                                iOrderDelivemiddleService.updateAssetStatus(model);
                                 //更新附件表
                                 OrderAttachmentDTO orderAttachment = new OrderAttachmentDTO();
                                 orderAttachment.setParentId(model.getId());
@@ -296,21 +299,48 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
                     } else {
                         //量管的资产，更新明细表和资产实体表中的数量
                         List<Long> detailAssetIds = orderDelivedetailMapper.getAssetIds(model.getId());
+                        Long[] strArray = new Long[detailAssetIds.size()];
+                        detailAssetIds.toArray(strArray);
                         orderDelivedetailMapper.updateDetails(detailAssetIds, model);
-                        assetServiceFeign.updateEntityInfo(detailAssetIds, model, TokenUtil.getToken());
+                        assetServiceFeign.updateEntityInfo(strArray, model, TokenUtil.getToken());
+
                     }
                 } else {
                     //切换了资产模板，需要清空之前的资产明细数据并重新解析Excel表格进行数据的上传
                     //通过明细中间表找到明细表，通过明细表，去到资产实体表中进行之前的数据删除，然后删除明细中间表的数据
                     List<Long> detailAssetIds = orderDelivedetailMapper.getAssetIds(model.getId());
+                    Long[] strArray = new Long[detailAssetIds.size()];
+                    detailAssetIds.toArray(strArray);
                     //删除资产实体表相关信息
-                    assetServiceFeign.deleteEntitys(detailAssetIds, TokenUtil.getToken());
+                    assetServiceFeign.deleteEntitys(strArray, TokenUtil.getToken());
                     //删除资产实体属性值表
-                    assetServiceFeign.deleteEntityPrpts(detailAssetIds, TokenUtil.getToken());
+                    assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
                     //删除明细表的数据
                     orderDelivedetailMapper.deleteDeliveDetails(detailAssetIds);
-                    //解析新的模板并进行数据的入库（入库到资产实体表，资产实体属性值表，送货明细表）
-                    insertDevieryandAsset(model);
+                    //判断切换后的模板类型是物管还是量管，物管更新资产实体表，资产实体属性值表，送货明细表的三种资产状态，量管新增一条数据
+                    if ("2".equals(model.getWmType())) {
+                        //变更资产实体表，资产实体属性值表，送货明细表的三种资产状态）
+                        iOrderDelivemiddleService.updateAssetStatus(model);
+                    } else {
+                        //执行量管的数据记录
+                        AssetEntityInfo entityInfo = new AssetEntityInfo();
+                        entityInfo.setAmount(model.getAssetNumber());
+                        entityInfo.setAssetCatId(model.getAssetCatId());
+                        entityInfo.setAssetTemplId(model.getModuleId());
+                        entityInfo.setAssetTemplVer(model.getModuleVersion());
+                        entityInfo.setItemNo(model.getItemNO());
+                        entityInfo.setAssetStatus(0L);
+                        //1.入库资产实体表信息
+                        entityInfo = assetServiceFeign.addAssetEntityInfo(entityInfo, model.getToken()).getData();
+                        //3.这里进行送货记录的详细表中入库
+                        OrderDelivedetail orderDelivedetail = new OrderDelivedetail();
+                        orderDelivedetail.setAssetId(entityInfo.getId());
+                        orderDelivedetail.setAssetNumber(model.getAssetNumber());
+                        orderDelivedetail.setAssetCatId(model.getAssetCatId());
+                        orderDelivedetail.setMiddleId(entity.getId());
+                        orderDelivedetail.setItemNo(model.getItemNO());
+                        orderDelivedetailMapper.insert(orderDelivedetail);
+                    }
                     //更新附件表
                     OrderAttachmentDTO orderAttachment = new OrderAttachmentDTO();
                     orderAttachment.setParentId(model.getId());
@@ -340,99 +370,4 @@ public class OrderDeliverecordsServiceImpl extends ServiceImpl<OrderDeliverecord
         queryWrapper.setEntity(entity);
         return orderDeliverecordsMapper.selectOne(queryWrapper);
     }
-
-
-    /**
-     * 更新附件，重新解析附件里面的内容并进行资产信息入库操作
-     *
-     * @param dto
-     */
-    public void insertDevieryandAsset(OrderDelivemiddleDTO dto) throws Exception {
-        //获取资产模板对应的表头信息
-        List<Map<String, Object>> titleMap = orderDelivemiddleMapper.getTitleList(dto.getModuleId());
-        //获取表格里的个性属性
-        List<Map<String, Object>> titleMap2 = orderDelivemiddleMapper.getTitleMap(dto.getModuleId());
-        //获取表头的下标
-        Map<Integer, Integer> titleIdM = new HashMap<>();
-        Map<String, Integer> titleNameM = new HashMap<>();
-        for (int num = 0; num < titleMap2.size(); num++) {
-            titleIdM.put(Integer.valueOf(titleMap2.get(num).get("PRPT_ORDER").toString()), num);
-            titleNameM.put(titleMap2.get(num).get("NAME").toString(), num);
-        }
-        // 创建excel工作簿对象
-        Workbook workbook = null;
-        FormulaEvaluator formulaEvaluator = null;
-        File excelFile = new File(dto.getFileUrl());
-        InputStream is = new FileInputStream(excelFile);
-        // 判断文件是xlsx还是xls
-        if (excelFile.getName().endsWith("xlsx")) {
-            workbook = new XSSFWorkbook(is);
-            formulaEvaluator = new XSSFFormulaEvaluator((XSSFWorkbook) workbook);
-        } else {
-            workbook = new HSSFWorkbook(is);
-            formulaEvaluator = new HSSFFormulaEvaluator((HSSFWorkbook) workbook);
-        }
-        //判断excel文件打开是否正确
-        if (workbook == null) {
-            logger.info("未读取到内容,请检查路径！");
-        }
-        //遍历工作簿中的sheet
-        for (int numSheet = 0; numSheet < workbook.getNumberOfSheets(); numSheet++) {
-            Sheet sheet = workbook.getSheetAt(numSheet);
-            //当前sheet页面为空,继续遍历
-            if (sheet == null) {
-                continue;
-            }
-            // 对于每个sheet，读取其中的每一行,从第二行开始读取
-            for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
-                Row row = sheet.getRow(rowNum);
-                if (row == null) {
-                    continue;
-                }
-                //这里默认第一列为资产名称,to do
-                AssetEntityInfo entityInfo = new AssetEntityInfo();
-                entityInfo.setAmount(1L);
-                entityInfo.setAssetCatId(dto.getAssetCatId());
-                entityInfo.setAssetTemplId(dto.getModuleId());
-                entityInfo.setAssetTemplVer(dto.getModuleVersion());
-                entityInfo.setItemNo(dto.getItemNO());
-                entityInfo.setAssetStatus(0L);
-                if (titleNameM.get("名称") != null) {
-                    Cell cell = row.getCell(titleNameM.get("名称"));
-                    entityInfo.setName(ExcleUtils.getValue(cell, formulaEvaluator));
-                }
-                //1.入库资产实体表信息
-                entityInfo = assetServiceFeign.addAssetEntityInfo(entityInfo, TokenUtil.getToken()).getData();
-                //入库每条资产实体对应的属性值（每个属性都需要入到资产属性值表中）
-                for (Map<String, Object> model : titleMap) {
-                    //存储个性+共性的属性
-                    AssetEntityPrpt assetEntityPrpt = new AssetEntityPrpt();
-                    assetEntityPrpt.setAssetId(entityInfo.getId());
-                    assetEntityPrpt.setPrptId(Long.valueOf(model.get("PRPT_ID").toString()));
-                    //这里判断对应的属性值是共性的还是个性的，共性属性值从数据库取，个性的属性值从cell中进行读取
-                    if (model.get("PRPT_VALUE") == null || StringUtils.isEmpty(model.get("PRPT_VALUE").toString())) {
-                        int a = titleIdM.get(Integer.valueOf(model.get("PRPT_ORDER").toString()));
-                        assetEntityPrpt.setVal(ExcleUtils.getValue(row.getCell(a), formulaEvaluator));
-                    } else {
-                        assetEntityPrpt.setVal(model.get("PRPT_VALUE").toString());
-                    }
-                    assetEntityPrpt.setCode(model.get("CODE").toString());
-                    //2.入库到资产实体属性值表中
-                    assetEntityPrpt = assetServiceFeign.addAssetEntityPrpt(assetEntityPrpt, TokenUtil.getToken()).getData();
-                }
-                //3.这里进行送货记录的详细表中入库
-                OrderDelivedetail orderDelivedetail = new OrderDelivedetail();
-                if (entityInfo.getName() != null) {
-                    orderDelivedetail.setAssetName(entityInfo.getName());
-                }
-                orderDelivedetail.setAssetId(entityInfo.getId());
-                orderDelivedetail.setAssetNumber(1L);
-                orderDelivedetail.setAssetCatId(dto.getAssetCatId());
-                orderDelivedetail.setMiddleId(dto.getId());
-                orderDelivedetail.setItemNo(dto.getItemNO());
-                orderDelivedetailMapper.insert(orderDelivedetail);
-            }
-        }
-    }
-
 }

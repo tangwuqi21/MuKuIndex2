@@ -8,7 +8,6 @@ import com.rhdk.purchasingservice.common.utils.BeanCopyUtil;
 import com.rhdk.purchasingservice.common.utils.ResultVOUtil;
 import com.rhdk.purchasingservice.common.utils.TokenUtil;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
-import com.rhdk.purchasingservice.controller.OrderContractController;
 import com.rhdk.purchasingservice.feign.AssetServiceFeign;
 import com.rhdk.purchasingservice.mapper.OrderDelivedetailMapper;
 import com.rhdk.purchasingservice.mapper.OrderDelivemiddleMapper;
@@ -71,42 +70,42 @@ public class OrderDelivedetailServiceImpl extends ServiceImpl<OrderDelivedetailM
         entity.setMiddleId(dto.getMiddleId());
         queryWrapper.setEntity(entity);
         logger.info("searchOrderDelivedetailListPage--获取送货明细签收对照表信息开始");
-        OrderDelivemiddle orderDelivemiddle=orderDelivemiddleMapper.selectById(dto.getMiddleId());
-        if(orderDelivemiddle==null){
-            return ResultVOUtil.returnFail(ResultEnum.DELIVER_MIDDLENULL.getCode(),ResultEnum.DELIVER_MIDDLENULL.getMessage());
+        OrderDelivemiddle orderDelivemiddle = orderDelivemiddleMapper.selectById(dto.getMiddleId());
+        if (orderDelivemiddle == null) {
+            return ResultVOUtil.returnFail(ResultEnum.DELIVER_MIDDLENULL.getCode(), ResultEnum.DELIVER_MIDDLENULL.getMessage());
         }
-        logger.info("searchOrderDelivedetailListPage--获取送货明细签收对照表信息："+orderDelivemiddle.toString()+"结束");
+        logger.info("searchOrderDelivedetailListPage--获取送货明细签收对照表信息：" + orderDelivemiddle.toString() + "结束");
         // 1.查询送货信息
         logger.info("searchOrderDelivedetailListPage--获取送货单信息开始");
-        OrderDeliverecords orderDeliverecord=orderDeliverecordsMapper.getDeliverecordInfo(orderDelivemiddle.getDeliveryId());
-        if(orderDeliverecord==null){
-            return ResultVOUtil.returnFail(ResultEnum.DELIVER_MIDDLDETAILENULL.getCode(),ResultEnum.DELIVER_MIDDLDETAILENULL.getMessage());
+        OrderDeliverecords orderDeliverecord = orderDeliverecordsMapper.getDeliverecordInfo(orderDelivemiddle.getDeliveryId());
+        if (orderDeliverecord == null) {
+            return ResultVOUtil.returnFail(ResultEnum.DELIVER_MIDDLDETAILENULL.getCode(), ResultEnum.DELIVER_MIDDLDETAILENULL.getMessage());
         }
-        logger.info("searchOrderDelivedetailListPage--获取送货单信息："+orderDeliverecord.toString()+"结束");
+        logger.info("searchOrderDelivedetailListPage--获取送货单信息：" + orderDeliverecord.toString() + "结束");
         // 4.查询模板名称
         logger.info("searchOrderDelivedetailListPage--fegin远程调用模板信息开始");
-        AssetTmplInfo assetTmplInfo= (AssetTmplInfo) assetServiceFeign.searchAssetTmplInfoOne(orderDelivemiddle.getModuleId(),TokenUtil.getToken()).getData();
-        if(assetTmplInfo==null){
-            return ResultVOUtil.returnFail(ResultEnum.FEGIN_TEMPLINFONULL.getCode(),ResultEnum.FEGIN_TEMPLINFONULL.getMessage());
+        AssetTmplInfo assetTmplInfo = (AssetTmplInfo) assetServiceFeign.searchAssetTmplInfoOne(orderDelivemiddle.getModuleId(), TokenUtil.getToken()).getData();
+        if (assetTmplInfo == null) {
+            return ResultVOUtil.returnFail(ResultEnum.FEGIN_TEMPLINFONULL.getCode(), ResultEnum.FEGIN_TEMPLINFONULL.getMessage());
         }
-        logger.info("searchOrderDelivedetailListPage--fegin远程调用模板信息："+assetTmplInfo.toString()+"结束");
+        logger.info("searchOrderDelivedetailListPage--fegin远程调用模板信息：" + assetTmplInfo.toString() + "结束");
         page = orderDelivedetailMapper.selectPage(page, queryWrapper);
         List<OrderDelivedetail> resultList = page.getRecords();
         List<Long> assetIds = new ArrayList<>();
-        for(OrderDelivedetail a:resultList){
+        for (OrderDelivedetail a : resultList) {
             assetIds.add(a.getAssetId());
         }
         //fegin调用资产服务，获取明细表格数据
         Map<String, Object> resultMap = new HashMap<>();
-        if(assetIds.size()>0){
-            AssetQuery assetQuery=new AssetQuery();
+        if (assetIds.size() > 0) {
+            AssetQuery assetQuery = new AssetQuery();
             assetQuery.setAssetIds(assetIds);
             assetQuery.setAssetTemplId(dto.getModuleId());
-            logger.info("searchOrderDelivedetailListPage--fegin远程获取明细清单开始："+assetIds.size()+"条");
+            logger.info("searchOrderDelivedetailListPage--fegin远程获取明细清单开始：" + assetIds.size() + "条");
             Map<String, List<Object>> map = (Map<String, List<Object>>) assetServiceFeign.searchEntityInfoPage(assetQuery, TokenUtil.getToken()).getData();
             logger.info("searchOrderDelivedetailListPage--fegin远程获取明细清单结束");
-            if(map==null){
-                return ResultVOUtil.returnFail(ResultEnum.FEGIN_DETAILLISTNULL.getCode(),ResultEnum.FEGIN_DETAILLISTNULL.getMessage());
+            if (map == null) {
+                return ResultVOUtil.returnFail(ResultEnum.FEGIN_DETAILLISTNULL.getCode(), ResultEnum.FEGIN_DETAILLISTNULL.getMessage());
             }
             Page pageResult = new Page<>();
             pageResult.setRecords(map.get("content"));
