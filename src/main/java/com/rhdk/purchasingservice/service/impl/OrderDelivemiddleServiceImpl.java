@@ -12,6 +12,7 @@ import com.rhdk.purchasingservice.pojo.dto.OrderDelivemiddleDTO;
 import com.rhdk.purchasingservice.pojo.entity.*;
 import com.rhdk.purchasingservice.pojo.query.AssetQuery;
 import com.rhdk.purchasingservice.pojo.query.OrderDelivemiddleQuery;
+import com.rhdk.purchasingservice.pojo.vo.AssetEntityInfoVO;
 import com.rhdk.purchasingservice.pojo.vo.OrderDelivemiddleVO;
 import com.rhdk.purchasingservice.service.IOrderDelivemiddleService;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -270,8 +272,8 @@ public class OrderDelivemiddleServiceImpl
   public Integer deleteByPassNo(Long id) {
     // 根据送货单id查询出对应的所有明细清单
     List<Long> middleIds = orderDelivemiddleMapper.getMIdsByDeliveryId(id);
-    // 物理删除送货明细表
     if (middleIds.size() > 0) {
+      // 物理删除送货明细表
       List<Long> assetIds = orderDelivedetailMapper.getAssetIdsByDId(middleIds);
       if (assetIds.size() > 0) {
         Long[] strArray = new Long[assetIds.size()];
@@ -289,6 +291,7 @@ public class OrderDelivemiddleServiceImpl
         orderAttachmentMapper.deleteAttachmentByParentId(no, 3L);
       }
     }
+
     return ResultVOUtil.returnSuccess().getCode();
   }
 
@@ -364,6 +367,8 @@ public class OrderDelivemiddleServiceImpl
     }
     // 获取资产模板对应的个性表头信息
     List<Map<String, Object>> titleMap = getTitleMap(moduleId);
+    // 获取资产模板所有的属性信息
+    // List<Map<String, Object>> titleMap2 = orderDelivemiddleMapper.getTitleList(moduleId);
     Map<Integer, Integer> titleIdM = new HashMap<>();
     Map<Integer, String> titleNameM = new HashMap<>();
     Map<String, Integer> titleNameM2 = new HashMap<>();
@@ -414,6 +419,11 @@ public class OrderDelivemiddleServiceImpl
     boolean isDataT = true;
     int rowNo = 0;
     String cellMsg = "";
+    Long startT = System.currentTimeMillis();
+    System.out.println("开始解析：" + startT);
+    List<AssetEntityInfoVO> assetEntityInfoVOList = new ArrayList<>();
+    List<AssetEntityPrpt> assetEntityPrptList = new ArrayList<>();
+    List<OrderDelivedetail> orderDelivedetailList = new ArrayList<>();
     for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
       Row row = sheet.getRow(rowNum);
       if (row == null) {
@@ -441,55 +451,28 @@ public class OrderDelivemiddleServiceImpl
         rowNo = rowNum + 1;
         break;
       }
-      // 检查没有问题，则暂存到资产实体表中，状态为暂存；资产属性值表中，状态为暂存；送货记录明细表中，状态为暂存；
-      AssetEntityInfo entityInfo = new AssetEntityInfo();
-      entityInfo.setAmount(1L);
-      entityInfo.setAssetCatId(assetTmplInfo.getAssetCatId());
-      entityInfo.setAssetTemplId(assetTmplInfo.getId());
-      entityInfo.setAssetTemplVer(assetTmplInfo.getVerNo());
-      entityInfo.setItemNo(assetTmplInfo.getItemNo());
-      entityInfo.setAssetStatus(4L);
-      entityInfo.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
-      if (titleNameM2.get("名称") != null) {
-        Cell cell = row.getCell(titleNameM2.get("名称"));
-        entityInfo.setName(ExcleUtils.getValue(cell, formulaEvaluator));
-      }
-      // 1.入库资产实体表信息
-      entityInfo = assetServiceFeign.addAssetEntityInfo(entityInfo, TokenUtil.getToken()).getData();
-      // 获取资产模板所有的属性信息
-      List<Map<String, Object>> titleMap2 = orderDelivemiddleMapper.getTitleList(moduleId);
-      // 入库每条资产实体对应的属性值（每个属性都需要入到资产属性值表中）
-      for (Map<String, Object> model : titleMap2) {
-        // 存储个性+共性的属性
-        AssetEntityPrpt assetEntityPrpt = new AssetEntityPrpt();
-        assetEntityPrpt.setAssetId(entityInfo.getId());
-        assetEntityPrpt.setPrptId(Long.valueOf(model.get("PRPT_ID").toString()));
-        assetEntityPrpt.setSaveStatus(0L);
-        // 这里判断对应的属性值是共性的还是个性的，共性属性值从数据库取，个性的属性值从cell中进行读取
-        if (model.get("PRPT_VALUE") == null
-            || StringUtils.isEmpty(model.get("PRPT_VALUE").toString())) {
-          int a = titleIdM.get(Integer.valueOf(model.get("PRPT_ORDER").toString()));
-          assetEntityPrpt.setVal(ExcleUtils.getValue(row.getCell(a), formulaEvaluator));
-        } else {
-          assetEntityPrpt.setVal(model.get("PRPT_VALUE").toString());
-        }
-        assetEntityPrpt.setCode(model.get("CODE").toString());
-        // 2.入库到资产实体属性值表中
-        assetEntityPrpt =
-            assetServiceFeign.addAssetEntityPrpt(assetEntityPrpt, TokenUtil.getToken()).getData();
-      }
-      // 3.这里进行送货记录的详细表中入库
-      OrderDelivedetail orderDelivedetail = new OrderDelivedetail();
-      if (entityInfo.getName() != null) {
-        orderDelivedetail.setAssetName(entityInfo.getName());
-      }
-      orderDelivedetail.setAssetId(entityInfo.getId());
-      orderDelivedetail.setAssetNumber(1L);
-      orderDelivedetail.setSaveStatus(0L);
-      orderDelivedetail.setAssetCatId(assetTmplInfo.getAssetCatId());
-      orderDelivedetail.setItemNo(assetTmplInfo.getItemNo());
-      orderDelivedetailMapper.insert(orderDelivedetail);
+      AssetEntityInfoVO colutMap =
+          resoveRow(row, formulaEvaluator, assetTmplInfo, titleIdM, titleNameM2, titleMap);
+      assetEntityInfoVOList.add(colutMap);
+      orderDelivedetailList.add(colutMap.getOrderDelivedetail());
+      assetEntityPrptList.addAll(colutMap.getAssetEntityPrptList());
     }
+    // 这里进行批量插入的方法
+    Integer rowNum = orderDelivemiddleMapper.insertEntitysPlan(assetEntityInfoVOList);
+    Integer rowNum2 = orderDelivemiddleMapper.insertPrptsPlan(assetEntityPrptList);
+    Integer rowNum3 = orderDelivemiddleMapper.insertDetailsPlan(orderDelivedetailList);
+    Long endT = System.currentTimeMillis();
+    System.out.println(
+        "结束解析："
+            + endT
+            + ",共用时："
+            + (endT - startT) / 1000
+            + ",资产条数为："
+            + rowNum
+            + ",属性值条数为："
+            + rowNum2
+            + ",明细条数为："
+            + rowNum3);
     if (!isRowNull) {
       return ResultVOUtil.returnFail(
           ResultEnum.TEMPLATE_CELLNULL.getCode(), "附件第" + rowNo + "行数据内容为空");
@@ -560,5 +543,73 @@ public class OrderDelivemiddleServiceImpl
     // 4.删除资产属性值信息
     assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
     return ResultVOUtil.returnSuccess();
+  }
+
+  @Async
+  public AssetEntityInfoVO resoveRow(
+      Row row,
+      FormulaEvaluator formulaEvaluator,
+      AssetTmplInfo assetTmplInfo,
+      Map<Integer, Integer> titleIdM,
+      Map<String, Integer> titleNameM2,
+      List<Map<String, Object>> titleMap2) {
+    // 检查没有问题，则暂存到资产实体表中，状态为暂存；资产属性值表中，状态为暂存；送货记录明细表中，状态为暂存；
+    AssetEntityInfoVO entityInfo = new AssetEntityInfoVO();
+    entityInfo.setAmount(1L);
+    entityInfo.setId(orderDelivemiddleMapper.getEntitysKey());
+    entityInfo.setAssetCatId(assetTmplInfo.getAssetCatId());
+    entityInfo.setAssetTemplId(assetTmplInfo.getId());
+    entityInfo.setAssetTemplVer(assetTmplInfo.getVerNo());
+    entityInfo.setItemNo(assetTmplInfo.getItemNo());
+    entityInfo.setDscp(assetTmplInfo.getDscp());
+    entityInfo.setAssetStatus(4);
+    entityInfo.setCreateBy(TokenUtil.getUserInfo().getUserId());
+    entityInfo.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
+    if (titleNameM2.get("名称") != null) {
+      Cell cell = row.getCell(titleNameM2.get("名称"));
+      entityInfo.setName(ExcleUtils.getValue(cell, formulaEvaluator));
+    }
+    // 1.入库资产实体表信息
+    // 入库每条资产实体对应的属性值（每个属性都需要入到资产属性值表中）
+    List<AssetEntityPrpt> assetEntityPrptList = new ArrayList<>();
+    for (Map<String, Object> model : titleMap2) {
+      int a = titleIdM.get(Integer.valueOf(model.get("PRPT_ORDER").toString()));
+      String val = ExcleUtils.getValue(row.getCell(a), formulaEvaluator);
+      if (StringUtils.isEmpty(val)) {
+        continue;
+      }
+      // 存储个性属性
+      AssetEntityPrpt assetEntityPrpt = new AssetEntityPrpt();
+      assetEntityPrpt.setId(orderDelivemiddleMapper.getPrptsKey());
+      assetEntityPrpt.setAssetId(entityInfo.getId());
+      assetEntityPrpt.setPrptId(Long.valueOf(model.get("PRPT_ID").toString()));
+      assetEntityPrpt.setSaveStatus(0L);
+      assetEntityPrpt.setCreateBy(entityInfo.getCreateBy());
+      // 这里判断对应的属性值是共性的还是个性的，共性属性值从数据库取，个性的属性值从cell中进行读取
+      //      if (model.get("PRPT_VALUE") == null
+      //          || StringUtils.isEmpty(model.get("PRPT_VALUE").toString())) {
+      // int a = titleIdM.get(Integer.valueOf(model.get("PRPT_ORDER").toString()));
+      assetEntityPrpt.setVal(val);
+      //      } else {
+      //        assetEntityPrpt.setVal(model.get("PRPT_VALUE").toString());
+      //      }
+      assetEntityPrpt.setCode(model.get("CODE").toString());
+      assetEntityPrptList.add(assetEntityPrpt);
+    }
+    entityInfo.setAssetEntityPrptList(assetEntityPrptList);
+    // 3.这里进行送货记录的详细表中入库
+    OrderDelivedetail orderDelivedetail = new OrderDelivedetail();
+    if (entityInfo.getName() != null) {
+      orderDelivedetail.setAssetName(entityInfo.getName());
+    }
+    orderDelivedetail.setId(orderDelivemiddleMapper.getDetailsKey());
+    orderDelivedetail.setAssetId(entityInfo.getId());
+    orderDelivedetail.setAssetNumber(1L);
+    orderDelivedetail.setSaveStatus(0L);
+    orderDelivedetail.setAssetCatId(assetTmplInfo.getAssetCatId());
+    orderDelivedetail.setCreateBy(entityInfo.getCreateBy());
+    orderDelivedetail.setItemNo(assetTmplInfo.getItemNo());
+    entityInfo.setOrderDelivedetail(orderDelivedetail);
+    return entityInfo;
   }
 }
