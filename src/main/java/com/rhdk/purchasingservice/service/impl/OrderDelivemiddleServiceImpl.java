@@ -128,9 +128,15 @@ public class OrderDelivemiddleServiceImpl
                               .searchValByPrptIds(assetQuery, TokenUtil.getToken())
                               .getData();
                   String assetValueStr = StringUtils.join(assetValue.toArray(), ",");
+                  OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
+                  attachmentDTO.setAtttype(3);
+                  attachmentDTO.setParentId(a.getId());
                   OrderDelivemiddleVO model =
                       OrderDelivemiddleVO.builder()
-                          .attachmentList(orderAttachmentMapper.selectListByParentId(a.getId(), 3))
+                          .attachmentList(
+                              assetServiceFeign
+                                  .selectListByParentId(attachmentDTO, TokenUtil.getToken())
+                                  .getData())
                           .deliveryCode(orderDeliverecord.getDeliveryCode())
                           .deliveryName(orderDeliverecord.getDeliveryName())
                           .supplierId(orderDeliverecord.getSupplierId())
@@ -200,9 +206,15 @@ public class OrderDelivemiddleServiceImpl
           (List<String>)
               assetServiceFeign.searchValByPrptIds(assetQuery, TokenUtil.getToken()).getData();
       String assetValueStr = StringUtils.join(assetValue.toArray(), ",");
+      OrderAttachmentDTO orderAttachmentDTO = new OrderAttachmentDTO();
+      orderAttachmentDTO.setParentId(id);
+      orderAttachmentDTO.setAtttype(3);
       model =
           OrderDelivemiddleVO.builder()
-              .attachmentList(orderAttachmentMapper.selectListByParentId(id, 3))
+              .attachmentList(
+                  assetServiceFeign
+                      .selectListByParentId(orderAttachmentDTO, TokenUtil.getToken())
+                      .getData())
               .deliveryCode(orderDeliverecord.getDeliveryCode())
               .deliveryName(orderDeliverecord.getDeliveryName())
               .supplierId(orderDeliverecord.getSupplierId())
@@ -318,7 +330,10 @@ public class OrderDelivemiddleServiceImpl
       for (Long no : middleIds) {
         orderDelivemiddleMapper.deleteById(no);
         // 物理删除送货明细附件表
-        orderAttachmentMapper.deleteAttachmentByParentId(no, 3L);
+        OrderAttachmentDTO dto = new OrderAttachmentDTO();
+        dto.setParentId(no);
+        dto.setAtttype(3);
+        assetServiceFeign.deleteAttachmentByParentId(dto, TokenUtil.getToken());
       }
     }
 
@@ -331,7 +346,10 @@ public class OrderDelivemiddleServiceImpl
     // 逻辑删除送货中间表
     orderDelivemiddleMapper.deleteById(id);
     // 逻辑删除送货明细附件表
-    orderAttachmentMapper.deleteAttachmentByParentId(id, 3L);
+    OrderAttachmentDTO dto = new OrderAttachmentDTO();
+    dto.setAtttype(3);
+    dto.setParentId(id);
+    assetServiceFeign.deleteAttachmentByParentId(dto, TokenUtil.getToken());
     // 逻辑删除送货明细表
     List<Long> middleIds = new ArrayList<>();
     middleIds.add(id);
@@ -370,8 +388,11 @@ public class OrderDelivemiddleServiceImpl
     if (model.getModuleId() == entity.getModuleId()) {
       if ("2".equals(model.getWmType())) {
         // 物管状态的需要进行附件内容是否变化判断
+        OrderAttachmentDTO dto = new OrderAttachmentDTO();
+        dto.setAtttype(3);
+        dto.setParentId(model.getId());
         List<Map<String, Object>> result =
-            orderAttachmentMapper.selectListByParentId(model.getId(), 3);
+            assetServiceFeign.selectListByParentId(dto, TokenUtil.getToken()).getData();
         if (!CollectionUtils.isEmpty(result)) {
           // 判断明细附件是否进行了改变，如果附件未发生改变，则不需要进行附件的明细记录更新，如果附件发生了改变，则更新送货记录明细附件列表
           Map<String, Object> attachmentInfo = result.get(0);
@@ -645,7 +666,10 @@ public class OrderDelivemiddleServiceImpl
   public ResponseEnvelope deleteDetailFile(OrderDelivemiddleDTO dto) {
     // 1.删除附件信息
     // 物理删除送货明细附件表
-    orderAttachmentMapper.deleteAttachmentByParentId(dto.getId(), 3L);
+    OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
+    attachmentDTO.setParentId(dto.getId());
+    attachmentDTO.setAtttype(3);
+    assetServiceFeign.deleteAttachmentByParentId(attachmentDTO, TokenUtil.getToken());
     // 2.删除送货记录明细信息
     List<Long> middleIds = new ArrayList<>();
     middleIds.add(dto.getId());

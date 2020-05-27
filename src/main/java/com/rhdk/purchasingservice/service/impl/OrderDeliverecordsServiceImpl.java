@@ -26,7 +26,6 @@ import com.rhdk.purchasingservice.pojo.vo.OrderContractVO;
 import com.rhdk.purchasingservice.pojo.vo.OrderDelivemiddleVO;
 import com.rhdk.purchasingservice.pojo.vo.OrderDeliverecordsVO;
 import com.rhdk.purchasingservice.service.CommonService;
-import com.rhdk.purchasingservice.service.IOrderAttachmentService;
 import com.rhdk.purchasingservice.service.IOrderDelivemiddleService;
 import com.rhdk.purchasingservice.service.IOrderDeliverecordsService;
 import lombok.extern.slf4j.Slf4j;
@@ -56,8 +55,6 @@ public class OrderDeliverecordsServiceImpl
     implements IOrderDeliverecordsService {
 
   @Autowired private OrderDeliverecordsMapper orderDeliverecordsMapper;
-
-  @Autowired private IOrderAttachmentService iOrderAttachmentService;
 
   @Autowired private IOrderDelivemiddleService iOrderDelivemiddleService;
 
@@ -111,9 +108,15 @@ public class OrderDeliverecordsServiceImpl
                   OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
                   List<Integer> signStatList = orderDelivemiddleMapper.getSignStatus(a.getId());
                   Integer status = getAssetStatus(signStatList);
+                  OrderAttachmentDTO dto1 = new OrderAttachmentDTO();
+                  dto1.setParentId(a.getId());
+                  dto1.setAtttype(2);
                   OrderDeliverecordsVO orderDeliverecordsVO =
                       OrderDeliverecordsVO.builder()
-                          .attachmentList(orderAttachmentMapper.selectListByParentId(a.getId(), 2))
+                          .attachmentList(
+                              assetServiceFeign
+                                  .selectListByParentId(dto1, TokenUtil.getToken())
+                                  .getData())
                           .createName(userDto.getUserInfo().getName())
                           .deptName(userDto.getGroupName())
                           .build();
@@ -179,8 +182,11 @@ public class OrderDeliverecordsServiceImpl
     orderDeliverecordsVO.setDeptName(userDto.getGroupName());
     orderDeliverecordsVO.setSignStatus(status);
     orderDeliverecordsVO.setSupplierName(supplierMap.get(entity.getSupplierId()));
+    OrderAttachmentDTO dto = new OrderAttachmentDTO();
+    dto.setAtttype(2);
+    dto.setParentId(entity.getId());
     orderDeliverecordsVO.setAttachmentList(
-        orderAttachmentMapper.selectListByParentId(entity.getId(), 2));
+        assetServiceFeign.selectListByParentId(dto, TokenUtil.getToken()).getData());
     // 添加送货记录明细信息
     OrderDelivemiddleQuery orderDelivemiddleQuery = new OrderDelivemiddleQuery();
     orderDelivemiddleQuery.setDeliveryId(entity.getId());
@@ -223,9 +229,9 @@ public class OrderDeliverecordsServiceImpl
       model.setParentId(entity.getId());
       model.setAtttype(2);
     }
-    List<Long> filelist =
-        iOrderAttachmentService.insertAttachmentListOfIdList(dto.getAttachmentList());
-    if (filelist.size() > 0) {
+    Integer filelist =
+        assetServiceFeign.addBeatchAtta(dto.getAttachmentList(), TokenUtil.getToken()).getCode();
+    if (filelist == 0) {
       // 循环保存送货记录明细基本信息，这里需要判断该资产是物管还是量管，物管需要有对应的明细Excel，量管可以没有对应的附件
       if (CollectionUtils.isEmpty(dto.getOrderDelivemiddleDTOList())) {
         return ResultVOUtil.returnFail(
@@ -308,7 +314,10 @@ public class OrderDeliverecordsServiceImpl
   @Transactional(rollbackFor = Exception.class)
   public ResponseEnvelope deleteOrderDeliverecords(Long id) throws Exception {
     orderDeliverecordsMapper.deleteById(id);
-    orderAttachmentMapper.deleteAttachmentByParentId(id, 2L);
+    OrderAttachmentDTO orderAttachmentDTO = new OrderAttachmentDTO();
+    orderAttachmentDTO.setAtttype(2);
+    orderAttachmentDTO.setParentId(id);
+    assetServiceFeign.deleteAttachmentByParentId(orderAttachmentDTO, TokenUtil.getToken());
     iOrderDelivemiddleService.deleteByPassNo(id);
     return ResultVOUtil.returnSuccess();
   }
