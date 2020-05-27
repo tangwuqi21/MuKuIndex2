@@ -281,4 +281,17 @@ public interface AssetServiceFeign {
   ResponseEnvelope updateAssetprptsStatus(
       @RequestParam("assetIds") Long[] assetIds,
       @RequestHeader(value = "Authorization") String token);
+
+  /**
+   * 根据资产id集合将资产属性值状态从暂存改变为待签收
+   *
+   * @param dto
+   * @return
+   */
+  @RequestMapping(
+      value = "/fileUploadService/exportDataList",
+      method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  byte[] exportDataList(
+      @RequestBody Map<String, Object> dto, @RequestHeader(value = "Authorization") String token);
 }
