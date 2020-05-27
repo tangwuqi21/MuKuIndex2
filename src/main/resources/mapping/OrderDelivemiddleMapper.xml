@@ -45,4 +45,76 @@
     <select id="getSignStatus" resultType="java.lang.Integer" parameterType="java.lang.Long">
         select distinct SIGN_STATUS from T_ORDER_DELIVEMIDDLE where DELIVERY_ID=#{id} and del_flag=0
     </select>
+
+    <select id="getEntitysKey" resultType="java.lang.Long" useCache="false" flushCache="true">
+        select T_ASSET_ENTITY_INFO_SEQ.NEXTVAL FROM dual
+    </select>
+
+    <select id="getPrptsKey" resultType="java.lang.Long" useCache="false" flushCache="true">
+        select T_ASSET_ENTITY_PRPT_SEQ.NEXTVAL FROM dual
+    </select>
+
+    <select id="getDetailsKey" resultType="java.lang.Long" useCache="false" flushCache="true">
+        select T_ORDER_DELIVEDETAIL_SEQ.NEXTVAL FROM dual
+    </select>
+
+    <insert id="insertEntitysPlan" parameterType="java.util.List" useGeneratedKeys="false">
+        insert all
+        <foreach collection="assetEntityList" item="item" index="index">
+            into T_ASSET_ENTITY_INFO(
+            ID,ASSET_CAT_ID, ASSET_TEMPL_ID,ASSET_TEMPL_VER,
+            <if test="item.name !=null and item.name !=''">
+                NAME,
+            </if>
+            ITEM_NO,AMOUNT,
+            DSCP,CREATE_BY,CREATE_DATE,ORG_ID,
+            ASSET_STATUS
+            )
+            values (#{item.id},
+            #{item.assetCatId},
+            #{item.assetTemplId},
+            #{item.assetTemplVer},
+            <if test="item.name !=null and item.name !=''">
+                #{item.name},
+            </if>
+            #{item.itemNo},
+            #{item.amount},
+            #{item.dscp},
+            #{item.createBy},
+            sysdate,
+            #{item.orgId},
+            #{item.assetStatus}
+            )
+        </foreach>
+        SELECT 1 FROM DUAL
+    </insert>
+
+    <insert id="insertPrptsPlan" parameterType="java.util.List" useGeneratedKeys="false">
+        insert all
+        <foreach collection="assetPrptList" item="item" index="index">
+            into T_ASSET_ENTITY_PRPT (ID, ASSET_ID, PRPT_ID, CODE, VAL, CREATE_BY, CREATE_DATE,SAVE_STATUS)
+            values
+            (#{item.id},#{item.assetId},#{item.prptId},#{item.code},#{item.val},#{item.createBy},sysdate,#{item.saveStatus})
+        </foreach>
+        SELECT 1 FROM DUAL
+    </insert>
+
+    <insert id="insertDetailsPlan" parameterType="java.util.List" useGeneratedKeys="false">
+        insert all
+        <foreach collection="orderDetailList" item="item" index="index">
+            into T_ORDER_DELIVEDETAIL (ID, ASSET_ID,
+            <if test="item.assetName !=null and item.assetName !=''">
+                ASSET_NAME,
+            </if>
+            ITEM_NO, ASSET_CAT_ID, ASSET_NUMBER,CREATE_BY,
+            CREATE_DATE,SAVE_STATUS)
+            values
+            (#{item.id},#{item.assetId},
+            <if test="item.assetName !=null and item.assetName !=''">
+                #{item.assetName},
+            </if>
+            #{item.itemNo},#{item.assetCatId},#{item.assetNumber},#{item.createBy},sysdate,#{item.saveStatus})
+        </foreach>
+        SELECT 1 FROM DUAL
+    </insert>
 </mapper>
