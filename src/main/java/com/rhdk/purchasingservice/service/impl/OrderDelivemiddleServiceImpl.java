@@ -260,12 +260,14 @@ public class OrderDelivemiddleServiceImpl
       logger.info("addOrderDelivemiddle--物管资产，同步更新已入库的资产状态：updateAssetStatus");
       updateAssetStatus(dto);
       // 5.最后进行明细附件的入库
-      OrderAttachment orderAttachment = new OrderAttachment();
-      orderAttachment.setParentId(entity.getId());
-      orderAttachment.setAtttype(3);
-      orderAttachment.setOrgfilename(dto.getFileName());
-      orderAttachment.setFileurl(dto.getFileUrl());
-      orderAttachmentMapper.insert(orderAttachment);
+      for (OrderAttachmentDTO mo : dto.getAttachmentList()) {
+        OrderAttachment orderAttachment = new OrderAttachment();
+        orderAttachment.setParentId(entity.getId());
+        orderAttachment.setAtttype(3);
+        orderAttachment.setOrgfilename(mo.getOrgfilename());
+        orderAttachment.setFileurl(mo.getFileurl());
+        orderAttachmentMapper.insert(orderAttachment);
+      }
     } else {
       logger.info("addOrderDelivemiddle--量管资产，添加量管资产信息");
       // 执行量管的数据记录
@@ -396,7 +398,12 @@ public class OrderDelivemiddleServiceImpl
         if (!CollectionUtils.isEmpty(result)) {
           // 判断明细附件是否进行了改变，如果附件未发生改变，则不需要进行附件的明细记录更新，如果附件发生了改变，则更新送货记录明细附件列表
           Map<String, Object> attachmentInfo = result.get(0);
-          if (!model.getFileUrl().equals(attachmentInfo.get("fileurl"))) {
+          String fileUrl = "";
+          if (model.getAttachmentList().size() > 0) {
+            fileUrl = model.getAttachmentList().get(0).getFileurl();
+          }
+
+          if (!fileUrl.equals(attachmentInfo.get("fileurl"))) {
             // 明细附件发生了改变，需要重新解析数据表格进行数据的上传
             // 通过明细中间表找到明细表，通过明细表，去到资产实体表中进行之前的数据删除，然后删除明细中间表的数据
             List<Long> detailAssetIds = orderDelivedetailMapper.getAssetIds(model.getId());
@@ -411,12 +418,14 @@ public class OrderDelivemiddleServiceImpl
             // 变更资产实体表，资产实体属性值表，送货明细表的三种资产状态）
             updateAssetStatus(model);
             // 更新附件表
-            OrderAttachmentDTO orderAttachment = new OrderAttachmentDTO();
-            orderAttachment.setParentId(model.getId());
-            orderAttachment.setAtttype(3);
-            orderAttachment.setFileurl(model.getFileUrl());
-            orderAttachment.setOrgfilename(model.getFileName());
-            orderAttachmentMapper.updateByParentIdAndType(orderAttachment);
+            for (OrderAttachmentDTO mo : model.getAttachmentList()) {
+              OrderAttachmentDTO orderAttachment = new OrderAttachmentDTO();
+              orderAttachment.setParentId(model.getId());
+              orderAttachment.setAtttype(3);
+              orderAttachment.setFileurl(mo.getFileurl());
+              orderAttachment.setOrgfilename(mo.getOrgfilename());
+              orderAttachmentMapper.updateByParentIdAndType(orderAttachment);
+            }
           }
         }
       } else {
@@ -464,12 +473,14 @@ public class OrderDelivemiddleServiceImpl
         orderDelivedetailMapper.insert(orderDelivedetail);
       }
       // 更新附件表
-      OrderAttachmentDTO orderAttachment = new OrderAttachmentDTO();
-      orderAttachment.setParentId(model.getId());
-      orderAttachment.setAtttype(3);
-      orderAttachment.setFileurl(model.getFileUrl());
-      orderAttachment.setOrgfilename(model.getFileName());
-      orderAttachmentMapper.updateByParentIdAndType(orderAttachment);
+      for (OrderAttachmentDTO mo : model.getAttachmentList()) {
+        OrderAttachmentDTO orderAttachment = new OrderAttachmentDTO();
+        orderAttachment.setParentId(model.getId());
+        orderAttachment.setAtttype(3);
+        orderAttachment.setFileurl(mo.getFileurl());
+        orderAttachment.setOrgfilename(mo.getOrgfilename());
+        orderAttachmentMapper.updateByParentIdAndType(orderAttachment);
+      }
     }
     return ResultVOUtil.returnSuccess();
   }
