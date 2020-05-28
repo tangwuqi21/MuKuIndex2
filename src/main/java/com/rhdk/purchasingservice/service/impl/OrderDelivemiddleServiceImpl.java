@@ -153,6 +153,7 @@ public class OrderDelivemiddleServiceImpl
                   if (assetTmplInfo != null) {
                     model.setPrptValues(assetTmplInfo.getUnit() + "," + assetTmplInfo.getPrice());
                     model.setModuleName(assetTmplInfo.getName());
+                    model.setWmType(assetTmplInfo.getWmType());
                   }
                   BeanCopyUtil.copyPropertiesIgnoreNull(a, model);
                   return model;

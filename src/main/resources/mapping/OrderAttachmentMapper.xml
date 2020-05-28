@@ -7,12 +7,10 @@
         <id column="ID" property="id"/>
         <result column="ORGFILENAME" property="orgfilename"/>
         <result column="FILEURL" property="fileurl"/>
-        <result column="DISCRIPTION" property="discription"/>
         <result column="CREATE_DATE" property="createDate"/>
         <result column="CREATE_BY" property="createBy"/>
         <result column="UPDATE_DATE" property="updateDate"/>
         <result column="UPDATE_BY" property="updateBy"/>
-        <result column="REMARK" property="remark"/>
         <result column="ATTTYPE" property="atttype"/>
         <result column="PARENT_ID" property="parentId"/>
         <result column="DEL_FLAG" property="delFlag"/>
@@ -20,7 +18,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        ID, ORGFILENAME, FILEURL, DISCRIPTION,PARENT_ID,CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY, REMARK, ATTTYPE, DEL_FLAG
+        ID, ORGFILENAME, FILEURL,PARENT_ID,CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY, ATTTYPE, DEL_FLAG
          </sql>
 
 </mapper>

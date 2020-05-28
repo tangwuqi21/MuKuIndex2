@@ -28,9 +28,6 @@ public class OrderAttachmentDTO implements Serializable {
   @ApiModelProperty(value = "文件地址")
   private String fileurl;
 
-  @ApiModelProperty(value = "描述", hidden = true)
-  private String discription;
-
   @ApiModelProperty(value = "附件类型 1-合同附件  2-送货记录附件", hidden = true)
   private Integer atttype;
 
