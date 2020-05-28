@@ -1,6 +1,8 @@
 package com.rhdk.purchasingservice.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.rhdk.purchasingservice.common.enums.ResultEnum;
+import com.rhdk.purchasingservice.common.utils.ResultVOUtil;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.pojo.dto.OrderDelivemiddleDTO;
 import com.rhdk.purchasingservice.pojo.query.OrderDelivemiddleQuery;
@@ -68,9 +70,12 @@ public class OrderDelivemiddleController {
    */
   @ApiOperation(value = "送货记录明细中间表添加", notes = "送货记录明细中间表API")
   @RequestMapping(value = "/addOrderDelivemiddle", method = RequestMethod.POST)
-  public ResponseEnvelope addOrderDelivemiddle(@RequestBody OrderDelivemiddleDTO dto)
-      throws Exception {
-    return iOrderDelivemiddleService.addOrderDelivemiddle(dto);
+  public ResponseEnvelope addOrderDelivemiddle(@RequestBody OrderDelivemiddleDTO dto) {
+    try {
+      return ResultVOUtil.returnSuccess(iOrderDelivemiddleService.addOrderDelivemiddle(dto));
+    } catch (Exception e) {
+      return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
+    }
   }
 
   /**
@@ -83,9 +88,12 @@ public class OrderDelivemiddleController {
    */
   @ApiOperation(value = "上传明细附件并检查文件信息是否正确", notes = "上传明细附件并检查文件信息是否正确")
   @RequestMapping(value = "/uploadFileCheck", method = RequestMethod.POST)
-  public ResponseEnvelope uploadFileCheck(@NotNull MultipartFile file, Long moduleId)
-      throws Exception {
-    return iOrderDelivemiddleService.uploadFileCheck(file, moduleId);
+  public ResponseEnvelope uploadFileCheck(@NotNull MultipartFile file, Long moduleId) {
+    try {
+      return iOrderDelivemiddleService.uploadFileCheck(file, moduleId);
+    } catch (Exception e) {
+      return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
+    }
   }
 
   /**
@@ -97,9 +105,12 @@ public class OrderDelivemiddleController {
    */
   @ApiOperation(value = "送货单明细更新", notes = "送货记录明细中间表API")
   @RequestMapping(value = "/updateOrderMiddle", method = RequestMethod.POST)
-  public ResponseEnvelope updateOrderMiddle(@RequestBody OrderDelivemiddleDTO dto)
-      throws Exception {
-    return iOrderDelivemiddleService.updateOrderMiddle(dto);
+  public ResponseEnvelope updateOrderMiddle(@RequestBody OrderDelivemiddleDTO dto) {
+    try {
+      return iOrderDelivemiddleService.updateOrderMiddle(dto);
+    } catch (Exception e) {
+      return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
+    }
   }
 
   /**
@@ -111,8 +122,12 @@ public class OrderDelivemiddleController {
    */
   @ApiOperation(value = "送货明细删除", notes = "送货记录明细中间表API")
   @RequestMapping(value = "/deleteOrderDetailrecords", method = RequestMethod.POST)
-  public ResponseEnvelope deleteOrderDetailrecords(Long id) throws Exception {
-    return iOrderDelivemiddleService.deleteOrderDetailrecords(id);
+  public ResponseEnvelope deleteOrderDetailrecords(Long id) {
+    try {
+      return iOrderDelivemiddleService.deleteOrderDetailrecords(id);
+    } catch (Exception e) {
+      return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
+    }
   }
 
   /**
@@ -124,7 +139,11 @@ public class OrderDelivemiddleController {
    */
   @ApiOperation(value = "送货明细附件删除", notes = "送货记录明细中间表API")
   @RequestMapping(value = "/deleteDetailFile", method = RequestMethod.POST)
-  public ResponseEnvelope deleteDetailFile(@RequestBody OrderDelivemiddleDTO dto) throws Exception {
-    return iOrderDelivemiddleService.deleteDetailFile(dto);
+  public ResponseEnvelope deleteDetailFile(@RequestBody OrderDelivemiddleDTO dto) {
+    try {
+      return iOrderDelivemiddleService.deleteDetailFile(dto);
+    } catch (Exception e) {
+      return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
+    }
   }
 }

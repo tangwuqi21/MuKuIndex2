@@ -56,8 +56,13 @@
     <select id="getAssetIdsByDId" resultType="java.lang.Long">
         select ASSET_ID from T_ORDER_DELIVEDETAIL where DEL_FLAG=0 and MIDDLE_ID in
         <foreach collection="middleIds" item="id" index="index" open="(" close=")" separator=",">
-            #{id,jdbcType=BIGINT}
+            #{id}
         </foreach>
+    </select>
+
+    <select id="getAssetIdsByCId" resultType="java.lang.Long">
+        select ASSET_ID from T_ORDER_DELIVEDETAIL where DEL_FLAG=0 and ASSET_CAT_ID=#{dto.assetCatId}
+         and ITEM_NO=#{dto.itemNO} and CREATE_BY=#{dto.createBy} and SAVE_STATUS=#{dto.saveStatus}
     </select>
 
     <update id="updateDetailsDel">

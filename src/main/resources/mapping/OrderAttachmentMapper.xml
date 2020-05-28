@@ -21,4 +21,14 @@
         ID, ORGFILENAME, FILEURL,PARENT_ID,CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY, ATTTYPE, DEL_FLAG
          </sql>
 
+    <update id="updateByParentIdAndType" parameterType="com.rhdk.purchasingservice.pojo.dto.OrderAttachmentDTO">
+        update T_ORDER_ATTACHMENT set UPDATE_DATE=sysdate
+        <if test="dto.orgfilename !=null and dto.orgfilename !=''">
+            ,ORGFILENAME=#{dto.orgfilename}
+        </if>
+        <if test="dto.fileurl !=null and dto.fileurl !=''">
+            ,FILEURL=#{dto.fileurl}
+        </if>
+        where PARENT_ID=#{dto.parentId} and ATTTYPE=#{dto.atttype}
+    </update>
 </mapper>
