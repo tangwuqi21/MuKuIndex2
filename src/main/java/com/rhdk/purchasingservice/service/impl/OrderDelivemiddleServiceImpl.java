@@ -602,16 +602,16 @@ public class OrderDelivemiddleServiceImpl
 
       // 4.校验Excel中与库中的数据是否重复
       // 首先从Redis中判断是否存在模板id+对应的pk值，若存在则停止循环，抛出异常信息，
-      boolean hasKey = redisTemplate.hasKey(collStr);
-      if (!hasKey) {
-        // 若不存在则存入到Redis中，然后继续下面的循环
-        redisTemplate.opsForValue().set(collStr, System.currentTimeMillis());
-      } else {
-        // 存在抛出异常信息提醒
-        isDataT2 = false;
-        rowNo = rowNum + 1;
-        break;
-      }
+      //      boolean hasKey = redisTemplate.hasKey(collStr);
+      //      if (!hasKey) {
+      //        // 若不存在则存入到Redis中，然后继续下面的循环
+      //        redisTemplate.opsForValue().set(collStr, System.currentTimeMillis());
+      //      } else {
+      //        // 存在抛出异常信息提醒
+      //        isDataT2 = false;
+      //        rowNo = rowNum + 1;
+      //        break;
+      //      }
 
       AssetEntityInfoVO colutMap =
           resoveRow(row, formulaEvaluator, assetTmplInfo, titleIdM, titleNameM2, titleMap);
@@ -620,21 +620,26 @@ public class OrderDelivemiddleServiceImpl
       assetEntityPrptList.addAll(colutMap.getAssetEntityPrptList());
     }
     // 这里进行批量插入的方法
-    Integer rowNum = orderDelivemiddleMapper.insertEntitysPlan(assetEntityInfoVOList);
-    Integer rowNum2 = orderDelivemiddleMapper.insertPrptsPlan(assetEntityPrptList);
-    Integer rowNum3 = orderDelivemiddleMapper.insertDetailsPlan(orderDelivedetailList);
-    Long endT = System.currentTimeMillis();
-    System.out.println(
-        "结束解析："
-            + endT
-            + ",共用时："
-            + (endT - startT) / 1000
-            + ",资产条数为："
-            + rowNum
-            + ",属性值条数为："
-            + rowNum2
-            + ",明细条数为："
-            + rowNum3);
+    if (assetEntityInfoVOList.size() > 0) {
+      Integer rowNum = orderDelivemiddleMapper.insertEntitysPlan(assetEntityInfoVOList);
+      Integer rowNum2 = orderDelivemiddleMapper.insertPrptsPlan(assetEntityPrptList);
+      Integer rowNum3 = orderDelivemiddleMapper.insertDetailsPlan(orderDelivedetailList);
+      Long endT = System.currentTimeMillis();
+      System.out.println(
+          "结束解析："
+              + endT
+              + ",共用时："
+              + (endT - startT) / 1000
+              + ",资产条数为："
+              + rowNum
+              + ",属性值条数为："
+              + rowNum2
+              + ",明细条数为："
+              + rowNum3);
+    } else {
+      return ResultVOUtil.returnFail(
+          ResultEnum.TEMPLATE_CELLNULL.getCode(), "附件第" + rowNo + "行数据内容为空");
+    }
     if (!isRowNull) {
       return ResultVOUtil.returnFail(
           ResultEnum.TEMPLATE_CELLNULL.getCode(), "附件第" + rowNo + "行数据内容为空");
