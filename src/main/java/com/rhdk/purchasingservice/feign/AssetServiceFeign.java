@@ -10,6 +10,7 @@ import com.rhdk.purchasingservice.pojo.entity.AssetEntityPrpt;
 import com.rhdk.purchasingservice.pojo.entity.AssetTmplInfo;
 import com.rhdk.purchasingservice.pojo.entity.Customer;
 import com.rhdk.purchasingservice.pojo.query.AssetQuery;
+import com.rhdk.purchasingservice.pojo.vo.AssetTmplInfoVO;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -294,4 +295,17 @@ public interface AssetServiceFeign {
       consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
   byte[] exportDataList(
       @RequestBody Map<String, Object> dto, @RequestHeader(value = "Authorization") String token);
+
+  /**
+   * 根据模板id来查询固有属性值
+   *
+   * @param id
+   * @param token
+   * @return
+   */
+  @RequestMapping(
+      value = "/assetservice/assetTmplPrpts/selectPrptValByTmplId",
+      method = RequestMethod.POST)
+  ResponseEnvelope<AssetTmplInfoVO> selectPrptValByTmplId(
+      @RequestParam("id") Long id, @RequestHeader(value = "Authorization") String token);
 }

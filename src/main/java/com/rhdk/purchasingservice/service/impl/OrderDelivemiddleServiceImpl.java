@@ -14,6 +14,7 @@ import com.rhdk.purchasingservice.pojo.entity.*;
 import com.rhdk.purchasingservice.pojo.query.AssetQuery;
 import com.rhdk.purchasingservice.pojo.query.OrderDelivemiddleQuery;
 import com.rhdk.purchasingservice.pojo.vo.AssetEntityInfoVO;
+import com.rhdk.purchasingservice.pojo.vo.AssetTmplInfoVO;
 import com.rhdk.purchasingservice.pojo.vo.OrderDelivemiddleVO;
 import com.rhdk.purchasingservice.service.IOrderDelivemiddleService;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,6 +65,8 @@ public class OrderDelivemiddleServiceImpl
   @Autowired private OrderContractMapper orderContractMapper;
 
   @Autowired private AssetServiceFeign assetServiceFeign;
+
+  @Autowired private RedisTemplate redisTemplate;
 
   private static org.slf4j.Logger logger =
       LoggerFactory.getLogger(OrderDelivemiddleServiceImpl.class);
@@ -109,9 +113,9 @@ public class OrderDelivemiddleServiceImpl
                         orderContractMapper.selectById(purcasingContract.getContractId());
                   }
                   // 4.查询模板名称
-                  AssetTmplInfo assetTmplInfo =
+                  AssetTmplInfoVO assetTmplInfo =
                       assetServiceFeign
-                          .searchAssetTmplInfoOne(a.getModuleId(), TokenUtil.getToken())
+                          .selectPrptValByTmplId(a.getModuleId(), TokenUtil.getToken())
                           .getData();
                   // 5.查询供应商名称
                   Customer customer =
@@ -122,12 +126,6 @@ public class OrderDelivemiddleServiceImpl
                   AssetQuery assetQuery = new AssetQuery();
                   assetQuery.setAssetTempId(a.getModuleId());
                   assetQuery.setPrptIds(a.getPrptIds());
-                  List<String> assetValue =
-                      (List<String>)
-                          assetServiceFeign
-                              .searchValByPrptIds(assetQuery, TokenUtil.getToken())
-                              .getData();
-                  String assetValueStr = StringUtils.join(assetValue.toArray(), ",");
                   OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
                   attachmentDTO.setAtttype(3);
                   attachmentDTO.setParentId(a.getId());
@@ -142,8 +140,6 @@ public class OrderDelivemiddleServiceImpl
                           .supplierId(orderDeliverecord.getSupplierId())
                           .signAddress(orderDeliverecord.getSignAddress())
                           .supplierName(customer.getCusName())
-                          .prptValues(assetValueStr)
-                          .moduleName(assetTmplInfo.getName())
                           .build();
                   if (purcasingContract != null && orderContract != null) {
                     model.setContractCode(orderContract.getContractCode());
@@ -153,6 +149,10 @@ public class OrderDelivemiddleServiceImpl
                     model.setContractCode("--");
                     model.setContractName("--");
                     model.setContractType(0);
+                  }
+                  if (assetTmplInfo != null) {
+                    model.setPrptValues(assetTmplInfo.getUnit() + "," + assetTmplInfo.getPrice());
+                    model.setModuleName(assetTmplInfo.getName());
                   }
                   BeanCopyUtil.copyPropertiesIgnoreNull(a, model);
                   return model;
@@ -559,10 +559,10 @@ public class OrderDelivemiddleServiceImpl
     // 2.检查是否存在空列值
     // 对于每个sheet，读取其中的每一行,从第二行开始读取
     resultMap.put("totalRow", sheet.getLastRowNum());
-    Set<String> collSet = new HashSet<String>();
     boolean isRowNull = true;
     boolean isCellNull = true;
     boolean isDataT = true;
+    boolean isDataT2 = true;
     int rowNo = 0;
     String cellMsg = "";
     Long startT = System.currentTimeMillis();
@@ -578,7 +578,8 @@ public class OrderDelivemiddleServiceImpl
         break;
       }
       // 入库每条资产实体对应的属性值（个性化的，不是共有的,从第二列开始）
-      String collStr = "";
+      Set<String> collSet = new HashSet<String>();
+      String collStr = moduleId + "_";
       for (int columnNum = 0; columnNum < row.getLastCellNum(); columnNum++) {
         String cellValue = ExcleUtils.getValue(row.getCell(columnNum), formulaEvaluator);
         if (org.springframework.util.StringUtils.isEmpty(cellValue)) {
@@ -597,6 +598,20 @@ public class OrderDelivemiddleServiceImpl
         rowNo = rowNum + 1;
         break;
       }
+
+      // 4.校验Excel中与库中的数据是否重复
+      // 首先从Redis中判断是否存在模板id+对应的pk值，若存在则停止循环，抛出异常信息，
+      boolean hasKey = redisTemplate.hasKey(collStr);
+      if (!hasKey) {
+        // 若不存在则存入到Redis中，然后继续下面的循环
+        redisTemplate.opsForValue().set(collStr, System.currentTimeMillis());
+      } else {
+        // 存在抛出异常信息提醒
+        isDataT2 = false;
+        rowNo = rowNum + 1;
+        break;
+      }
+
       AssetEntityInfoVO colutMap =
           resoveRow(row, formulaEvaluator, assetTmplInfo, titleIdM, titleNameM2, titleMap);
       assetEntityInfoVOList.add(colutMap);
@@ -630,6 +645,10 @@ public class OrderDelivemiddleServiceImpl
     if (!isDataT) {
       return ResultVOUtil.returnFail(
           ResultEnum.TEMPLATE_ROWTWO.getCode(), "附件第" + rowNo + "行数据内容有重复");
+    }
+    if (!isDataT2) {
+      return ResultVOUtil.returnFail(
+          ResultEnum.TEMPLATE_ROWTWO.getCode(), "附件第" + rowNo + "行数据内容有与系统库中重复");
     }
     // 调用附件上传接口
     fileUrl = assetServiceFeign.uploadSingleFile(file, TokenUtil.getToken());
