@@ -753,9 +753,9 @@ public class OrderDelivemiddleServiceImpl
     // 3.资产实体属性值表，暂存状态变更为已提交状态
     Long[] strArray = new Long[assetIds.size()];
     assetIds.toArray(strArray);
-    assetServiceFeign.updateAssetprptsStatus(strArray, dto.getToken());
+    assetServiceFeign.updateAssetprptsStatus(strArray, 1, dto.getToken());
     // 2.资产实体表，暂存状态变更为待签收状态
-    assetServiceFeign.updateEntitysStatus(strArray, dto.getToken()).getData();
+    assetServiceFeign.updateEntitysStatus(strArray, 0, dto.getToken()).getData();
     // 4.资产明细表，暂存状态变更为已提交状态
     AssetQuery assetQuery = new AssetQuery();
     assetQuery.setAssetIds(assetIds);

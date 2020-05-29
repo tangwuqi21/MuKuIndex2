@@ -268,6 +268,7 @@ public interface AssetServiceFeign {
       method = RequestMethod.POST)
   ResponseEnvelope<List<Long>> updateEntitysStatus(
       @RequestParam("assetIds") Long[] assetIds,
+      @RequestParam("assetStatus") Integer assetStatus,
       @RequestHeader(value = "Authorization") String token);
 
   /**
@@ -281,6 +282,7 @@ public interface AssetServiceFeign {
       method = RequestMethod.POST)
   ResponseEnvelope updateAssetprptsStatus(
       @RequestParam("assetIds") Long[] assetIds,
+      @RequestParam("assetStatus") Integer assetStatus,
       @RequestHeader(value = "Authorization") String token);
 
   /**
