@@ -105,6 +105,7 @@ public class OrderDelivedetailServiceImpl
       AssetQuery assetQuery = new AssetQuery();
       assetQuery.setAssetIds(assetIds);
       assetQuery.setAssetTemplId(dto.getModuleId());
+      assetQuery.setWmType(dto.getWmType());
       logger.info("searchOrderDelivedetailListPage--fegin远程获取明细清单开始：" + assetIds.size() + "条");
       Map<String, List<Object>> map =
           (Map<String, List<Object>>)

@@ -92,5 +92,5 @@ public interface IOrderDelivemiddleService extends IService<OrderDelivemiddle> {
    * @return
    * @throws Exception
    */
-  ResponseEnvelope deleteDetailFile(OrderDelivemiddleDTO dto);
+  ResponseEnvelope deleteDetailFile(String dto);
 }

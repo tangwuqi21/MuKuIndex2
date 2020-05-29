@@ -95,6 +95,14 @@ public class OrderDelivemiddleServiceImpl
     }
     page = orderDelivemiddleMapper.selectPage(page, queryWrapper);
     List<OrderDelivemiddle> resultList = page.getRecords();
+    // 6.查询所属附件资产清单id集合
+    Long[] arr = new Long[0];
+    Map<String, String> assetIdMap = new HashMap<>();
+    List<Map<String, Object>> resMap =
+        assetServiceFeign.getEntityIdsByMid(arr, TokenUtil.getToken()).getData();
+    for (Map<String, Object> mo : resMap) {
+      assetIdMap.put(mo.get("MIDDLEID").toString(), mo.get("IDS").toString());
+    }
     List<OrderDelivemiddleVO> orderDelivemiddleVOList =
         resultList.stream()
             .map(
@@ -123,6 +131,7 @@ public class OrderDelivemiddleServiceImpl
                           .searchCustomerOne(
                               orderDeliverecord.getSupplierId(), TokenUtil.getToken())
                           .getData();
+
                   AssetQuery assetQuery = new AssetQuery();
                   assetQuery.setAssetTempId(a.getModuleId());
                   assetQuery.setPrptIds(a.getPrptIds());
@@ -154,6 +163,13 @@ public class OrderDelivemiddleServiceImpl
                     model.setPrptValues(assetTmplInfo.getUnit() + "," + assetTmplInfo.getPrice());
                     model.setModuleName(assetTmplInfo.getName());
                     model.setWmType(assetTmplInfo.getWmType());
+                  }
+                  if (assetIdMap.size() > 0) {
+                    String ass =
+                        assetIdMap.get(a.getId().toString()) == null
+                            ? ""
+                            : assetIdMap.get(a.getId().toString());
+                    model.setAssetIds(ass);
                   }
                   BeanCopyUtil.copyPropertiesIgnoreNull(a, model);
                   return model;
@@ -328,20 +344,20 @@ public class OrderDelivemiddleServiceImpl
     // 根据送货单id查询出对应的所有明细清单
     List<Long> middleIds = orderDelivemiddleMapper.getMIdsByDeliveryId(id);
     if (middleIds.size() > 0) {
-      // 物理删除送货明细表
+      // 逻辑删除送货明细表
       List<Long> assetIds = orderDelivedetailMapper.getAssetIdsByDId(middleIds);
       if (assetIds.size() > 0) {
         Long[] strArray = new Long[assetIds.size()];
         assetIds.toArray(strArray);
         orderDelivedetailMapper.updateDetailsDel(assetIds);
-        // 物理删除资产实体表
+        // 逻辑删除资产实体表
         assetServiceFeign.updateEntitys(strArray, TokenUtil.getToken());
-        // 物理删除资产实体属性值表
+        // 逻辑删除资产实体属性值表
         assetServiceFeign.updateEntityprpts(strArray, TokenUtil.getToken());
       } else {
         return ResultVOUtil.returnFail().getCode();
       }
-      // 物理删除送货中间表
+      // 逻辑删除送货中间表
       for (Long no : middleIds) {
         orderDelivemiddleMapper.deleteById(no);
         // 物理删除送货明细附件表
@@ -704,6 +720,11 @@ public class OrderDelivemiddleServiceImpl
       return ResultVOUtil.returnFail(
           ResultEnum.CREATE_FILEERROR.getCode(), ResultEnum.CREATE_FILEERROR.getMessage());
     }
+    String assetIds = "";
+    for (AssetEntityInfoVO vo : assetEntityInfoVOList) {
+      assetIds += vo.getId() + ",";
+    }
+    resultMap.put("assetIds", assetIds);
     return ResultVOUtil.returnSuccess(resultMap);
   }
 
@@ -742,14 +763,16 @@ public class OrderDelivemiddleServiceImpl
 
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public ResponseEnvelope deleteDetailFile(OrderDelivemiddleDTO dto) {
-    if (StringUtils.isEmpty(dto.getItemNO()) || StringUtils.isEmpty(dto.getAssetCatId())) {
-      throw new RuntimeException("请求参数有误，资产类型assetCatId和资产类型itemNo不能为空！");
+  public ResponseEnvelope deleteDetailFile(String dto) {
+    if (StringUtils.isEmpty(dto)) {
+      throw new RuntimeException("请求参数有误，明细资产ids字段不能为空！");
     }
     // 1.删除送货记录明细信息
-    dto.setCreateBy(TokenUtil.getUserInfo().getUserId());
-    dto.setSaveStatus(0);
-    List<Long> assetIds = orderDelivedetailMapper.getAssetIdsByCId(dto);
+    List<Long> assetIds = new ArrayList<>();
+    String[] arr = dto.split(",");
+    for (String mn : arr) {
+      assetIds.add(Long.valueOf(mn));
+    }
     if (assetIds.size() > 0) {
       Long[] strArray = new Long[assetIds.size()];
       assetIds.toArray(strArray);

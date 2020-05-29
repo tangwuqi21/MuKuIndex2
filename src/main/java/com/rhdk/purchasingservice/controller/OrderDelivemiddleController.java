@@ -131,17 +131,17 @@ public class OrderDelivemiddleController {
   }
 
   /**
-   * 根据送货记录下明细id来删除送货记录下单一明细的附件信息
+   * 根据送货记录下明细资产id集合来删除送货记录下单一明细的附件信息
    *
-   * @param dto
+   * @param assetIds
    * @return
    * @throws Exception
    */
   @ApiOperation(value = "送货明细附件删除", notes = "送货记录明细中间表API")
   @RequestMapping(value = "/deleteDetailFile", method = RequestMethod.POST)
-  public ResponseEnvelope deleteDetailFile(@RequestBody OrderDelivemiddleDTO dto) {
+  public ResponseEnvelope deleteDetailFile(String assetIds) {
     try {
-      return iOrderDelivemiddleService.deleteDetailFile(dto);
+      return iOrderDelivemiddleService.deleteDetailFile(assetIds);
     } catch (Exception e) {
       return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
     }
