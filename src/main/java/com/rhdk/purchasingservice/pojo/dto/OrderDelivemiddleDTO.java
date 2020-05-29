@@ -69,4 +69,7 @@ public class OrderDelivemiddleDTO implements Serializable {
 
   @ApiModelProperty(value = "送货明细备注")
   private String remark;
+
+  @ApiModelProperty(value = "创建人", hidden = true)
+  private Long createBy;
 }

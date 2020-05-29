@@ -36,7 +36,7 @@ public interface IOrderDeliverecordsService extends IService<OrderDeliverecords>
    * @return
    * @throws Exception
    */
-  ResponseEnvelope addOrderDeliverecords(OrderDeliverecordsDTO DTO) throws Exception;
+  void addOrderDeliverecords(OrderDeliverecordsDTO DTO) throws Exception;
 
   /**
    * 送货记录更新接口，包含送货记录基本信息的更新 送货明细基本信息的更新 明细清单的资产信息更新
@@ -54,5 +54,5 @@ public interface IOrderDeliverecordsService extends IService<OrderDeliverecords>
    * @return
    * @throws Exception
    */
-  ResponseEnvelope deleteOrderDeliverecords(Long id) throws Exception;
+  ResponseEnvelope deleteOrderDeliverecords(Long id);
 }

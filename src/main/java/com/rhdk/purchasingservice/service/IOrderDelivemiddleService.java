@@ -40,7 +40,7 @@ public interface IOrderDelivemiddleService extends IService<OrderDelivemiddle> {
    * @return
    * @throws Exception
    */
-  ResponseEnvelope addOrderDelivemiddle(OrderDelivemiddleDTO DTO) throws Exception;
+  OrderDelivemiddle addOrderDelivemiddle(OrderDelivemiddleDTO DTO);
 
   /**
    * @param moduleId
@@ -70,7 +70,7 @@ public interface IOrderDelivemiddleService extends IService<OrderDelivemiddle> {
    * @return
    * @throws Exception
    */
-  ResponseEnvelope updateOrderMiddle(OrderDelivemiddleDTO dto) throws Exception;
+  ResponseEnvelope updateOrderMiddle(OrderDelivemiddleDTO dto);
 
   /**
    * 送货记录下，添加单一明细附件，对附件内容进行格式校验，数据校验。 并将校验玩的数据进行暂存入库
@@ -83,7 +83,7 @@ public interface IOrderDelivemiddleService extends IService<OrderDelivemiddle> {
   ResponseEnvelope uploadFileCheck(MultipartFile file, Long moduleId) throws Exception;
 
   /** @param dto */
-  void updateAssetStatus(OrderDelivemiddleDTO dto);
+  Integer updateAssetStatus(OrderDelivemiddleDTO dto);
 
   /**
    * 根据送货记录下明细id来删除送货记录下单一明细的附件信息

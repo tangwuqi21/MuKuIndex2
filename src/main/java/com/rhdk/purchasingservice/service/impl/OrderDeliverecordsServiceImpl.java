@@ -19,6 +19,7 @@ import com.rhdk.purchasingservice.pojo.dto.OrderAttachmentDTO;
 import com.rhdk.purchasingservice.pojo.dto.OrderDelivemiddleDTO;
 import com.rhdk.purchasingservice.pojo.dto.OrderDeliverecordsDTO;
 import com.rhdk.purchasingservice.pojo.entity.OrderAttachment;
+import com.rhdk.purchasingservice.pojo.entity.OrderDelivemiddle;
 import com.rhdk.purchasingservice.pojo.entity.OrderDeliverecords;
 import com.rhdk.purchasingservice.pojo.query.OrderDelivemiddleQuery;
 import com.rhdk.purchasingservice.pojo.query.OrderDeliverecordsQuery;
@@ -207,7 +208,7 @@ public class OrderDeliverecordsServiceImpl
    */
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public ResponseEnvelope addOrderDeliverecords(OrderDeliverecordsDTO dto) throws Exception {
+  public void addOrderDeliverecords(OrderDeliverecordsDTO dto) {
     // 保存送货记录基本信息
     OrderDeliverecords entity = new OrderDeliverecords();
     BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
@@ -219,38 +220,33 @@ public class OrderDeliverecordsServiceImpl
     }
     logger.info("addOrderDeliverecords--新增送货单信息开始");
     orderDeliverecordsMapper.insert(entity);
-    logger.info("addOrderDeliverecords--新增送货单信息结束");
     // 保存送货记录附件信息
-    if (CollectionUtils.isEmpty(dto.getAttachmentList())) {
-      return ResultVOUtil.returnFail(
-          ResultEnum.FILE_NOTNULL.getCode(), ResultEnum.FILE_NOTNULL.getMessage());
+    if (StringUtils.isEmpty(entity.getId())) {
+      throw new RuntimeException("新增送货单失败，请检查入参信息");
     }
-    for (OrderAttachmentDTO model : dto.getAttachmentList()) {
-      model.setParentId(entity.getId());
-      model.setAtttype(2);
-    }
-    Integer filelist =
-        assetServiceFeign.addBeatchAtta(dto.getAttachmentList(), TokenUtil.getToken()).getCode();
-    if (filelist == 0) {
-      // 循环保存送货记录明细基本信息，这里需要判断该资产是物管还是量管，物管需要有对应的明细Excel，量管可以没有对应的附件
-      if (CollectionUtils.isEmpty(dto.getOrderDelivemiddleDTOList())) {
-        return ResultVOUtil.returnFail(
-            ResultEnum.DETAIL_NOTNULL.getCode(), ResultEnum.DETAIL_NOTNULL.getMessage());
+    if (dto.getAttachmentList().size() > 0) {
+      for (OrderAttachmentDTO model : dto.getAttachmentList()) {
+        model.setParentId(entity.getId());
+        model.setAtttype(2);
       }
-      logger.info("addOrderDeliverecords--新增送货单明细信息开始");
-      for (OrderDelivemiddleDTO delivemiddleDTO : dto.getOrderDelivemiddleDTOList()) {
-        delivemiddleDTO.setDeliveryId(entity.getId());
-        delivemiddleDTO.setToken(TokenUtil.getToken());
-        ResponseEnvelope result = iOrderDelivemiddleService.addOrderDelivemiddle(delivemiddleDTO);
-        if (result.getCode() != 0) {
-          break;
-        }
-      }
-      logger.info("addOrderDeliverecords--新增送货单明细信息结束");
-    } else {
-      return ResultVOUtil.returnFail(ResultEnum.DETAIL_NOTNULL.getCode(), "保存附件发生异常");
+      assetServiceFeign.addBeatchAtta(dto.getAttachmentList(), TokenUtil.getToken()).getCode();
     }
-    return ResultVOUtil.returnSuccess();
+    logger.info("addOrderDeliverecords--新增送货单信息结束");
+    // 循环保存送货记录明细基本信息，这里需要判断该资产是物管还是量管，物管需要有对应的明细Excel，量管可以没有对应的附件
+    if (CollectionUtils.isEmpty(dto.getOrderDelivemiddleDTOList())) {
+      logger.error("送货明细记录为空，关联送货单id为：" + entity.getId());
+      throw new RuntimeException(ResultEnum.DETAIL_NOTNULL.getMessage());
+    }
+    logger.info("addOrderDeliverecords--新增送货单明细信息开始");
+    for (OrderDelivemiddleDTO delivemiddleDTO : dto.getOrderDelivemiddleDTOList()) {
+      delivemiddleDTO.setDeliveryId(entity.getId());
+      delivemiddleDTO.setToken(TokenUtil.getToken());
+      OrderDelivemiddle result = iOrderDelivemiddleService.addOrderDelivemiddle(delivemiddleDTO);
+      if (StringUtils.isEmpty(result.getId())) {
+        break;
+      }
+    }
+    logger.info("addOrderDeliverecords--新增送货单明细信息结束");
   }
 
   /**
@@ -271,7 +267,10 @@ public class OrderDeliverecordsServiceImpl
     BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
     entity.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
     // 更新送货记录内容
-    orderDeliverecordsMapper.updateById(entity);
+    int num = orderDeliverecordsMapper.updateById(entity);
+    if (num <= 0) {
+      throw new RuntimeException("更新送货单记录失败，请检查相关参数，记录id为：" + dto.getId());
+    }
     // 更新送货记录附件内容
     if (CollectionUtils.isEmpty(dto.getAttachmentList())) {
       return ResultVOUtil.returnFail(
@@ -299,6 +298,8 @@ public class OrderDeliverecordsServiceImpl
           iOrderDelivemiddleService.updateOrderMiddle(model);
         }
       }
+    } else {
+      throw new RuntimeException(ResultEnum.DETAIL_NOTNULL.getMessage());
     }
     return ResultVOUtil.returnSuccess();
   }
@@ -312,13 +313,23 @@ public class OrderDeliverecordsServiceImpl
    */
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public ResponseEnvelope deleteOrderDeliverecords(Long id) throws Exception {
-    orderDeliverecordsMapper.deleteById(id);
+  public ResponseEnvelope deleteOrderDeliverecords(Long id) {
+    int num = orderDeliverecordsMapper.deleteById(id);
+    if (num <= 0) {
+      throw new RuntimeException("删除送货单信息失败！送货单id为：" + id);
+    }
     OrderAttachmentDTO orderAttachmentDTO = new OrderAttachmentDTO();
     orderAttachmentDTO.setAtttype(2);
     orderAttachmentDTO.setParentId(id);
-    assetServiceFeign.deleteAttachmentByParentId(orderAttachmentDTO, TokenUtil.getToken());
-    iOrderDelivemiddleService.deleteByPassNo(id);
+    try {
+      assetServiceFeign.deleteAttachmentByParentId(orderAttachmentDTO, TokenUtil.getToken());
+    } catch (Exception e) {
+      throw new RuntimeException("删除送货单附件信息失败！送货单id为：" + id + "，报错信息为：" + e.getMessage());
+    }
+    int num2 = iOrderDelivemiddleService.deleteByPassNo(id);
+    if (num2 < 0) {
+      throw new RuntimeException("删除送货单明细信息失败！送货单id为：" + id);
+    }
     return ResultVOUtil.returnSuccess();
   }
 
