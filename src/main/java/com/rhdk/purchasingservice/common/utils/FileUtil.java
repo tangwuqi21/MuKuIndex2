@@ -221,8 +221,6 @@ public class FileUtil {
         ins.close();
       } catch (Exception e) {
         e.printStackTrace();
-      } finally {
-        toFile.delete();
       }
     }
     return toFile;

@@ -725,6 +725,8 @@ public class OrderDelivemiddleServiceImpl
       assetIds += vo.getId() + ",";
     }
     resultMap.put("assetIds", assetIds);
+    // 上传成功，删除无用文件
+    excelFile.delete();
     return ResultVOUtil.returnSuccess(resultMap);
   }
 
