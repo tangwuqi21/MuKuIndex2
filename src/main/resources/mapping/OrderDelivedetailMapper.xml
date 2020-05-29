@@ -36,15 +36,12 @@
     </delete>
 
     <update id="updateDetails">
-        update T_ORDER_DELIVEDETAIL set 1=1
+        update T_ORDER_DELIVEDETAIL set ASSET_NUMBER=#{dto.assetNumber}
         <if test="dto.itemNO !=null and dto.itemNO !=''">
             ,ITEM_NO=#{dto.itemNO}
         </if>
         <if test="dto.assetCatId !=null and dto.assetCatId !=''">
             ,ASSET_CAT_ID=#{dto.assetCatId}
-        </if>
-        <if test="dto.assetNumber !=null and dto.assetNumber !=''">
-            ,ASSET_NUMBER=#{dto.assetNumber}
         </if>
         where ASSET_ID in
         <foreach collection="detailAssetIds" item="id" index="index" open="(" close=")" separator=",">
