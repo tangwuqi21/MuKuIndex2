@@ -2,13 +2,11 @@ package com.rhdk.purchasingservice.service;
 
 import com.igen.acc.domain.dto.OrgUserDto;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
-import com.rhdk.purchasingservice.pojo.query.CustomerQuery;
-import com.rhdk.purchasingservice.pojo.query.OrderContractQuery;
+import com.rhdk.purchasingservice.pojo.query.CommonQuery;
 
 public interface CommonService {
 
-    ResponseEnvelope getContractInfoList(OrderContractQuery orderContractQuery);
+  ResponseEnvelope getContractInfoList(CommonQuery commonQuery);
 
-    OrgUserDto getOrgUserById(long orgId, Long userId);
-
+  OrgUserDto getOrgUserById(long orgId, Long userId);
 }

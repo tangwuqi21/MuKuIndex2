@@ -11,7 +11,7 @@ import com.rhdk.purchasingservice.mapper.OrderContractMapper;
 import com.rhdk.purchasingservice.mapper.PurcasingContractMapper;
 import com.rhdk.purchasingservice.pojo.entity.OrderContract;
 import com.rhdk.purchasingservice.pojo.entity.PurcasingContract;
-import com.rhdk.purchasingservice.pojo.query.OrderContractQuery;
+import com.rhdk.purchasingservice.pojo.query.CommonQuery;
 import com.rhdk.purchasingservice.pojo.vo.OrderContractVO;
 import com.rhdk.purchasingservice.service.CommonService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class CommonServiceImpl implements CommonService {
   @Autowired private OrderContractMapper orderContractMapper;
 
   @Override
-  public ResponseEnvelope getContractInfoList(OrderContractQuery dto) {
+  public ResponseEnvelope getContractInfoList(CommonQuery dto) {
     Page<OrderContract> page = new Page<OrderContract>();
     page.setSize(dto.getPageSize());
     page.setCurrent(dto.getCurrentPage());

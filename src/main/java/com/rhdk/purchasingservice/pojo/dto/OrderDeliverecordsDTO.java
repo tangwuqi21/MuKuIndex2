@@ -39,10 +39,10 @@ public class OrderDeliverecordsDTO implements Serializable {
   private Long supplierId;
 
   @ApiModelProperty(value = "签收地点")
-  @NotNull(message = "签收地点不能为空")
+  @NotNull(message = "送货地点不能为空")
   private String signAddress;
 
-  @ApiModelProperty(value = "采购单id")
+  @ApiModelProperty(value = "采购合同id")
   private Long orderId;
 
   @ApiModelProperty(value = "送货附件")

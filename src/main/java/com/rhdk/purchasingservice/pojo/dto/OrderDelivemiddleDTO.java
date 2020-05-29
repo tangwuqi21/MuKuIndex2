@@ -18,10 +18,10 @@ import java.util.List;
 public class OrderDelivemiddleDTO implements Serializable {
   private static final long serialVersionUID = 1L;
 
-  @ApiModelProperty(value = "ID")
+  @ApiModelProperty(value = "ID", hidden = true)
   private Long id;
 
-  @ApiModelProperty(value = "送货记录id")
+  @ApiModelProperty(value = "送货记录id", hidden = true)
   private Long deliveryId;
 
   @ApiModelProperty(value = "单据号")
