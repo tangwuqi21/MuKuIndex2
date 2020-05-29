@@ -273,17 +273,19 @@ public class OrderDeliverecordsServiceImpl
     }
     // 更新送货记录附件内容
     if (CollectionUtils.isEmpty(dto.getAttachmentList())) {
-      return ResultVOUtil.returnFail(
-          ResultEnum.FILE_NOTNULL.getCode(), ResultEnum.FILE_NOTNULL.getMessage());
+      //      return ResultVOUtil.returnFail(
+      //          ResultEnum.FILE_NOTNULL.getCode(), ResultEnum.FILE_NOTNULL.getMessage());
     }
     for (OrderAttachmentDTO model : dto.getAttachmentList()) {
       OrderAttachment orderAttachment = new OrderAttachment();
-      model.setParentId(entity.getId());
-      model.setAtttype(2);
-      BeanCopyUtil.copyPropertiesIgnoreNull(model, orderAttachment);
+      orderAttachment.setParentId(dto.getId());
+      orderAttachment.setAtttype(2);
+      orderAttachment.setFileurl(model.getFileurl());
+      orderAttachment.setOrgfilename(model.getOrgfilename());
       if (StringUtils.isEmpty(model.getId())) {
         orderAttachmentMapper.insert(orderAttachment);
       } else {
+        orderAttachment.setId(model.getId());
         orderAttachmentMapper.updateById(orderAttachment);
       }
     }
