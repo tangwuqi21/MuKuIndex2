@@ -744,8 +744,11 @@ public class OrderDelivemiddleServiceImpl
     // 将对应的明细附件清单上传的资产进行状态改变，暂存-已提交
     // 从送货明细表中获取暂存的资产id集合
     Integer num1 = 0;
-    dto.setSaveStatus(0);
-    List<Long> assetIds = orderDelivedetailMapper.getAssetIdsBYStatus(dto);
+    List<Long> assetIds = new ArrayList<>();
+    String[] arr = dto.getAssetIds().split(",");
+    for (String mn : arr) {
+      assetIds.add(Long.valueOf(mn));
+    }
     logger.info("updateAssetStatus--获取待更新的资产id集合数目：" + assetIds.size());
     // 3.资产实体属性值表，暂存状态变更为已提交状态
     Long[] strArray = new Long[assetIds.size()];
