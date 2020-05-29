@@ -8,29 +8,25 @@ import com.rhdk.purchasingservice.pojo.query.OrderContractQuery;
 import com.rhdk.purchasingservice.pojo.vo.OrderContractVO;
 
 import java.util.List;
-import java.util.Map;
-
 
 /**
- * <p>
  * 合同表 服务类
- * </p>
  *
  * @author LMYOU
  * @since 2020-05-08
  */
 public interface IOrderContractService extends IService<OrderContract> {
-     ResponseEnvelope searchOrderContractListPage(OrderContractQuery DTO);
+  ResponseEnvelope searchOrderContractListPage(OrderContractQuery DTO);
 
-     ResponseEnvelope searchOrderContractOne(Long id);
+  ResponseEnvelope searchOrderContractOne(Long id);
 
-     ResponseEnvelope addOrderContract(OrderContractDTO DTO);
+  ResponseEnvelope addOrderContract(OrderContractDTO DTO);
 
-     ResponseEnvelope updateOrderContract(OrderContractDTO DTO);
+  ResponseEnvelope updateOrderContract(OrderContractDTO DTO);
 
-    List<OrderContractVO> getContractInforList(OrderContractDTO dto);
+  List<OrderContractVO> getContractInforList(OrderContractQuery dto);
 
-    ResponseEnvelope deleteOrderContract(Long id);
+  ResponseEnvelope deleteOrderContract(Long id);
 
-    ResponseEnvelope deleteContractList(List<Long> ids);
+  ResponseEnvelope deleteContractList(List<Long> ids);
 }

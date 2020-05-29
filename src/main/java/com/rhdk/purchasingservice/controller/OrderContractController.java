@@ -88,12 +88,15 @@ public class OrderContractController {
   }
 
   /**
+   * 导出合同列表数据
+   *
    * @param dto
    * @return
    */
   @ApiOperation(value = "导出合同列表数据", notes = "合同表API")
   @RequestMapping(value = "/exportContractList", method = RequestMethod.POST)
-  public void exportContractList(HttpServletResponse response, @RequestBody OrderContractDTO dto) {
+  public void exportContractList(
+      HttpServletResponse response, @RequestBody OrderContractQuery dto) {
     log.info("根据条件导出合同列表数据");
     // ResponseEntity<byte[]> result = null;
     Map<String, Object> map = new HashMap<>();
@@ -111,12 +114,26 @@ public class OrderContractController {
     }
   }
 
+  /**
+   * 根据采购合同id删除采购合同
+   *
+   * @param id
+   * @return
+   * @throws Exception
+   */
   @ApiOperation(value = "合同明细删除", notes = "合同表API")
   @RequestMapping(value = "/deleteOrderContract", method = RequestMethod.POST)
   public ResponseEnvelope deleteOrderContract(Long id) throws Exception {
     return iOrderContractService.deleteOrderContract(id);
   }
 
+  /**
+   * 根据采购合同ids来批量删除采购合同
+   *
+   * @param ids
+   * @return
+   * @throws Exception
+   */
   @ApiOperation(value = "合同批量删除", notes = "合同表API")
   @RequestMapping(value = "/deleteContractList", method = RequestMethod.POST)
   public ResponseEnvelope deleteContractList(@RequestParam("ids") List<Long> ids) throws Exception {

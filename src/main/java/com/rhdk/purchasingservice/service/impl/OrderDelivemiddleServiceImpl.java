@@ -804,7 +804,7 @@ public class OrderDelivemiddleServiceImpl
     entityInfo.setAssetTemplVer(assetTmplInfo.getVerNo());
     entityInfo.setItemNo(assetTmplInfo.getItemNo());
     entityInfo.setDscp(assetTmplInfo.getDscp());
-    entityInfo.setAssetStatus(4);
+    entityInfo.setAssetStatus(-2);
     entityInfo.setCreateBy(TokenUtil.getUserInfo().getUserId());
     entityInfo.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
     if (titleNameM2.get("名称") != null) {

@@ -227,7 +227,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
   }
 
   @Override
-  public List<OrderContractVO> getContractInforList(OrderContractDTO dto) {
+  public List<OrderContractVO> getContractInforList(OrderContractQuery dto) {
     QueryWrapper<OrderContract> queryWrapper = new QueryWrapper<OrderContract>();
     OrderContract entity = new OrderContract();
     queryWrapper.orderByDesc("CREATE_DATE");
