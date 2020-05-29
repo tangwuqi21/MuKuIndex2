@@ -75,4 +75,10 @@ public class OrderDelivemiddleDTO implements Serializable {
 
   @ApiModelProperty(value = "创建人", hidden = true)
   private Long createBy;
+
+  @ApiModelProperty(value = "机构id", hidden = true)
+  private String orgId;
+
+  @ApiModelProperty(value = "资产状态标识", hidden = true)
+  private Integer assetStatus;
 }

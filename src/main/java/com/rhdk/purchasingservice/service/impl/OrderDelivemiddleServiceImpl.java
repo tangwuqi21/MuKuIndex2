@@ -484,7 +484,13 @@ public class OrderDelivemiddleServiceImpl
         Long[] strArray = new Long[detailAssetIds.size()];
         detailAssetIds.toArray(strArray);
         orderDelivedetailMapper.updateDetails(detailAssetIds, model);
-        assetServiceFeign.updateEntityInfo(strArray, model, TokenUtil.getToken());
+        String assetIds = "";
+        for (Long assetId : detailAssetIds) {
+          assetIds += assetId + ",";
+        }
+        model.setAssetIds(assetIds);
+        model.setOrgId(TokenUtil.getUserInfo().getOrganizationId().toString());
+        assetServiceFeign.updateEntityInfo(model, TokenUtil.getToken());
       }
     } else {
       // 切换了资产模板，需要清空之前的资产明细数据并重新解析Excel表格进行数据的上传
@@ -751,11 +757,11 @@ public class OrderDelivemiddleServiceImpl
     }
     logger.info("updateAssetStatus--获取待更新的资产id集合数目：" + assetIds.size());
     // 3.资产实体属性值表，暂存状态变更为已提交状态
-    Long[] strArray = new Long[assetIds.size()];
-    assetIds.toArray(strArray);
-    assetServiceFeign.updateAssetprptsStatus(strArray, 1, dto.getToken());
+    dto.setAssetStatus(1);
+    assetServiceFeign.updateAssetprptsStatus(dto, dto.getToken());
     // 2.资产实体表，暂存状态变更为待签收状态
-    assetServiceFeign.updateEntitysStatus(strArray, 0, dto.getToken()).getData();
+    dto.setAssetStatus(0);
+    assetServiceFeign.updateEntitysStatus(dto, dto.getToken());
     // 4.资产明细表，暂存状态变更为已提交状态
     AssetQuery assetQuery = new AssetQuery();
     assetQuery.setAssetIds(assetIds);
