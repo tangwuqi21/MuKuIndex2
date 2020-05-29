@@ -8,9 +8,7 @@ import lombok.Setter;
 import java.io.Serializable;
 
 /**
- * <p>
  * 送货明细
- * </p>
  *
  * @author LMYOU
  * @since 2020-05-12
@@ -18,10 +16,14 @@ import java.io.Serializable;
 @Getter
 @Setter
 public class OrderDelivedetailQuery extends BaseDTO implements Serializable {
-    private static final long serialVersionUID = 1L;
-    @ApiModelProperty(value = "中间表id")
-    private Long middleId;
+  private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "资产模板id")
-    private Long moduleId;
+  @ApiModelProperty(value = "中间表id")
+  private Long middleId;
+
+  @ApiModelProperty(value = "资产模板id")
+  private Long moduleId;
+
+  @ApiModelProperty(value = "库管方式（1:量管 2:物管）")
+  private Integer wmType;
 }

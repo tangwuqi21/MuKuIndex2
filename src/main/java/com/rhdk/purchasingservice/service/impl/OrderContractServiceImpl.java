@@ -173,6 +173,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
       logger.info("addAttachment-添加合同附件信息开始");
       for (OrderAttachmentDTO model : dto.getAttachmentList()) {
         model.setParentId(purcasingContract.getId());
+        model.setAtttype(1);
       }
       Integer num1 =
           assetServiceFeign.addBeatchAtta(dto.getAttachmentList(), TokenUtil.getToken()).getCode();

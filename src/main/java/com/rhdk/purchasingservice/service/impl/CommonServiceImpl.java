@@ -57,6 +57,7 @@ public class CommonServiceImpl implements CommonService {
                   if (entity != null) {
                     model.setContractCompany(entity.getContractCompany());
                   }
+                  model.setId(entity.getId());
                   return model;
                 })
             .collect(Collectors.toList());

@@ -110,4 +110,7 @@ public class OrderDelivemiddleVO implements Serializable {
 
   @ApiModelProperty(value = "库管方式（1:量管 2:物管）")
   private Integer wmType;
+
+  @ApiModelProperty(value = "附件清单资产id集合")
+  private String assetIds;
 }
