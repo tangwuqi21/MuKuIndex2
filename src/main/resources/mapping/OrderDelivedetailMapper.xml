@@ -43,6 +43,9 @@
         <if test="dto.assetCatId !=null and dto.assetCatId !=''">
             ,ASSET_CAT_ID=#{dto.assetCatId}
         </if>
+        <if test="dto.assetCatSearchKey !=null and dto.assetCatSearchKey !=''">
+            ,ASSET_CAT_SEARCH_KEY=#{dto.assetCatSearchKey}
+        </if>
         where ASSET_ID in
         <foreach collection="detailAssetIds" item="id" index="index" open="(" close=")" separator=",">
             #{id,jdbcType=BIGINT}
@@ -57,11 +60,6 @@
         </foreach>
     </select>
 
-    <select id="getAssetIdsByCId" resultType="java.lang.Long">
-        select ASSET_ID from T_ORDER_DELIVEDETAIL where DEL_FLAG=0 and ASSET_CAT_ID=#{dto.assetCatId}
-         and ITEM_NO=#{dto.itemNO} and CREATE_BY=#{dto.createBy} and SAVE_STATUS=#{dto.saveStatus}
-    </select>
-
     <update id="updateDetailsDel">
         update T_ORDER_DELIVEDETAIL set DEL_FLAG=1 where ASSET_ID in
         <foreach collection="assetIds" item="id" index="index" open="(" close=")" separator=",">
@@ -70,27 +68,10 @@
     </update>
 
     <update id="updateAssetStatus" parameterType="com.rhdk.purchasingservice.pojo.query.AssetQuery">
-        update T_ORDER_DELIVEDETAIL set SAVE_STATUS=#{assetQuery.saveStatus}
-        <if test="assetQuery.middleId !=null and assetQuery.middleId !=''">
-            ,MIDDLE_ID=#{assetQuery.middleId}
-        </if>
+        update T_ORDER_DELIVEDETAIL set MIDDLE_ID=#{assetQuery.middleId}
         where DEL_FLAG=0 and ASSET_ID in
         <foreach collection="assetQuery.assetIds" item="id" index="index" open="(" close=")" separator=",">
             #{id,jdbcType=BIGINT}
         </foreach>
     </update>
-
-    <select id="getAssetIdsBYStatus" parameterType="com.rhdk.purchasingservice.pojo.dto.OrderDelivemiddleDTO"
-            resultType="java.lang.Long">
-        select ASSET_ID from T_ORDER_DELIVEDETAIL where DEL_FLAG=0
-        <if test="dto.itemNO !=null and dto.itemNO !=''">
-            and ITEM_NO=#{dto.itemNO}
-        </if>
-        <if test="dto.assetCatId !=null and dto.assetCatId !=''">
-            and ASSET_CAT_ID=#{dto.assetCatId}
-        </if>
-        <if test="dto.saveStatus !=null and dto.saveStatus !=''">
-            and SAVE_STATUS=#{dto.saveStatus}
-        </if>
-    </select>
 </mapper>

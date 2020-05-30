@@ -23,13 +23,9 @@ public interface OrderDelivedetailMapper extends BaseMapper<OrderDelivedetail> {
   Integer updateDetails(
       @Param("detailAssetIds") List<Long> detailAssetIds, @Param("dto") OrderDelivemiddleDTO dto);
 
-  List<Long> getAssetIdsByCId(@Param("dto") OrderDelivemiddleDTO dto);
-
   List<Long> getAssetIdsByDId(@Param("middleIds") List<Long> middleIds);
 
   Integer updateDetailsDel(@Param("assetIds") List<Long> assetIds);
 
   Integer updateAssetStatus(@Param("assetQuery") AssetQuery assetQuery);
-
-  List<Long> getAssetIdsBYStatus(@Param("dto") OrderDelivemiddleDTO dto);
 }

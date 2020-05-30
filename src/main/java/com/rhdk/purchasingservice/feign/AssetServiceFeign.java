@@ -10,6 +10,7 @@ import com.rhdk.purchasingservice.pojo.entity.AssetEntityPrpt;
 import com.rhdk.purchasingservice.pojo.entity.AssetTmplInfo;
 import com.rhdk.purchasingservice.pojo.entity.Customer;
 import com.rhdk.purchasingservice.pojo.query.AssetQuery;
+import com.rhdk.purchasingservice.pojo.vo.AssetCatVO;
 import com.rhdk.purchasingservice.pojo.vo.AssetTmplInfoVO;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.MediaType;
@@ -269,18 +270,6 @@ public interface AssetServiceFeign {
       @RequestBody OrderDelivemiddleDTO model,
       @RequestHeader(value = "Authorization") String token);
 
-  /**
-   * 根据资产id集合将资产属性值状态从暂存改变为待签收
-   *
-   * @param model
-   * @return
-   */
-  @RequestMapping(
-      value = "/assetservice/assetEntityPrpt/updateAssetprptsStatus",
-      method = RequestMethod.POST)
-  ResponseEnvelope updateAssetprptsStatus(
-      @RequestBody OrderDelivemiddleDTO model,
-      @RequestHeader(value = "Authorization") String token);
 
   /**
    * 导出合同列表数据
@@ -322,4 +311,15 @@ public interface AssetServiceFeign {
   ResponseEnvelope<List<Map<String, Object>>> getEntityIdsByMid(
       @RequestParam("middleIds") Long[] middleIds,
       @RequestHeader(value = "Authorization") String token);
+
+  /**
+   * 根据资产类别id来查询资产的searchkey
+   *
+   * @param id
+   * @param token
+   * @return
+   */
+  @RequestMapping(value = "/assetservice/assetCat/searchAssetCatOne", method = RequestMethod.POST)
+  ResponseEnvelope<AssetCatVO> searchAssetCatOne(
+      @RequestParam("id") Long id, @RequestHeader(value = "Authorization") String token);
 }
