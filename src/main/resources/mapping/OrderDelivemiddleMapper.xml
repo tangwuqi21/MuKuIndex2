@@ -62,27 +62,52 @@
         insert all
         <foreach collection="assetEntityList" item="item" index="index">
             into T_ASSET_ENTITY_INFO(
-            ID,ASSET_CAT_ID, ASSET_TEMPL_ID,ASSET_TEMPL_VER,
+            ID,ASSET_CAT_ID, ASSET_TEMPL_ID,
+            <if test="item.assetTemplVer !=null and item.assetTemplVer !=''">
+                ASSET_TEMPL_VER,
+            </if>
             <if test="item.name !=null and item.name !=''">
                 NAME,
             </if>
-            ITEM_NO,AMOUNT,
-            DSCP,CREATE_BY,CREATE_DATE,ORG_ID,
+            <if test="item.itemNo !=null and item.itemNo !=''">
+                ITEM_NO,
+            </if>
+            AMOUNT,
+            <if test="item.dscp !=null and item.dscp !=''">
+                DSCP,
+            </if>
+            <if test="item.createBy !=null and item.createBy !=''">
+                CREATE_BY,
+            </if>
+            CREATE_DATE,
+            <if test="item.orgId !=null and item.orgId !=''">
+                ORG_ID,
+            </if>
             ASSET_STATUS
             )
             values (#{item.id},
             #{item.assetCatId},
             #{item.assetTemplId},
-            #{item.assetTemplVer},
+            <if test="item.assetTemplVer !=null and item.assetTemplVer !=''">
+                #{item.assetTemplVer},
+            </if>
             <if test="item.name !=null and item.name !=''">
                 #{item.name},
             </if>
-            #{item.itemNo},
+            <if test="item.itemNo !=null and item.itemNo !=''">
+                #{item.itemNo},
+            </if>
             #{item.amount},
-            #{item.dscp},
-            #{item.createBy},
+            <if test="item.dscp !=null and item.dscp !=''">
+                #{item.dscp},
+            </if>
+            <if test="item.createBy !=null and item.createBy !=''">
+                #{item.createBy},
+            </if>
             sysdate,
-            #{item.orgId},
+            <if test="item.orgId !=null and item.orgId !=''">
+                #{item.orgId},
+            </if>
             #{item.assetStatus}
             )
         </foreach>
@@ -92,9 +117,30 @@
     <insert id="insertPrptsPlan" parameterType="java.util.List" useGeneratedKeys="false">
         insert all
         <foreach collection="assetPrptList" item="item" index="index">
-            into T_ASSET_ENTITY_PRPT (ID, ASSET_ID, PRPT_ID, CODE, VAL, CREATE_BY, CREATE_DATE,SAVE_STATUS)
+            into T_ASSET_ENTITY_PRPT (ID, ASSET_ID, PRPT_ID,
+            <if test="item.code !=null and item.code !=''">
+                CODE,
+            </if>
+            <if test="item.val !=null and item.val !=''">
+                VAL,
+            </if>
+            <if test="item.createBy !=null and item.createBy !=''">
+                CREATE_BY,
+            </if>
+            CREATE_DATE,
+            SAVE_STATUS)
             values
-            (#{item.id},#{item.assetId},#{item.prptId},#{item.code},#{item.val},#{item.createBy},sysdate,#{item.saveStatus})
+            (#{item.id},#{item.assetId},#{item.prptId},
+            <if test="item.code !=null and item.code !=''">
+                #{item.code},
+            </if>
+            <if test="item.val !=null and item.val !=''">
+                #{item.val},
+            </if>
+            <if test="item.createBy !=null and item.createBy !=''">
+                #{item.createBy},
+            </if>
+            sysdate,#{item.saveStatus})
         </foreach>
         SELECT 1 FROM DUAL
     </insert>
@@ -106,14 +152,35 @@
             <if test="item.assetName !=null and item.assetName !=''">
                 ASSET_NAME,
             </if>
-            ITEM_NO, ASSET_CAT_ID, ASSET_NUMBER,CREATE_BY,
+            <if test="item.assetCatSearchKey !=null and item.assetCatSearchKey !=''">
+                ASSET_CAT_SEARCH_KEY,
+            </if>
+            <if test="item.itemNo !=null and item.itemNo !=''">
+                ITEM_NO,
+            </if>
+            ASSET_CAT_ID,
+            ASSET_NUMBER,
+            <if test="item.createBy !=null and item.createBy !=''">
+                CREATE_BY,
+            </if>
             CREATE_DATE,SAVE_STATUS)
             values
             (#{item.id},#{item.assetId},
             <if test="item.assetName !=null and item.assetName !=''">
                 #{item.assetName},
             </if>
-            #{item.itemNo},#{item.assetCatId},#{item.assetNumber},#{item.createBy},sysdate,#{item.saveStatus})
+            <if test="item.assetCatSearchKey !=null and item.assetCatSearchKey !=''">
+                #{item.assetCatSearchKey},
+            </if>
+            <if test="item.itemNo !=null and item.itemNo !=''">
+                #{item.itemNo},
+            </if>
+            #{item.assetCatId},#{item.assetNumber},
+            <if test="item.createBy !=null and item.createBy !=''">
+                #{item.createBy},
+            </if>
+            sysdate,
+            #{item.saveStatus})
         </foreach>
         SELECT 1 FROM DUAL
     </insert>

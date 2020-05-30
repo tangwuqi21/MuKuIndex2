@@ -10,6 +10,7 @@ import com.rhdk.purchasingservice.pojo.entity.AssetEntityPrpt;
 import com.rhdk.purchasingservice.pojo.entity.AssetTmplInfo;
 import com.rhdk.purchasingservice.pojo.entity.Customer;
 import com.rhdk.purchasingservice.pojo.query.AssetQuery;
+import com.rhdk.purchasingservice.pojo.vo.AssetCatVO;
 import com.rhdk.purchasingservice.pojo.vo.AssetTmplInfoVO;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.MediaType;
@@ -322,4 +323,15 @@ public interface AssetServiceFeign {
   ResponseEnvelope<List<Map<String, Object>>> getEntityIdsByMid(
       @RequestParam("middleIds") Long[] middleIds,
       @RequestHeader(value = "Authorization") String token);
+
+  /**
+   * 根据资产类别id来查询资产的searchkey
+   *
+   * @param id
+   * @param token
+   * @return
+   */
+  @RequestMapping(value = "/assetservice/assetCat/searchAssetCatOne", method = RequestMethod.POST)
+  ResponseEnvelope<AssetCatVO> searchAssetCatOne(
+      @RequestParam("id") Long id, @RequestHeader(value = "Authorization") String token);
 }

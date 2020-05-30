@@ -74,6 +74,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     }
     dto.setContractCompany(null);
     BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
+    entity.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
     queryWrapper.setEntity(entity);
     page = orderContractMapper.selectPage(page, queryWrapper);
     List<OrderContract> resultList = page.getRecords();
@@ -238,6 +239,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     }
     dto.setContractCompany(null);
     BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
+    entity.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
     queryWrapper.setEntity(entity);
     List<OrderContract> resultList = orderContractMapper.selectList(queryWrapper);
     logger.info("getContractInforList-获取导出合同主体id列表信息结束，获取了" + paramStr.size() + "条数据");

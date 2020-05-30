@@ -30,6 +30,9 @@ public class OrderDelivemiddleDTO implements Serializable {
   @ApiModelProperty(value = "签收单号", hidden = true)
   private String signNo;
 
+  @ApiModelProperty(value = "资产类别searchkey", hidden = true)
+  private String assetCatSearchKey;
+
   @ApiModelProperty(value = "资产业务编码")
   private String itemNO;
 

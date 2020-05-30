@@ -43,6 +43,9 @@
         <if test="dto.assetCatId !=null and dto.assetCatId !=''">
             ,ASSET_CAT_ID=#{dto.assetCatId}
         </if>
+        <if test="dto.assetCatSearchKey !=null and dto.assetCatSearchKey !=''">
+            ,ASSET_CAT_SEARCH_KEY=#{dto.assetCatSearchKey}
+        </if>
         where ASSET_ID in
         <foreach collection="detailAssetIds" item="id" index="index" open="(" close=")" separator=",">
             #{id,jdbcType=BIGINT}
