@@ -135,6 +135,33 @@ public interface AssetServiceFeign {
       @RequestHeader(value = "Authorization") String token);
 
   /**
+   * 根据资产实体id和资产状态来查询资产信息
+   *
+   * @param assetQuery
+   * @param token
+   * @return
+   */
+  @RequestMapping(
+      value = "/assetservice/assetEntityInfo/searchAssetEntityInfoOne",
+      method = RequestMethod.POST)
+  ResponseEnvelope<AssetEntityInfo> searchAssetEntityInfoOne(
+      @RequestBody AssetQuery assetQuery, @RequestHeader(value = "Authorization") String token);
+
+  /**
+   * 更新资产实体信息
+   *
+   * @param assetEntityInfo
+   * @param token
+   * @return
+   */
+  @RequestMapping(
+      value = "/assetservice/assetEntityInfo/updateAssetEntityInfo",
+      method = RequestMethod.POST)
+  ResponseEnvelope<AssetEntityInfo> updateAssetEntityInfo(
+      @RequestBody AssetEntityInfo assetEntityInfo,
+      @RequestHeader(value = "Authorization") String token);
+
+  /**
    * 资产实体实际删除
    *
    * @param assetIds
@@ -269,7 +296,6 @@ public interface AssetServiceFeign {
   ResponseEnvelope<List<Long>> updateEntitysStatus(
       @RequestBody OrderDelivemiddleDTO model,
       @RequestHeader(value = "Authorization") String token);
-
 
   /**
    * 导出合同列表数据
