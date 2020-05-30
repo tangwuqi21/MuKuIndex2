@@ -127,8 +127,7 @@
             <if test="item.createBy !=null and item.createBy !=''">
                 CREATE_BY,
             </if>
-            CREATE_DATE,
-            SAVE_STATUS)
+            CREATE_DATE)
             values
             (#{item.id},#{item.assetId},#{item.prptId},
             <if test="item.code !=null and item.code !=''">
@@ -140,7 +139,7 @@
             <if test="item.createBy !=null and item.createBy !=''">
                 #{item.createBy},
             </if>
-            sysdate,#{item.saveStatus})
+            sysdate)
         </foreach>
         SELECT 1 FROM DUAL
     </insert>
@@ -163,7 +162,7 @@
             <if test="item.createBy !=null and item.createBy !=''">
                 CREATE_BY,
             </if>
-            CREATE_DATE,SAVE_STATUS)
+            CREATE_DATE)
             values
             (#{item.id},#{item.assetId},
             <if test="item.assetName !=null and item.assetName !=''">
@@ -179,8 +178,7 @@
             <if test="item.createBy !=null and item.createBy !=''">
                 #{item.createBy},
             </if>
-            sysdate,
-            #{item.saveStatus})
+            sysdate)
         </foreach>
         SELECT 1 FROM DUAL
     </insert>

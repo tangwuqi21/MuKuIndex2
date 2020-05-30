@@ -782,17 +782,13 @@ public class OrderDelivemiddleServiceImpl
       assetIds.add(Long.valueOf(mn));
     }
     logger.info("updateAssetStatus--获取待更新的资产id集合数目：" + assetIds.size());
-    // 3.资产实体属性值表，暂存状态变更为已提交状态
-    dto.setAssetStatus(1);
-    assetServiceFeign.updateAssetprptsStatus(dto, dto.getToken());
     // 2.资产实体表，暂存状态变更为待签收状态
     dto.setAssetStatus(0);
     assetServiceFeign.updateEntitysStatus(dto, dto.getToken());
-    // 4.资产明细表，暂存状态变更为已提交状态
+    // 4.资产明细表，更新资产明细表关联的签收对照表id
     AssetQuery assetQuery = new AssetQuery();
     assetQuery.setAssetIds(assetIds);
     assetQuery.setMiddleId(dto.getId());
-    assetQuery.setSaveStatus(1);
     num1 = orderDelivedetailMapper.updateAssetStatus(assetQuery);
     logger.info("updateAssetStatus--获取更新的送货明细数目：" + num1);
     return num1;
@@ -860,16 +856,8 @@ public class OrderDelivemiddleServiceImpl
       assetEntityPrpt.setId(orderDelivemiddleMapper.getPrptsKey());
       assetEntityPrpt.setAssetId(entityInfo.getId());
       assetEntityPrpt.setPrptId(Long.valueOf(model.get("PRPT_ID").toString()));
-      assetEntityPrpt.setSaveStatus(0L);
       assetEntityPrpt.setCreateBy(entityInfo.getCreateBy());
-      // 这里判断对应的属性值是共性的还是个性的，共性属性值从数据库取，个性的属性值从cell中进行读取
-      //      if (model.get("PRPT_VALUE") == null
-      //          || StringUtils.isEmpty(model.get("PRPT_VALUE").toString())) {
-      // int a = titleIdM.get(Integer.valueOf(model.get("PRPT_ORDER").toString()));
       assetEntityPrpt.setVal(val);
-      //      } else {
-      //        assetEntityPrpt.setVal(model.get("PRPT_VALUE").toString());
-      //      }
       assetEntityPrpt.setCode(model.get("CODE").toString());
       assetEntityPrptList.add(assetEntityPrpt);
     }
@@ -882,7 +870,6 @@ public class OrderDelivemiddleServiceImpl
     orderDelivedetail.setId(orderDelivemiddleMapper.getDetailsKey());
     orderDelivedetail.setAssetId(entityInfo.getId());
     orderDelivedetail.setAssetNumber(1L);
-    orderDelivedetail.setSaveStatus(0L);
     orderDelivedetail.setAssetCatId(assetTmplInfo.getAssetCatId());
     if (!StringUtils.isEmpty(assetTmplInfo.getAssetCatId())) {
       AssetCatVO assetCatVO =

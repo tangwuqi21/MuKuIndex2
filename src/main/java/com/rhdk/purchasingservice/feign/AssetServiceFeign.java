@@ -270,18 +270,6 @@ public interface AssetServiceFeign {
       @RequestBody OrderDelivemiddleDTO model,
       @RequestHeader(value = "Authorization") String token);
 
-  /**
-   * 根据资产id集合将资产属性值状态从暂存改变为待签收
-   *
-   * @param model
-   * @return
-   */
-  @RequestMapping(
-      value = "/assetservice/assetEntityPrpt/updateAssetprptsStatus",
-      method = RequestMethod.POST)
-  ResponseEnvelope updateAssetprptsStatus(
-      @RequestBody OrderDelivemiddleDTO model,
-      @RequestHeader(value = "Authorization") String token);
 
   /**
    * 导出合同列表数据

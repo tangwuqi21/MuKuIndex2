@@ -64,9 +64,6 @@ public class OrderDelivemiddleDTO implements Serializable {
   @ApiModelProperty(value = "签收状态", hidden = true)
   private Integer signStatus;
 
-  @ApiModelProperty(value = "保存状态，0-暂存，1-已提交", hidden = true)
-  private Integer saveStatus;
-
   @ApiModelProperty(value = "token", hidden = true)
   private String token;
 
