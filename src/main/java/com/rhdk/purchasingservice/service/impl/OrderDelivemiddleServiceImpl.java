@@ -835,6 +835,7 @@ public class OrderDelivemiddleServiceImpl
     entityInfo.setAssetTemplVer(assetTmplInfo.getVerNo());
     entityInfo.setItemNo(assetTmplInfo.getItemNo());
     entityInfo.setDscp(assetTmplInfo.getDscp());
+    entityInfo.setName(assetTmplInfo.getName());
     entityInfo.setAssetStatus(-2);
     entityInfo.setCreateBy(TokenUtil.getUserInfo().getUserId());
     entityInfo.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
@@ -880,6 +881,11 @@ public class OrderDelivemiddleServiceImpl
     }
     orderDelivedetail.setCreateBy(entityInfo.getCreateBy());
     orderDelivedetail.setItemNo(assetTmplInfo.getItemNo());
+    orderDelivedetail.setAssetName(assetTmplInfo.getName());
+    if (titleNameM2.get("名称") != null) {
+      Cell cell = row.getCell(titleNameM2.get("名称"));
+      orderDelivedetail.setAssetName(ExcleUtils.getValue(cell, formulaEvaluator));
+    }
     entityInfo.setOrderDelivedetail(orderDelivedetail);
     System.out.println(
         "id:" + Thread.currentThread().getId() + ",name:" + Thread.currentThread().getName());
