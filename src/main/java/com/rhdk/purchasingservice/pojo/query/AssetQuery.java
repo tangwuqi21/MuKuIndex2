@@ -22,6 +22,8 @@ public class AssetQuery {
 
   Integer saveStatus;
 
+  Integer assetStatus;
+
   // "库管方式（1:量管 2:物管）"
   private Integer wmType;
 }

@@ -33,7 +33,7 @@ public class OrderDelivemiddleQuery extends BaseDTO implements Serializable {
   @ApiModelProperty(value = "资产类型状态，1-物管，2-量管", hidden = true)
   private String assetType;
 
-  @ApiModelProperty(value = "资产模板id", hidden = true)
+  @ApiModelProperty(value = "资产模板id")
   private Long moduleId;
 
   @ApiModelProperty(value = "资产模板版本号", hidden = true)
@@ -60,6 +60,9 @@ public class OrderDelivemiddleQuery extends BaseDTO implements Serializable {
   @ApiModelProperty(value = "资产类别Id", hidden = true)
   private Long assetCatId;
 
-  @ApiModelProperty(value = "供应商名称")
+  @ApiModelProperty(value = "供应商名称", hidden = true)
   private String supplierName;
+
+  @ApiModelProperty(value = "签收状态，0-未签收，1-部分签收，2-已签收")
+  private Integer signStatus;
 }
