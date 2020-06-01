@@ -1,6 +1,8 @@
 package com.rhdk.purchasingservice.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.rhdk.purchasingservice.common.enums.ResultEnum;
+import com.rhdk.purchasingservice.common.utils.ResultVOUtil;
 import com.rhdk.purchasingservice.common.utils.TokenUtil;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.feign.AssetServiceFeign;
@@ -98,7 +100,6 @@ public class OrderContractController {
   public void exportContractList(
       HttpServletResponse response, @RequestBody OrderContractQuery dto) {
     log.info("根据条件导出合同列表数据");
-    // ResponseEntity<byte[]> result = null;
     Map<String, Object> map = new HashMap<>();
     // 获取数据源
     List<OrderContractVO> data = iOrderContractService.getContractInforList(dto);
@@ -123,8 +124,12 @@ public class OrderContractController {
    */
   @ApiOperation(value = "合同明细删除", notes = "合同表API")
   @RequestMapping(value = "/deleteOrderContract", method = RequestMethod.POST)
-  public ResponseEnvelope deleteOrderContract(Long id) throws Exception {
-    return iOrderContractService.deleteOrderContract(id);
+  public ResponseEnvelope deleteOrderContract(Long id) {
+    try {
+      return iOrderContractService.deleteOrderContract(id);
+    } catch (Exception e) {
+      return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
+    }
   }
 
   /**
@@ -136,7 +141,11 @@ public class OrderContractController {
    */
   @ApiOperation(value = "合同批量删除", notes = "合同表API")
   @RequestMapping(value = "/deleteContractList", method = RequestMethod.POST)
-  public ResponseEnvelope deleteContractList(@RequestParam("ids") List<Long> ids) throws Exception {
-    return iOrderContractService.deleteContractList(ids);
+  public ResponseEnvelope deleteContractList(@RequestParam("ids") List<Long> ids) {
+    try {
+      return iOrderContractService.deleteContractList(ids);
+    } catch (Exception e) {
+      return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
+    }
   }
 }

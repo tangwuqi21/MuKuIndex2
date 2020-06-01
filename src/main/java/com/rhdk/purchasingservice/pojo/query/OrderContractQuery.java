@@ -28,11 +28,11 @@ public class OrderContractQuery extends BaseDTO implements Serializable {
   @NotNull(message = "单据日期不能为空")
   private Date contractDate;
 
-  @ApiModelProperty(value = "单据编码", hidden = true)
+  @ApiModelProperty(value = "单据编码")
   @NotNull(message = "单据编码不能为空")
   private String contractCode;
 
-  @ApiModelProperty(value = "合同名称", hidden = true)
+  @ApiModelProperty(value = "合同名称")
   @NotNull(message = "合同名称不能为空")
   private String contractName;
 
