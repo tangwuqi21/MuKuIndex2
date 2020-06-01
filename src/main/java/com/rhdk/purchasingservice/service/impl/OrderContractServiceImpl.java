@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +62,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
 
   @Override
   public ResponseEnvelope searchOrderContractListPage(OrderContractQuery dto) {
+    Page<OrderContractVO> page2 = new Page<OrderContractVO>();
     Page<OrderContract> page = new Page<OrderContract>();
     page.setSize(dto.getPageSize());
     page.setCurrent(dto.getCurrentPage());
@@ -72,8 +74,19 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     logger.info("searchOrderContractListPage-获取合同id列表结束，获取了" + paramStr.size() + "条");
     if (paramStr.size() > 0) {
       queryWrapper.in("ID", paramStr);
+    } else {
+      return ResultVOUtil.returnSuccess(page2);
     }
     dto.setContractCompany(null);
+    // 这里加入模糊搜索条件
+    if (!StringUtils.isEmpty(dto.getContractCode())) {
+      queryWrapper.like("CONTRACT_CODE", dto.getContractCode());
+      dto.setContractCode(null);
+    }
+    if (!StringUtils.isEmpty(dto.getContractName())) {
+      queryWrapper.like("CONTRACT_NAME", dto.getContractName());
+      dto.setContractName(null);
+    }
     BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
     entity.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
     queryWrapper.setEntity(entity);
@@ -115,7 +128,6 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
                 })
             .collect(Collectors.toList());
     logger.info("getFileList-获取合同附件列表结束");
-    Page<OrderContractVO> page2 = new Page<OrderContractVO>();
     page2.setRecords(contractVOList); /**/
     page2.setSize(page.getSize());
     page2.setCurrent(page.getCurrent());
@@ -284,7 +296,11 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     OrderAttachmentDTO orderAttachmentDTO = new OrderAttachmentDTO();
     orderAttachmentDTO.setParentId(id);
     orderAttachmentDTO.setAtttype(1);
-    assetServiceFeign.deleteAttachmentByParentId(orderAttachmentDTO, TokenUtil.getToken());
+    try {
+      assetServiceFeign.deleteAttachmentByParentId(orderAttachmentDTO, TokenUtil.getToken());
+    } catch (Exception e) {
+      throw new RuntimeException("删除采购合同附件失败，合同id为：" + id);
+    }
     logger.info("deleteOrderContract-删除附件表信息结束");
     PurcasingContract entity = new PurcasingContract();
     entity.setId(id);
@@ -293,17 +309,25 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     logger.info("deleteOrderContract-删除采购合同表信息开始");
     entity = purcasingContractMapper.selectOne(queryWrapper);
     // 删除采购合同表
-    purcasingContractMapper.deleteById(id);
-    logger.info("deleteOrderContract-删除采购合同表信息结束");
-    // 物理删除合同表
-    orderContractMapper.deleteById(entity.getContractId());
+    try {
+      purcasingContractMapper.deleteById(id);
+      logger.info("deleteOrderContract-删除采购合同表信息结束");
+      // 物理删除合同表
+      orderContractMapper.deleteById(entity.getContractId());
+    } catch (Exception e) {
+      throw new RuntimeException("删除采购合同失败，合同id为：" + id);
+    }
     return ResultVOUtil.returnSuccess();
   }
 
   @Override
   public ResponseEnvelope deleteContractList(List<Long> ids) {
-    for (Long id : ids) {
-      deleteOrderContract(id);
+    try {
+      for (Long id : ids) {
+        deleteOrderContract(id);
+      }
+    } catch (Exception e) {
+      throw new RuntimeException("批量删除采购合同失败，报错信息为：" + e.getMessage());
     }
     return ResultVOUtil.returnSuccess();
   }

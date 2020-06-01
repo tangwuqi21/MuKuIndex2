@@ -10,6 +10,7 @@ import com.rhdk.purchasingservice.pojo.entity.AssetEntityPrpt;
 import com.rhdk.purchasingservice.pojo.entity.AssetTmplInfo;
 import com.rhdk.purchasingservice.pojo.entity.Customer;
 import com.rhdk.purchasingservice.pojo.query.AssetQuery;
+import com.rhdk.purchasingservice.pojo.query.TmplPrptsFilter;
 import com.rhdk.purchasingservice.pojo.vo.AssetCatVO;
 import com.rhdk.purchasingservice.pojo.vo.AssetTmplInfoVO;
 import org.springframework.cloud.netflix.feign.FeignClient;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author: LMYOU
@@ -335,6 +337,13 @@ public interface AssetServiceFeign {
       method = RequestMethod.POST)
   ResponseEnvelope<AssetTmplInfoVO> selectPrptValByTmplId(
       @RequestParam("id") Long id, @RequestHeader(value = "Authorization") String token);
+
+  @RequestMapping(
+      value = "/assetservice/assetTmplPrpts/searchPKValByTmpId",
+      method = RequestMethod.POST)
+  ResponseEnvelope<Set<String>> searchPKValByTmpId(
+      @RequestBody TmplPrptsFilter tmplPrptsFilter,
+      @RequestHeader(value = "Authorization") String token);
 
   /**
    * 根据送货明细记录id来查询附件清单的资产id集合
