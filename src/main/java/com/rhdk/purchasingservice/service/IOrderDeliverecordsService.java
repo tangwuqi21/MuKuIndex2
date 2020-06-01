@@ -5,6 +5,9 @@ import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.pojo.dto.OrderDeliverecordsDTO;
 import com.rhdk.purchasingservice.pojo.entity.OrderDeliverecords;
 import com.rhdk.purchasingservice.pojo.query.OrderDeliverecordsQuery;
+import com.rhdk.purchasingservice.pojo.vo.OrderDeliverecordsVO;
+
+import java.util.List;
 
 /**
  * 送货单 服务类
@@ -55,4 +58,12 @@ public interface IOrderDeliverecordsService extends IService<OrderDeliverecords>
    * @throws Exception
    */
   ResponseEnvelope deleteOrderDeliverecords(Long id);
+
+  /**
+   * 根据搜索条件获取要导出的送货单列表数据
+   *
+   * @param dto
+   * @return
+   */
+  List<OrderDeliverecordsVO> getDeliverInforList(OrderDeliverecordsQuery dto);
 }
