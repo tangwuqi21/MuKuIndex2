@@ -37,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -333,6 +334,61 @@ public class OrderDeliverecordsServiceImpl
       throw new RuntimeException("删除送货单明细信息失败！送货单id为：" + id);
     }
     return ResultVOUtil.returnSuccess();
+  }
+
+  @Override
+  public List<OrderDeliverecordsVO> getDeliverInforList(OrderDeliverecordsQuery dto) {
+    QueryWrapper<OrderDeliverecords> queryWrapper = new QueryWrapper<OrderDeliverecords>();
+    OrderDeliverecords entity = new OrderDeliverecords();
+    BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
+    queryWrapper.setEntity(entity);
+    List<OrderDeliverecords> resultList = orderDeliverecordsMapper.selectList(queryWrapper);
+    Map<Long, String> supplierMap = new HashMap<>();
+    logger.info("getDeliverInforList--fegin远程获取供应商列表信息开始");
+    List<HashMap<String, Object>> resultMap =
+        (List<HashMap<String, Object>>)
+            assetServiceFeign.getSupplyList(null, TokenUtil.getToken()).getData();
+    logger.info("getDeliverInforList--fegin远程获取供应商列表信息共：" + resultMap.size() + "条，结束");
+    for (HashMap<String, Object> model : resultMap) {
+      supplierMap.put(Long.valueOf(model.get("id").toString()), model.get("custName").toString());
+    }
+    List<OrderDeliverecordsVO> orderDeliverecordsVOList = new ArrayList<>();
+    Integer rownum = 1;
+    for (OrderDeliverecords a : resultList) {
+      OrderContractVO orderContract = orderContractMapper.selectContractById(a.getOrderId());
+      OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
+      List<Integer> signStatList = orderDelivemiddleMapper.getSignStatus(a.getId());
+      Integer status = getAssetStatus(signStatList);
+      OrderAttachmentDTO dto1 = new OrderAttachmentDTO();
+      dto1.setParentId(a.getId());
+      dto1.setAtttype(2);
+      OrderDeliverecordsVO orderDeliverecordsVO =
+          OrderDeliverecordsVO.builder()
+              .haveFile(
+                  assetServiceFeign.selectAttachNum(dto1, TokenUtil.getToken()).getData() > 0
+                      ? "是"
+                      : "否")
+              .createName(userDto.getUserInfo().getName())
+              .deptName(userDto.getGroupName())
+              .build();
+      if (orderContract != null) {
+        orderDeliverecordsVO.setContractTypeName(
+            orderContract.getContractType() == 1 ? "采购合同" : "其他");
+        orderDeliverecordsVO.setContractCode(orderContract.getContractCode());
+        orderDeliverecordsVO.setContractName(orderContract.getContractName());
+      } else {
+        orderDeliverecordsVO.setContractCode("--");
+        orderDeliverecordsVO.setContractName("--");
+        orderDeliverecordsVO.setContractTypeName("--");
+      }
+      BeanCopyUtil.copyPropertiesIgnoreNull(a, orderDeliverecordsVO);
+      orderDeliverecordsVO.setSignStatusName(status == 2 ? "已签收" : status == 1 ? "部分签收" : "未签收");
+      orderDeliverecordsVO.setSupplierName(supplierMap.get(a.getSupplierId()));
+      orderDeliverecordsVO.setNo(rownum);
+      orderDeliverecordsVOList.add(orderDeliverecordsVO);
+      rownum += 1;
+    }
+    return orderDeliverecordsVOList;
   }
 
   /**

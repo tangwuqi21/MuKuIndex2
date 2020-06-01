@@ -272,6 +272,19 @@ public interface AssetServiceFeign {
       @RequestBody OrderAttachmentDTO dto, @RequestHeader(value = "Authorization") String token);
 
   /**
+   * 获取指定模块的附件列表数目
+   *
+   * @param dto
+   * @param token
+   * @return
+   */
+  @RequestMapping(
+      value = "/assetservice/orderAttachment/selectAttachNum",
+      method = RequestMethod.POST)
+  ResponseEnvelope<Integer> selectAttachNum(
+      @RequestBody OrderAttachmentDTO dto, @RequestHeader(value = "Authorization") String token);
+
+  /**
    * 删除指定模块的附件列表
    *
    * @param dto

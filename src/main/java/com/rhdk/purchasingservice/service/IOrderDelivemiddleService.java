@@ -5,6 +5,7 @@ import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.pojo.dto.OrderDelivemiddleDTO;
 import com.rhdk.purchasingservice.pojo.entity.OrderDelivemiddle;
 import com.rhdk.purchasingservice.pojo.query.OrderDelivemiddleQuery;
+import com.rhdk.purchasingservice.pojo.vo.OrderDelivemiddleVO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -93,4 +94,12 @@ public interface IOrderDelivemiddleService extends IService<OrderDelivemiddle> {
    * @throws Exception
    */
   ResponseEnvelope deleteDetailFile(String dto);
+
+  /**
+   * 根据条件导出送货明细记录列表
+   *
+   * @param dto
+   * @return
+   */
+  List<OrderDelivemiddleVO> getDeliverDetailList(OrderDelivemiddleQuery dto);
 }

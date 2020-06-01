@@ -113,4 +113,19 @@ public class OrderDelivemiddleVO implements Serializable {
 
   @ApiModelProperty(value = "附件清单资产id集合")
   private String assetIds;
+
+  @ApiModelProperty(value = "签收状态名称", hidden = true)
+  private String signStatusName;
+
+  @ApiModelProperty(value = "是否有附件", hidden = true)
+  private String haveFile;
+
+  @ApiModelProperty(value = "序号", hidden = true)
+  private Integer no;
+
+  @ApiModelProperty(value = "单位值", hidden = true)
+  private String unitVal;
+
+  @ApiModelProperty(value = "单价值", hidden = true)
+  private String priceVal;
 }

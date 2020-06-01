@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -243,38 +244,36 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     queryWrapper.setEntity(entity);
     List<OrderContract> resultList = orderContractMapper.selectList(queryWrapper);
     logger.info("getContractInforList-获取导出合同主体id列表信息结束，获取了" + paramStr.size() + "条数据");
-    List<OrderContractVO> contractVOList =
-        resultList.stream()
-            .map(
-                a -> {
-                  // 根据合同id去附件表里获取每个合同对应的附件
-                  OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
-                  OrderContractVO contractVO = orderContractMapper.selectContractByCId(a.getId());
-                  OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
-                  attachmentDTO.setParentId(a.getId());
-                  attachmentDTO.setAtttype(1);
-                  List<Map<String, Object>> fileList =
-                      assetServiceFeign
-                          .selectListByParentId(attachmentDTO, TokenUtil.getToken())
-                          .getData();
-                  String haveFile = fileList.size() > 0 ? "是" : "否";
-                  OrderContractVO at =
-                      OrderContractVO.builder()
-                          .haveFile(haveFile)
-                          .contractCode(a.getContractCode())
-                          .contractCompany(contractVO.getContractCompany())
-                          .contractName(a.getContractName())
-                          .contractDate(a.getContractDate())
-                          .contractMoney(a.getContractMoney())
-                          .id(contractVO.getOrderId())
-                          .contractTypeName(a.getContractType() == 1 ? "采购合同" : "")
-                          .createDate(a.getCreateDate())
-                          .createName(userDto.getUserInfo().getName())
-                          .deptName(userDto.getGroupName())
-                          .build();
-                  return at;
-                })
-            .collect(Collectors.toList());
+    List<OrderContractVO> contractVOList = new ArrayList<>();
+    Integer rownum = 1;
+    for (OrderContract a : resultList) {
+      // 根据合同id去附件表里获取每个合同对应的附件
+      OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
+      OrderContractVO contractVO = orderContractMapper.selectContractByCId(a.getId());
+      OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
+      attachmentDTO.setParentId(a.getId());
+      attachmentDTO.setAtttype(1);
+      List<Map<String, Object>> fileList =
+          assetServiceFeign.selectListByParentId(attachmentDTO, TokenUtil.getToken()).getData();
+      String haveFile = fileList.size() > 0 ? "是" : "否";
+      OrderContractVO at =
+          OrderContractVO.builder()
+              .haveFile(haveFile)
+              .contractCode(a.getContractCode())
+              .contractCompany(contractVO.getContractCompany())
+              .contractName(a.getContractName())
+              .contractDate(a.getContractDate())
+              .contractMoney(a.getContractMoney())
+              .id(contractVO.getOrderId())
+              .contractTypeName(a.getContractType() == 1 ? "采购合同" : "其他")
+              .createDate(a.getCreateDate())
+              .createName(userDto.getUserInfo().getName())
+              .deptName(userDto.getGroupName())
+              .no(rownum)
+              .build();
+      contractVOList.add(at);
+      rownum += 1;
+    }
     return contractVOList;
   }
 

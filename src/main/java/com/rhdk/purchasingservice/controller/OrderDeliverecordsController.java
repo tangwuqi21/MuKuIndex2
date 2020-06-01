@@ -3,7 +3,9 @@ package com.rhdk.purchasingservice.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.rhdk.purchasingservice.common.enums.ResultEnum;
 import com.rhdk.purchasingservice.common.utils.ResultVOUtil;
+import com.rhdk.purchasingservice.common.utils.TokenUtil;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
+import com.rhdk.purchasingservice.feign.AssetServiceFeign;
 import com.rhdk.purchasingservice.pojo.dto.OrderDeliverecordsDTO;
 import com.rhdk.purchasingservice.pojo.query.OrderDeliverecordsQuery;
 import com.rhdk.purchasingservice.pojo.vo.OrderDeliverecordsVO;
@@ -18,7 +20,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 送货单 前端控制器
@@ -34,6 +40,8 @@ import javax.validation.Valid;
 public class OrderDeliverecordsController {
 
   @Autowired private IOrderDeliverecordsService iOrderDeliverecordsService;
+
+  @Autowired private AssetServiceFeign assetServiceFeign;
 
   /**
    * 送货记录列表查询 返回送货记录的签收状态、送货记录名称、合同相关信息 不包括送货记录明细
@@ -109,6 +117,33 @@ public class OrderDeliverecordsController {
       return iOrderDeliverecordsService.deleteOrderDeliverecords(id);
     } catch (Exception e) {
       return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
+    }
+  }
+
+  /**
+   * 导出送货单列表数据
+   *
+   * @param dto
+   * @return
+   */
+  @ApiOperation(value = "导出送货单列表数据", notes = "送货单API")
+  @RequestMapping(value = "/exportDeliveList", method = RequestMethod.POST)
+  public void exportDeliveList(
+      HttpServletResponse response, @RequestBody OrderDeliverecordsQuery dto) {
+    log.info("根据条件导出送货单列表数据");
+    // ResponseEntity<byte[]> result = null;
+    Map<String, Object> map = new HashMap<>();
+    // 获取数据源
+    List<OrderDeliverecordsVO> data = iOrderDeliverecordsService.getDeliverInforList(dto);
+    map.put("tempName", "deliverInfo");
+    map.put("tempData", data);
+    try {
+      byte[] byteArr = assetServiceFeign.exportDataList(map, TokenUtil.getToken());
+      response.setContentType("application/octet-stream");
+      response.setHeader("Content-Disposition", "attachment;filename=送货单记录.xlsx");
+      response.getOutputStream().write(byteArr);
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 }

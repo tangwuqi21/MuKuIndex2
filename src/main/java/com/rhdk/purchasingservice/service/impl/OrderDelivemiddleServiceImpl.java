@@ -87,14 +87,6 @@ public class OrderDelivemiddleServiceImpl
     OrderDelivemiddle entity = new OrderDelivemiddle();
     BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
     queryWrapper.setEntity(entity);
-    //    if (!StringUtils.isEmpty(dto.getSupplierName())) {
-    //      List<Long> supplierIds =
-    //          (List<Long>)
-    //              assetServiceFeign.getIdsBySupplierName(dto.getSupplierName(),
-    // TokenUtil.getToken());
-    //      List<Long> deliverIds = orderDeliverecordsMapper.getIdsBySupplierId(supplierIds);
-    //      queryWrapper.in("DELIVERY_ID", deliverIds);
-    //    }
     page = orderDelivemiddleMapper.selectPage(page, queryWrapper);
     List<OrderDelivemiddle> resultList = page.getRecords();
     // 6.查询所属附件资产清单id集合
@@ -860,6 +852,64 @@ public class OrderDelivemiddleServiceImpl
       assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
     }
     return ResultVOUtil.returnSuccess();
+  }
+
+  @Override
+  public List<OrderDelivemiddleVO> getDeliverDetailList(OrderDelivemiddleQuery dto) {
+    QueryWrapper<OrderDelivemiddle> queryWrapper = new QueryWrapper<OrderDelivemiddle>();
+    OrderDelivemiddle entity = new OrderDelivemiddle();
+    BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
+    queryWrapper.setEntity(entity);
+    List<OrderDelivemiddle> resultList = orderDelivemiddleMapper.selectList(queryWrapper);
+    Map<Long, String> supplierMap = new HashMap<>();
+    logger.info("getDeliverDetailList--fegin远程获取供应商列表信息开始");
+    List<HashMap<String, Object>> resultMap =
+        (List<HashMap<String, Object>>)
+            assetServiceFeign.getSupplyList(null, TokenUtil.getToken()).getData();
+    logger.info("getDeliverDetailList--fegin远程获取供应商列表信息共：" + resultMap.size() + "条，结束");
+    for (HashMap<String, Object> model : resultMap) {
+      supplierMap.put(Long.valueOf(model.get("id").toString()), model.get("custName").toString());
+    }
+    List<OrderDelivemiddleVO> orderDelivemiddleVOList = new ArrayList<>();
+    Integer rownum = 1;
+    for (OrderDelivemiddle a : resultList) {
+      // 改造
+      // 1.查询送货信息
+      OrderDeliverecords orderDeliverecord =
+          orderDeliverecordsMapper.getDeliverecordInfo(a.getDeliveryId());
+      // 4.查询模板名称
+      AssetTmplInfoVO assetTmplInfo =
+          assetServiceFeign.selectPrptValByTmplId(a.getModuleId(), TokenUtil.getToken()).getData();
+      OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
+      attachmentDTO.setAtttype(3);
+      attachmentDTO.setParentId(a.getId());
+      OrderDelivemiddleVO model =
+          OrderDelivemiddleVO.builder()
+              .haveFile(
+                  assetServiceFeign.selectAttachNum(attachmentDTO, TokenUtil.getToken()).getData()
+                          > 0
+                      ? "是"
+                      : "否")
+              .deliveryCode(orderDeliverecord.getDeliveryCode())
+              .deliveryName(orderDeliverecord.getDeliveryName())
+              .signAddress(orderDeliverecord.getSignAddress())
+              .build();
+      if (assetTmplInfo != null) {
+        model.setUnitVal(assetTmplInfo.getUnit());
+        model.setPriceVal(assetTmplInfo.getPrice());
+        model.setModuleName(assetTmplInfo.getName());
+      }
+      if (supplierMap != null) {
+        model.setSupplierName(supplierMap.get(orderDeliverecord.getSupplierId()));
+      }
+      BeanCopyUtil.copyPropertiesIgnoreNull(a, model);
+      model.setNo(rownum);
+      model.setSignStatusName(
+          a.getSignStatus() == 2 ? "已签收" : a.getSignStatus() == 1 ? "部分签收" : "未签收");
+      orderDelivemiddleVOList.add(model);
+      rownum += 1;
+    }
+    return orderDelivemiddleVOList;
   }
 
   @Async

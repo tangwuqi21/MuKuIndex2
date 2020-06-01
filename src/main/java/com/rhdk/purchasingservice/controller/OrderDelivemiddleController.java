@@ -3,7 +3,9 @@ package com.rhdk.purchasingservice.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.rhdk.purchasingservice.common.enums.ResultEnum;
 import com.rhdk.purchasingservice.common.utils.ResultVOUtil;
+import com.rhdk.purchasingservice.common.utils.TokenUtil;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
+import com.rhdk.purchasingservice.feign.AssetServiceFeign;
 import com.rhdk.purchasingservice.pojo.dto.OrderDelivemiddleDTO;
 import com.rhdk.purchasingservice.pojo.query.OrderDelivemiddleQuery;
 import com.rhdk.purchasingservice.pojo.vo.OrderDelivemiddleVO;
@@ -19,7 +21,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 送货记录明细中间表 前端控制器
@@ -35,6 +41,8 @@ import javax.validation.constraints.NotNull;
 public class OrderDelivemiddleController {
 
   @Autowired private IOrderDelivemiddleService iOrderDelivemiddleService;
+
+  @Autowired private AssetServiceFeign assetServiceFeign;
 
   /**
    * 送货记录下的明细列表查询，返回送货明细基本信息 关联的送货单基本信息
@@ -144,6 +152,33 @@ public class OrderDelivemiddleController {
       return iOrderDelivemiddleService.deleteDetailFile(assetIds);
     } catch (Exception e) {
       return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
+    }
+  }
+
+  /**
+   * 导出送货单明细记录列表数据
+   *
+   * @param dto
+   * @return
+   */
+  @ApiOperation(value = "导出送货单明细记录列表数据", notes = "送货记录明细中间表API")
+  @RequestMapping(value = "/exportDeliveDetailList", method = RequestMethod.POST)
+  public void exportDeliveDetailList(
+      HttpServletResponse response, @RequestBody OrderDelivemiddleQuery dto) {
+    log.info("根据条件导出送货单明细记录列表数据");
+    // ResponseEntity<byte[]> result = null;
+    Map<String, Object> map = new HashMap<>();
+    // 获取数据源
+    List<OrderDelivemiddleVO> data = iOrderDelivemiddleService.getDeliverDetailList(dto);
+    map.put("tempName", "deliverDetail");
+    map.put("tempData", data);
+    try {
+      byte[] byteArr = assetServiceFeign.exportDataList(map, TokenUtil.getToken());
+      response.setContentType("application/octet-stream");
+      response.setHeader("Content-Disposition", "attachment;filename=送货单明细记录.xlsx");
+      response.getOutputStream().write(byteArr);
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 }
