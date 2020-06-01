@@ -299,17 +299,19 @@ public class OrderDelivemiddleServiceImpl
       entityInfo.setAssetTemplId(dto.getModuleId());
       entityInfo.setAssetTemplVer(dto.getModuleVersion());
       entityInfo.setItemNo(dto.getItemNO());
+      entityInfo.setName(dto.getModuleName());
       entityInfo.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
       entityInfo.setAssetStatus(0L);
       entityInfo.setAmount(dto.getAssetNumber());
       try {
-        assetServiceFeign.addAssetEntityInfo(entityInfo, dto.getToken()).getData();
+        entityInfo = assetServiceFeign.addAssetEntityInfo(entityInfo, dto.getToken()).getData();
       } catch (Exception e) {
         throw new RuntimeException("插入量管资产信息到实体表出错！msg:" + e.getMessage());
       }
       // 3.这里进行送货记录的详细表中入库
       OrderDelivedetail orderDelivedetail = new OrderDelivedetail();
       orderDelivedetail.setAssetId(entityInfo.getId());
+      orderDelivedetail.setAssetName(dto.getModuleName());
       orderDelivedetail.setAssetNumber(dto.getAssetNumber());
       orderDelivedetail.setAssetCatId(dto.getAssetCatId());
       if (!StringUtils.isEmpty(dto.getAssetCatId())) {
@@ -527,23 +529,6 @@ public class OrderDelivemiddleServiceImpl
         }
       }
     } else {
-      // 切换了资产模板，需要清空之前的资产明细数据并重新解析Excel表格进行数据的上传
-      // 通过明细中间表找到明细表，通过明细表，去到资产实体表中进行之前的数据删除，然后删除明细中间表的数据
-      //      List<Long> detailAssetIds = orderDelivedetailMapper.getAssetIds(model.getId());
-      //      try {
-      //        Long[] strArray = new Long[detailAssetIds.size()];
-      //        detailAssetIds.toArray(strArray);
-      //        // 删除资产实体表相关信息
-      //        assetServiceFeign.deleteEntitys(strArray, TokenUtil.getToken());
-      //        // 删除资产实体属性值表
-      //        assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
-      //        // 删除明细表的数据
-      //        orderDelivedetailMapper.deleteDeliveDetails(detailAssetIds);
-      //      } catch (Exception e) {
-      //        throw new RuntimeException(
-      //            "量管资产明细记录更新，需要将之前的资产信息删除，远程调用fegin删除资产信息失败！要删除的资产id为：" +
-      // detailAssetIds.toString());
-      //      }
       // 判断切换后的模板类型是物管还是量管，物管更新资产实体表，资产实体属性值表，送货明细表的三种资产状态，量管新增一条数据
       if ("2".equals(model.getWmType())) {
         // 变更资产实体表，资产实体属性值表，送货明细表的三种资产状态）
@@ -586,6 +571,7 @@ public class OrderDelivemiddleServiceImpl
       entityInfo.setAssetTemplId(dto.getModuleId());
       entityInfo.setAssetTemplVer(dto.getModuleVersion());
       entityInfo.setItemNo(dto.getItemNO());
+      entityInfo.setName(dto.getModuleName());
       entityInfo.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
       entityInfo.setAssetStatus(0L);
       if (assetInfo != null) {
@@ -593,7 +579,8 @@ public class OrderDelivemiddleServiceImpl
         entityInfo.setAmount(assetInfo.getAmount() + dto.getAssetNumber());
         entityInfo.setId(assetInfo.getId());
         try {
-          assetServiceFeign.updateAssetEntityInfo(entityInfo, TokenUtil.getToken());
+          entityInfo =
+              assetServiceFeign.updateAssetEntityInfo(entityInfo, TokenUtil.getToken()).getData();
         } catch (Exception e) {
           throw new RuntimeException(
               "存在量管资产信息更新出错！参数信息为：" + entityInfo.toString() + "msg:" + e.getMessage());
@@ -603,7 +590,7 @@ public class OrderDelivemiddleServiceImpl
         // 1.入库资产实体表信息
         entityInfo.setAmount(dto.getAssetNumber());
         try {
-          assetServiceFeign.addAssetEntityInfo(entityInfo, dto.getToken()).getData();
+          entityInfo = assetServiceFeign.addAssetEntityInfo(entityInfo, dto.getToken()).getData();
         } catch (Exception e) {
           throw new RuntimeException("插入量管资产信息到实体表出错！msg:" + e.getMessage());
         }
@@ -613,6 +600,7 @@ public class OrderDelivemiddleServiceImpl
       orderDelivedetail.setAssetId(entityInfo.getId());
       orderDelivedetail.setAssetNumber(dto.getAssetNumber());
       orderDelivedetail.setAssetCatId(dto.getAssetCatId());
+      orderDelivedetail.setAssetName(dto.getModuleName());
       if (!StringUtils.isEmpty(dto.getAssetCatId())) {
         AssetCatVO assetCatVO =
             assetServiceFeign
