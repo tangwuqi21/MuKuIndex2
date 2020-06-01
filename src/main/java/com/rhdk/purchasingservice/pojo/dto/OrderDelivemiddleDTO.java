@@ -42,6 +42,9 @@ public class OrderDelivemiddleDTO implements Serializable {
   @ApiModelProperty(value = "资产模板id")
   private Long moduleId;
 
+  @ApiModelProperty(value = "资产模板名称", hidden = true)
+  private String moduleName;
+
   @ApiModelProperty(value = "资产模板版本号")
   private Integer moduleVersion;
 
