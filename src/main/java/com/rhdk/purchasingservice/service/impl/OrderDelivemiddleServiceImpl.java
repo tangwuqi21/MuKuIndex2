@@ -537,7 +537,7 @@ public class OrderDelivemiddleServiceImpl
       entityInfo.setAssetTemplId(dto.getModuleId());
       entityInfo.setAssetTemplVer(dto.getModuleVersion());
       entityInfo.setItemNo(dto.getItemNO());
-      if(!StringUtils.isEmpty(dto.getModuleName())){
+      if (!StringUtils.isEmpty(dto.getModuleName())) {
         entityInfo.setName(dto.getModuleName());
       }
       entityInfo.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
@@ -568,7 +568,7 @@ public class OrderDelivemiddleServiceImpl
       orderDelivedetail.setAssetId(entityInfo.getId());
       orderDelivedetail.setAssetNumber(dto.getAssetNumber());
       orderDelivedetail.setAssetCatId(dto.getAssetCatId());
-      if(!StringUtils.isEmpty(dto.getModuleName())){
+      if (!StringUtils.isEmpty(dto.getModuleName())) {
         orderDelivedetail.setAssetName(dto.getModuleName());
       }
       if (!StringUtils.isEmpty(dto.getAssetCatId())) {
@@ -757,28 +757,28 @@ public class OrderDelivemiddleServiceImpl
             ResultEnum.TEMPLATE_ROWTWO.getCode(), "附件第" + rowNo + "行数据内容与系统库中重复");
       }
       // 这里进行批量插入的方法
-      //      if (assetEntityInfoVOList.size() > 0) {
-      //        Integer rowNum = orderDelivemiddleMapper.insertEntitysPlan(assetEntityInfoVOList);
-      //        Integer rowNum2 = orderDelivemiddleMapper.insertPrptsPlan(assetEntityPrptList);
-      //        Integer rowNum3 = orderDelivemiddleMapper.insertDetailsPlan(orderDelivedetailList);
-      //        Long endT = System.currentTimeMillis();
-      //        System.out.println(
-      //            "结束解析："
-      //                + endT
-      //                + ",共用时："
-      //                + (endT - startT) / 1000
-      //                + ",资产条数为："
-      //                + rowNum
-      //                + ",属性值条数为："
-      //                + rowNum2
-      //                + ",明细条数为："
-      //                + rowNum3);
-      //      } else {
-      //        return ResultVOUtil.returnFail(
-      //            ResultEnum.TEMPLATE_CELLNULL.getCode(), "附件第" + rowNo + "行数据内容为空");
-      //      }
-      //      // 调用附件上传接口
-      //      fileUrl = assetServiceFeign.uploadSingleFile(file, TokenUtil.getToken());
+      if (assetEntityInfoVOList.size() > 0) {
+        Integer rowNum = orderDelivemiddleMapper.insertEntitysPlan(assetEntityInfoVOList);
+        Integer rowNum2 = orderDelivemiddleMapper.insertPrptsPlan(assetEntityPrptList);
+        Integer rowNum3 = orderDelivemiddleMapper.insertDetailsPlan(orderDelivedetailList);
+        Long endT = System.currentTimeMillis();
+        System.out.println(
+            "结束解析："
+                + endT
+                + ",共用时："
+                + (endT - startT) / 1000
+                + ",资产条数为："
+                + rowNum
+                + ",属性值条数为："
+                + rowNum2
+                + ",明细条数为："
+                + rowNum3);
+      } else {
+        return ResultVOUtil.returnFail(
+            ResultEnum.TEMPLATE_CELLNULL.getCode(), "附件第" + rowNo + "行数据内容为空");
+      }
+      // 调用附件上传接口
+      fileUrl = assetServiceFeign.uploadSingleFile(file, TokenUtil.getToken());
       resultMap.put("fileUrl", fileUrl);
       if (org.springframework.util.StringUtils.isEmpty(resultMap.get("fileUrl"))) {
         return ResultVOUtil.returnFail(
