@@ -292,41 +292,7 @@ public class OrderDelivemiddleServiceImpl
     } else {
       logger.info("addOrderDelivemiddle--量管资产，添加量管资产信息");
       // 执行量管的数据记录,需要现判断该量管资产是否存在，若存在则更新该量管资产的数量，不存在就新增量管资产
-      // 量管资产不存在，走新增
-      // 1.入库资产实体表信息
-      AssetEntityInfo entityInfo = new AssetEntityInfo();
-      entityInfo.setAssetCatId(dto.getAssetCatId());
-      entityInfo.setAssetTemplId(dto.getModuleId());
-      entityInfo.setAssetTemplVer(dto.getModuleVersion());
-      entityInfo.setItemNo(dto.getItemNO());
-      entityInfo.setName(dto.getModuleName());
-      entityInfo.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
-      entityInfo.setAssetStatus(0L);
-      entityInfo.setAmount(dto.getAssetNumber());
-      try {
-        entityInfo = assetServiceFeign.addAssetEntityInfo(entityInfo, dto.getToken()).getData();
-      } catch (Exception e) {
-        throw new RuntimeException("插入量管资产信息到实体表出错！msg:" + e.getMessage());
-      }
-      // 3.这里进行送货记录的详细表中入库
-      OrderDelivedetail orderDelivedetail = new OrderDelivedetail();
-      orderDelivedetail.setAssetId(entityInfo.getId());
-      orderDelivedetail.setAssetName(dto.getModuleName());
-      orderDelivedetail.setAssetNumber(dto.getAssetNumber());
-      orderDelivedetail.setAssetCatId(dto.getAssetCatId());
-      if (!StringUtils.isEmpty(dto.getAssetCatId())) {
-        AssetCatVO assetCatVO =
-            assetServiceFeign
-                .searchAssetCatOne(dto.getAssetCatId(), TokenUtil.getToken())
-                .getData();
-        orderDelivedetail.setAssetCatSearchKey(assetCatVO.getSearchKey());
-      }
-      orderDelivedetail.setMiddleId(dto.getId());
-      orderDelivedetail.setItemNo(dto.getItemNO());
-      orderDelivedetailMapper.insert(orderDelivedetail);
-      if (StringUtils.isEmpty(orderDelivedetail.getId())) {
-        throw new RuntimeException("送货明细记录资产插入失败！插入资产信息为：" + orderDelivedetail.toString());
-      }
+      addOrUpdateNumberAsset(dto);
       logger.info("addOrderDelivemiddle--量管资产，添加量管资产信息结束");
     }
     return entity;
@@ -571,7 +537,9 @@ public class OrderDelivemiddleServiceImpl
       entityInfo.setAssetTemplId(dto.getModuleId());
       entityInfo.setAssetTemplVer(dto.getModuleVersion());
       entityInfo.setItemNo(dto.getItemNO());
-      entityInfo.setName(dto.getModuleName());
+      if(!StringUtils.isEmpty(dto.getModuleName())){
+        entityInfo.setName(dto.getModuleName());
+      }
       entityInfo.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
       entityInfo.setAssetStatus(0L);
       if (assetInfo != null) {
@@ -600,7 +568,9 @@ public class OrderDelivemiddleServiceImpl
       orderDelivedetail.setAssetId(entityInfo.getId());
       orderDelivedetail.setAssetNumber(dto.getAssetNumber());
       orderDelivedetail.setAssetCatId(dto.getAssetCatId());
-      orderDelivedetail.setAssetName(dto.getModuleName());
+      if(!StringUtils.isEmpty(dto.getModuleName())){
+        orderDelivedetail.setAssetName(dto.getModuleName());
+      }
       if (!StringUtils.isEmpty(dto.getAssetCatId())) {
         AssetCatVO assetCatVO =
             assetServiceFeign
