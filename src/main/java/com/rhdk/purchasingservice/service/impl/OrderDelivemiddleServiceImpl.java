@@ -779,7 +779,11 @@ public class OrderDelivemiddleServiceImpl
     logger.info("updateAssetStatus--获取待更新的资产id集合数目：" + assetIds.size());
     // 2.资产实体表，暂存状态变更为待签收状态
     dto.setAssetStatus(0);
-    assetServiceFeign.updateEntitysStatus(dto, dto.getToken());
+    try {
+      assetServiceFeign.updateEntitysStatus(dto, dto.getToken());
+    } catch (Exception e) {
+      throw new RuntimeException("updateEntitysStatus！资产id为：" + assetIds.toString());
+    }
     // 4.资产明细表，更新资产明细表关联的签收对照表id
     AssetQuery assetQuery = new AssetQuery();
     assetQuery.setAssetIds(assetIds);
