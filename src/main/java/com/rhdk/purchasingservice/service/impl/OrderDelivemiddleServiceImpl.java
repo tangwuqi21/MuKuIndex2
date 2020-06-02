@@ -309,46 +309,6 @@ public class OrderDelivemiddleServiceImpl
     return orderDelivemiddleMapper.getTitleMap(moduleId);
   }
 
-  /**
-   * 物理删除明细表下的明细附件，明细清单 资产实体，资产实体属性值信息
-   *
-   * @param id
-   * @return
-   */
-  @Override
-  @Transactional(rollbackFor = Exception.class)
-  public Integer deleteByPassNo(Long id) {
-    // 根据送货单id查询出对应的所有明细清单
-    List<Long> middleIds = orderDelivemiddleMapper.getMIdsByDeliveryId(id);
-    if (middleIds.size() > 0) {
-      // 逻辑删除送货明细表
-      List<Long> assetIds = orderDelivedetailMapper.getAssetIdsByDId(middleIds);
-      if (assetIds.size() > 0) {
-        Long[] strArray = new Long[assetIds.size()];
-        assetIds.toArray(strArray);
-        orderDelivedetailMapper.updateDetailsDel(assetIds);
-        // 逻辑删除资产实体表
-        assetServiceFeign.updateEntitys(strArray, TokenUtil.getToken());
-        // 逻辑删除资产实体属性值表
-        assetServiceFeign.updateEntityprpts(strArray, TokenUtil.getToken());
-      } else {
-        return ResultVOUtil.returnFail().getCode();
-      }
-      // 逻辑删除送货中间表
-      for (Long no : middleIds) {
-        orderDelivemiddleMapper.deleteById(no);
-        // 物理删除送货明细附件表
-        OrderAttachmentDTO dto = new OrderAttachmentDTO();
-        dto.setParentId(no);
-        dto.setAtttype(3);
-        assetServiceFeign.deleteAttachmentByParentId(dto, TokenUtil.getToken());
-      }
-      return ResultVOUtil.returnSuccess().getCode();
-    } else {
-      return ResultVOUtil.returnFail().getCode();
-    }
-  }
-
   @Override
   @Transactional
   public ResponseEnvelope deleteOrderDetailrecords(Long id) {
@@ -909,6 +869,11 @@ public class OrderDelivemiddleServiceImpl
       rownum += 1;
     }
     return orderDelivemiddleVOList;
+  }
+
+  @Override
+  public List<Long> selectIdsByDeliverId(Long id) {
+    return orderDelivemiddleMapper.selectIdsByDeliverId(id);
   }
 
   @Async

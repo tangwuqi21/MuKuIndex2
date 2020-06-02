@@ -329,9 +329,14 @@ public class OrderDeliverecordsServiceImpl
     } catch (Exception e) {
       throw new RuntimeException("删除送货单附件信息失败！送货单id为：" + id + "，报错信息为：" + e.getMessage());
     }
-    int num2 = iOrderDelivemiddleService.deleteByPassNo(id);
-    if (num2 < 0) {
-      throw new RuntimeException("删除送货单明细信息失败！送货单id为：" + id);
+    // 这里根据送货单id来获取送货单下的所有明细id集合，然后循环删除明细清单列表
+    List<Long> detailIds = iOrderDelivemiddleService.selectIdsByDeliverId(id);
+    for (Long detailId : detailIds) {
+      try {
+        iOrderDelivemiddleService.deleteOrderDetailrecords(detailId);
+      } catch (Exception e) {
+        throw new RuntimeException("删除送货单明细信息失败！送货单明细id为：" + detailId);
+      }
     }
     return ResultVOUtil.returnSuccess();
   }

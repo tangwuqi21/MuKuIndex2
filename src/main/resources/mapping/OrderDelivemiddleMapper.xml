@@ -182,4 +182,8 @@
         </foreach>
         SELECT 1 FROM DUAL
     </insert>
+
+    <select id="selectIdsByDeliverId" resultType="java.lang.Long">
+        select ID from T_ORDER_DELIVEMIDDLE where del_flag=0 and DELIVERY_ID=#{id}
+    </select>
 </mapper>

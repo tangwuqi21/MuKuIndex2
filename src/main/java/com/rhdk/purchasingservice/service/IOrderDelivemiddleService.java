@@ -50,12 +50,6 @@ public interface IOrderDelivemiddleService extends IService<OrderDelivemiddle> {
   List<Map<String, Object>> getTitleMap(Long moduleId);
 
   /**
-   * @param id
-   * @return
-   */
-  Integer deleteByPassNo(Long id);
-
-  /**
    * 根据送货明细id来删除送货记录下单一明细
    *
    * @param id
@@ -102,4 +96,12 @@ public interface IOrderDelivemiddleService extends IService<OrderDelivemiddle> {
    * @return
    */
   List<OrderDelivemiddleVO> getDeliverDetailList(OrderDelivemiddleQuery dto);
+
+  /**
+   * 根据送货单id来获取所有明细id集合
+   *
+   * @param id
+   * @return
+   */
+  List<Long> selectIdsByDeliverId(Long id);
 }

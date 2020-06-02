@@ -38,4 +38,6 @@ public interface OrderDelivemiddleMapper extends BaseMapper<OrderDelivemiddle> {
 
   Integer insertDetailsPlan(
       @Param("orderDetailList") List<OrderDelivedetail> orderDelivedetailList);
+
+  List<Long> selectIdsByDeliverId(@Param("id") Long id);
 }
