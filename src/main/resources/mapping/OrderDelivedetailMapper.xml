@@ -43,6 +43,9 @@
         <if test="dto.assetCatId !=null and dto.assetCatId !=''">
             ,ASSET_CAT_ID=#{dto.assetCatId}
         </if>
+        <if test="dto.id !=null and dto.id !=''">
+            ,MIDDLE_ID=#{dto.id}
+        </if>
         <if test="dto.assetCatSearchKey !=null and dto.assetCatSearchKey !=''">
             ,ASSET_CAT_SEARCH_KEY=#{dto.assetCatSearchKey}
         </if>
