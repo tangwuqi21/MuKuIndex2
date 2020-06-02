@@ -265,7 +265,7 @@ public class OrderDelivemiddleServiceImpl
     OrderDelivemiddle entity = new OrderDelivemiddle();
     BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
     // 这里自动生成送货明细业务编码，规则为：SHD+时间戳
-    String code = NumberUtils.createCode("SHD");
+    String code = NumberUtils.createCode("MX");
     entity.setDeliverydetailCode(code);
     orderDelivemiddleMapper.insert(entity);
     if (StringUtils.isEmpty(entity.getId())) {

@@ -292,6 +292,7 @@ public class OrderDeliverecordsServiceImpl
     }
     // 更新中间表相关字段
     if (dto.getOrderDelivemiddleDTOList().size() > 0) {
+      List<Long> middleList = new ArrayList<>();
       for (OrderDelivemiddleDTO model : dto.getOrderDelivemiddleDTOList()) {
         // 明细id如果为空则进行明细的新增操作
         if (StringUtils.isEmpty(model.getId())) {
@@ -299,6 +300,15 @@ public class OrderDeliverecordsServiceImpl
           iOrderDelivemiddleService.addOrderDelivemiddle(model);
         } else {
           iOrderDelivemiddleService.updateOrderMiddle(model);
+          middleList.add(model.getId());
+        }
+      }
+      // 这里需要判断是否存在待删除的明细数据
+      List<Long> middleIds = iOrderDelivemiddleService.selectIdsByDeliverId(dto.getId());
+      for (Long mid : middleIds) {
+        // 不包含的数据则进行删除
+        if (!middleList.contains(mid)) {
+          iOrderDelivemiddleService.deleteOrderDetailrecords(mid);
         }
       }
     } else {

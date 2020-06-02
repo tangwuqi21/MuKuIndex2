@@ -2,6 +2,9 @@ package com.rhdk.purchasingservice.common.utils;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Random;
 
 public class NumberUtils {
   /**
@@ -20,10 +23,13 @@ public class NumberUtils {
 
   /**
    * 生成业务编码
+   *
    * @param type
    * @return
    */
-  public static String createCode(String type){
-    return type+System.currentTimeMillis();
+  public static String createCode(String type) {
+    Date date = new Date();
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+    return type + sdf.format(date) + String.format("%04d", new Random().nextInt(9999));
   }
 }
