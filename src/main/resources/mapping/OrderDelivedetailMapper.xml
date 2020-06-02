@@ -64,7 +64,8 @@
     </select>
 
     <update id="updateDetailsDel">
-        update T_ORDER_DELIVEDETAIL set DEL_FLAG=1 where ASSET_ID in
+        update T_ORDER_DELIVEDETAIL set DEL_FLAG=1 where MIDDLE_ID=#{id} and
+        ASSET_ID in
         <foreach collection="assetIds" item="id" index="index" open="(" close=")" separator=",">
             #{id,jdbcType=BIGINT}
         </foreach>

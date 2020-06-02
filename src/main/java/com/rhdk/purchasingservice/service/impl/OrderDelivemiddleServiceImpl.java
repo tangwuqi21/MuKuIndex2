@@ -328,7 +328,7 @@ public class OrderDelivemiddleServiceImpl
     List<Long> assetIds = orderDelivedetailMapper.getAssetIdsByDId(middleIds);
     Long[] strArray = new Long[assetIds.size()];
     assetIds.toArray(strArray);
-    orderDelivedetailMapper.updateDetailsDel(assetIds);
+    orderDelivedetailMapper.updateDetailsDel(assetIds, id);
     try {
       // 逻辑删除资产实体表
       assetServiceFeign.updateEntitys(strArray, TokenUtil.getToken());
