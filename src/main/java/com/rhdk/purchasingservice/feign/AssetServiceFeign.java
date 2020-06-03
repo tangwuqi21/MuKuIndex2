@@ -4,7 +4,6 @@ import com.rhdk.purchasingservice.common.config.FeignExecptionConfig;
 import com.rhdk.purchasingservice.common.config.MultipartSupportConfig;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.pojo.dto.OrderAttachmentDTO;
-import com.rhdk.purchasingservice.pojo.dto.OrderDelivemiddleDTO;
 import com.rhdk.purchasingservice.pojo.entity.AssetEntityInfo;
 import com.rhdk.purchasingservice.pojo.entity.AssetEntityPrpt;
 import com.rhdk.purchasingservice.pojo.entity.AssetTmplInfo;
@@ -178,33 +177,11 @@ public interface AssetServiceFeign {
       @RequestParam("assetIds") Long[] assetIds,
       @RequestHeader(value = "Authorization") String token);
 
-  /**
-   * 资产实体信息更新
-   *
-   * @param model
-   * @param token
-   * @return
-   */
   @RequestMapping(
-      value = "/assetservice/assetEntityInfo/updateEntityInfo",
+      value = "/assetservice/assetEntityInfo/updateEntityInfoStatus",
       method = RequestMethod.POST)
-  ResponseEnvelope updateEntityInfo(
-      @RequestBody OrderDelivemiddleDTO model,
-      @RequestHeader(value = "Authorization") String token);
-
-  /**
-   * 资产实体信息更新
-   *
-   * @param assetIds
-   * @param token
-   * @return
-   */
-  @RequestMapping(
-      value = "/assetservice/assetEntityInfo/updateEntitys",
-      method = RequestMethod.POST)
-  ResponseEnvelope updateEntitys(
-      @RequestParam("assetIds") Long[] assetIds,
-      @RequestHeader(value = "Authorization") String token);
+  ResponseEnvelope updateEntityInfoStatus(
+      @RequestBody EntityUpVo model, @RequestHeader(value = "Authorization") String token);
 
   /**
    * 资产实体属性值添加
@@ -230,20 +207,6 @@ public interface AssetServiceFeign {
       value = "/assetservice/assetEntityPrpt/deleteEntityPrpts",
       method = RequestMethod.POST)
   ResponseEnvelope deleteEntityPrpts(
-      @RequestParam("assetIds") Long[] assetIds,
-      @RequestHeader(value = "Authorization") String token);
-
-  /**
-   * 资产实体属性值批量物理删除
-   *
-   * @param assetIds
-   * @param token
-   * @return
-   */
-  @RequestMapping(
-      value = "/assetservice/assetEntityPrpt/updateEntityprpts",
-      method = RequestMethod.POST)
-  ResponseEnvelope updateEntityprpts(
       @RequestParam("assetIds") Long[] assetIds,
       @RequestHeader(value = "Authorization") String token);
 
@@ -301,19 +264,6 @@ public interface AssetServiceFeign {
       @RequestBody OrderAttachmentDTO dto, @RequestHeader(value = "Authorization") String token);
 
   /**
-   * 根据资产模板id来获取资产id集合并将资产状态从暂存改变为待签收
-   *
-   * @param model
-   * @return
-   */
-  @RequestMapping(
-      value = "/assetservice/assetEntityInfo/updateEntitysStatus",
-      method = RequestMethod.POST)
-  ResponseEnvelope<List<Long>> updateEntitysStatus(
-      @RequestBody OrderDelivemiddleDTO model,
-      @RequestHeader(value = "Authorization") String token);
-
-  /**
    * 导出合同列表数据
    *
    * @param dto
@@ -360,19 +310,6 @@ public interface AssetServiceFeign {
   ResponseEnvelope<List<Map<String, Object>>> getEntityIdsByMid(
       @RequestParam("middleIds") Long[] middleIds,
       @RequestHeader(value = "Authorization") String token);
-
-  /**
-   * 根据送货明细记录id来查询附件清单的资产id集合
-   *
-   * @param middleIds
-   * @param token
-   * @return
-   */
-  @RequestMapping(
-      value = "/assetservice/assetEntityInfo/updateEntityInfoStatus",
-      method = RequestMethod.POST)
-  ResponseEnvelope updateEntityInfoStatus(
-      @RequestBody EntityUpVo middleIds, @RequestHeader(value = "Authorization") String token);
 
   /**
    * 根据资产类别id来查询资产的searchkey

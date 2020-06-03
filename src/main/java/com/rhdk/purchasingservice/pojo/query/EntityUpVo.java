@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class EntityUpVo {
@@ -18,4 +20,10 @@ public class EntityUpVo {
 
   @ApiModelProperty(value = "资产数量")
   private Long amount;
+
+  @ApiModelProperty(value = "资产ID集合")
+  private List<Long> assetIds;
+
+  @ApiModelProperty(value = "库管方式（1:量管 2:物管）")
+  private Integer wmType;
 }

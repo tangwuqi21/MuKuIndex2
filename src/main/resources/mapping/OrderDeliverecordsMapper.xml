@@ -58,6 +58,7 @@
             and DELIVERY_NAME like
             ('%'||#{dto.deliveryName}||'%')
         </if>
+        order by CREATE_DATE desc
     </select>
 
 </mapper>

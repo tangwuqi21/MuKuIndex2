@@ -267,16 +267,8 @@ public class OrderDelivemiddleServiceImpl
         assetServiceFeign
             .selectPrptValByTmplId(orderDelivemiddle.getModuleId(), TokenUtil.getToken())
             .getData();
-    if (assetTmplInfoVO != null && "2".equals(assetTmplInfoVO.getWmType())) {
-      try {
-        // 逻辑删除资产实体表
-        assetServiceFeign.updateEntitys(strArray, TokenUtil.getToken());
-        // 逻辑删除资产实体属性值表
-        assetServiceFeign.updateEntityprpts(strArray, TokenUtil.getToken());
-      } catch (Exception e) {
-        throw new RuntimeException("远程调用fegin删除明细记录下的资产实体信息失败！明细id为：" + id);
-      }
-    } else {
+    // 量管的资产类型需要去更新对应资产实体表中资产实体的数量，物管的删除不需要进行资产实体的相关删除
+    if (assetTmplInfoVO != null && "1".equals(assetTmplInfoVO.getWmType())) {
       // 调用fegin更新量管资产数量
       EntityUpVo entityUpVo = new EntityUpVo();
       entityUpVo.setAssetTemplId(orderDelivemiddle.getModuleId());
@@ -348,12 +340,6 @@ public class OrderDelivemiddleServiceImpl
             // 通过明细中间表找到明细表，通过明细表，去到资产实体表中进行之前的数据删除，然后删除明细中间表的数据
             List<Long> detailAssetIds = orderDelivedetailMapper.getAssetIds(model.getId());
             try {
-              Long[] strArray = new Long[detailAssetIds.size()];
-              detailAssetIds.toArray(strArray);
-              // 删除资产实体表相关信息
-              assetServiceFeign.deleteEntitys(strArray, TokenUtil.getToken());
-              // 删除资产实体属性值表
-              assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
               // 删除明细表的数据
               orderDelivedetailMapper.deleteDeliveDetails(detailAssetIds);
             } catch (Exception e) {
@@ -393,26 +379,6 @@ public class OrderDelivemiddleServiceImpl
         }
         model.setAssetNumber(model.getAssetNumber());
         orderDelivedetailMapper.updateDetails(detailAssetIds, model);
-        // to do 调用fegin更新量管资产数量
-        //        try {
-        //          AssetQuery asset = new AssetQuery();
-        //          asset.setAssetTemplId(model.getModuleId());
-        //          asset.setAssetStatus(0);
-        //          AssetEntityInfo assetInfo =
-        //              assetServiceFeign.searchAssetEntityInfoOne(asset,
-        // TokenUtil.getToken()).getData();
-        //          String assetIds = "";
-        //          for (Long assetId : detailAssetIds) {
-        //            assetIds += assetId + ",";
-        //          }
-        //          model.setAssetIds(assetIds);
-        //          model.setOrgId(TokenUtil.getUserInfo().getOrganizationId().toString());
-        //          Long numT3 = (assetInfo.getAmount() + assetNum);
-        //          model.setAssetNumber(numT3);
-        //          assetServiceFeign.updateEntityInfo(model, TokenUtil.getToken());
-        //        } catch (Exception e) {
-        //          throw new RuntimeException("物管资产实体信息变更出错！，要变更的资产信息为：" + model.toString());
-        //        }
         EntityUpVo entityUpVo = new EntityUpVo();
         entityUpVo.setAssetTemplId(model.getModuleId());
         entityUpVo.setAmount(assetNum);
@@ -427,7 +393,6 @@ public class OrderDelivemiddleServiceImpl
                   + ",资产模板id为："
                   + entityUpVo.getAssetTemplId());
         }
-        // to do end
       }
     } else {
       // 判断切换后的模板类型是物管还是量管，物管更新资产实体表，资产实体属性值表，送货明细表的三种资产状态，量管新增一条数据
@@ -773,7 +738,6 @@ public class OrderDelivemiddleServiceImpl
   @Override
   @Transactional(rollbackFor = Exception.class)
   public Integer updateAssetStatus(OrderDelivemiddleDTO dto) {
-    // 将对应的明细附件清单上传的资产进行状态改变，暂存-已提交
     // 从送货明细表中获取暂存的资产id集合
     Integer num1 = 0;
     List<Long> assetIds = new ArrayList<>();
@@ -784,10 +748,16 @@ public class OrderDelivemiddleServiceImpl
     logger.info("updateAssetStatus--获取待更新的资产id集合数目：" + assetIds.size());
     // 2.资产实体表，暂存状态变更为待签收状态
     dto.setAssetStatus(0);
+    EntityUpVo entityUpVo = new EntityUpVo();
+    entityUpVo.setAssetTemplId(dto.getModuleId());
+    entityUpVo.setAssetStatus(0);
+    entityUpVo.setOriginalStatus(-2);
+    entityUpVo.setAssetIds(assetIds);
+    entityUpVo.setWmType(2);
     try {
-      assetServiceFeign.updateEntitysStatus(dto, dto.getToken());
+      assetServiceFeign.updateEntityInfoStatus(entityUpVo, dto.getToken());
     } catch (Exception e) {
-      throw new RuntimeException("updateEntitysStatus！资产id为：" + assetIds.toString());
+      throw new RuntimeException("updateEntityInfoStatus！资产id为：" + assetIds.toString());
     }
     // 4.资产明细表，更新资产明细表关联的签收对照表id
     AssetQuery assetQuery = new AssetQuery();

@@ -239,7 +239,7 @@ public class OrderDeliverecordsServiceImpl
    */
   @Override
   @Transactional(rollbackFor = Exception.class)
-  public ResponseEnvelope updateOrderDeliverecords(OrderDeliverecordsDTO dto) throws Exception {
+  public ResponseEnvelope updateOrderDeliverecords(OrderDeliverecordsDTO dto) {
     if (StringUtils.isEmpty(dto.getId())) {
       return ResultVOUtil.returnFail(
           ResultEnum.ID_NOTNULL.getCode(), ResultEnum.ID_NOTNULL.getMessage());
