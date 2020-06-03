@@ -1,6 +1,7 @@
 package com.rhdk.purchasingservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.igen.acc.domain.dto.OrgUserDto;
@@ -32,6 +33,8 @@ import com.rhdk.purchasingservice.service.IOrderDeliverecordsService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -41,7 +44,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 送货单 服务实现类
@@ -80,72 +84,57 @@ public class OrderDeliverecordsServiceImpl
    * @return
    */
   @Override
-  public ResponseEnvelope searchOrderDeliverecordsListPage(OrderDeliverecordsQuery dto) {
-    Page<OrderDeliverecords> page = new Page<OrderDeliverecords>();
+  @Async
+  public Future<IPage<OrderDeliverecordsVO>> searchOrderDeliverecordsListPage(
+      OrderDeliverecordsQuery dto, Long orgId) {
+    Page page = new Page();
     page.setSize(dto.getPageSize());
     page.setCurrent(dto.getCurrentPage());
-    QueryWrapper<OrderDeliverecords> queryWrapper = new QueryWrapper<OrderDeliverecords>();
-    OrderDeliverecords entity = new OrderDeliverecords();
-    BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
-    queryWrapper.setEntity(entity);
-    page = orderDeliverecordsMapper.selectPage(page, queryWrapper);
+    IPage<OrderDeliverecordsVO> recordsList =
+        orderDeliverecordsMapper.selectRecordsList(page, dto, orgId);
     Map<Long, String> supplierMap = new HashMap<>();
     logger.info("searchOrderDeliverecordsListPage--fegin远程获取供应商列表信息开始");
     List<HashMap<String, Object>> resultMap =
         (List<HashMap<String, Object>>)
-            assetServiceFeign.getSupplyList(null, TokenUtil.getToken()).getData();
+            assetServiceFeign.getSupplyList(null, dto.getToken()).getData();
     logger.info("searchOrderDeliverecordsListPage--fegin远程获取供应商列表信息共：" + resultMap.size() + "条，结束");
     for (HashMap<String, Object> model : resultMap) {
       supplierMap.put(Long.valueOf(model.get("id").toString()), model.get("custName").toString());
     }
     // 获取源单信息，获取附件列表信息
-    List<OrderDeliverecords> resultList = page.getRecords();
+    List<OrderDeliverecordsVO> resultList = recordsList.getRecords();
     logger.info("searchOrderDeliverecordsListPage--获取送货单信息开始");
-    List<OrderDeliverecordsVO> orderDeliverecordsVOList =
-        resultList.stream()
-            .map(
-                a -> {
-                  OrderContractVO orderContract =
-                      orderContractMapper.selectContractById(a.getOrderId());
-                  OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
-                  List<Integer> signStatList = orderDelivemiddleMapper.getSignStatus(a.getId());
-                  Integer status = getAssetStatus(signStatList);
-                  OrderAttachmentDTO dto1 = new OrderAttachmentDTO();
-                  dto1.setParentId(a.getId());
-                  dto1.setAtttype(2);
-                  OrderDeliverecordsVO orderDeliverecordsVO =
-                      OrderDeliverecordsVO.builder()
-                          .attachmentList(
-                              assetServiceFeign
-                                  .selectListByParentId(dto1, TokenUtil.getToken())
-                                  .getData())
-                          .createName(userDto.getUserInfo().getName())
-                          .deptName(userDto.getGroupName())
-                          .build();
-                  if (orderContract != null) {
-                    orderDeliverecordsVO.setContractType(orderContract.getContractType());
-                    orderDeliverecordsVO.setContractCode(orderContract.getContractCode());
-                    orderDeliverecordsVO.setContractName(orderContract.getContractName());
-                  } else {
-                    orderDeliverecordsVO.setContractCode("--");
-                    orderDeliverecordsVO.setContractName("--");
-                    orderDeliverecordsVO.setContractType(0);
-                  }
-                  BeanCopyUtil.copyPropertiesIgnoreNull(a, orderDeliverecordsVO);
-                  orderDeliverecordsVO.setSignStatus(status);
-                  orderDeliverecordsVO.setSupplierName(supplierMap.get(a.getSupplierId()));
-                  return orderDeliverecordsVO;
-                })
-            .collect(Collectors.toList());
-    logger.info(
-        "searchOrderDeliverecordsListPage--获取送货单信息共：" + orderDeliverecordsVOList.size() + "条，结束");
-    Page<OrderDeliverecordsVO> page2 = new Page<OrderDeliverecordsVO>();
-    page2.setRecords(orderDeliverecordsVOList);
-    page2.setSize(page.getSize());
-    page2.setCurrent(page.getCurrent());
-    page2.setTotal(page.getTotal());
-    page2.setOrders(page.getOrders());
-    return ResultVOUtil.returnSuccess(page2);
+    OrderAttachmentDTO dto1 = new OrderAttachmentDTO();
+    dto1.setAtttype(2);
+    resultList.forEach(
+        temp -> {
+          // 获取合同数据
+          OrderContractVO orderContract = orderContractMapper.selectContractById(temp.getOrderId());
+          OrgUserDto userDto = commonService.getOrgUserById(temp.getOrgId(), temp.getCreateBy());
+          List<Integer> signStatList = orderDelivemiddleMapper.getSignStatus(temp.getId());
+          // 获取送货单的签收状态，一个送货单下面关联多个明细单状态
+          Integer status = getAssetStatus(signStatList);
+          // 获取附件列表
+          dto1.setParentId(temp.getId());
+          temp.setAttachmentList(
+              assetServiceFeign.selectListByParentId(dto1, dto.getToken()).getData());
+          temp.setCreateName(userDto.getUserInfo().getName());
+          temp.setDeptName(userDto.getGroupName());
+          if (orderContract != null) {
+            temp.setContractType(orderContract.getContractType());
+            temp.setContractCode(orderContract.getContractCode());
+            temp.setContractName(orderContract.getContractName());
+          } else {
+            temp.setContractCode("--");
+            temp.setContractName("--");
+            temp.setContractType(0);
+          }
+          temp.setSignStatus(status);
+          temp.setSupplierName(supplierMap.get(temp.getSupplierId()));
+        });
+    logger.info("searchOrderDeliverecordsListPage--获取送货单信息共：" + resultList.size() + "条，结束");
+    recordsList.setRecords(resultList);
+    return new AsyncResult<>(recordsList);
   }
 
   /**
@@ -156,46 +145,37 @@ public class OrderDeliverecordsServiceImpl
    */
   @Override
   public ResponseEnvelope searchOrderDeliverecordsOne(Long id) {
-    OrderDeliverecords entity = this.selectOne(id);
     OrderDeliverecordsVO orderDeliverecordsVO = new OrderDeliverecordsVO();
+    OrderDeliverecordsQuery deliverecordsQuery = new OrderDeliverecordsQuery();
+    deliverecordsQuery.setToken(TokenUtil.getToken());
+    deliverecordsQuery.setId(id);
     logger.info("searchOrderDeliverecordsOne--获取单个送货单信息开始");
-    OrderContractVO orderContract = orderContractMapper.selectContractById(entity.getOrderId());
-    OrgUserDto userDto = commonService.getOrgUserById(entity.getOrgId(), entity.getCreateBy());
-    List<Integer> signStatList = orderDelivemiddleMapper.getSignStatus(id);
-    Integer status = getAssetStatus(signStatList);
-    BeanCopyUtil.copyPropertiesIgnoreNull(entity, orderDeliverecordsVO);
-    if (orderContract != null) {
-      orderDeliverecordsVO.setContractCode(orderContract.getContractCode());
-      orderDeliverecordsVO.setContractName(orderContract.getContractName());
-      orderDeliverecordsVO.setContractType(orderContract.getContractType());
-    } else {
-      orderDeliverecordsVO.setContractCode("--");
-      orderDeliverecordsVO.setContractName("--");
-      orderDeliverecordsVO.setContractType(0);
+    try {
+      orderDeliverecordsVO =
+          searchOrderDeliverecordsListPage(
+                  deliverecordsQuery, TokenUtil.getUserInfo().getOrganizationId())
+              .get(5, TimeUnit.SECONDS)
+              .getRecords()
+              .get(0);
+    } catch (Exception e) {
+      throw new RuntimeException("获取单个送货详情出错！送货单id为：" + id);
     }
-    Map<Long, String> supplierMap = new HashMap<>();
-    List<HashMap<String, Object>> resultMap =
-        (List<HashMap<String, Object>>)
-            assetServiceFeign.getSupplyList(null, TokenUtil.getToken()).getData();
-    for (HashMap<String, Object> model : resultMap) {
-      supplierMap.put(Long.valueOf(model.get("id").toString()), model.get("custName").toString());
-    }
-    orderDeliverecordsVO.setCreateName(userDto.getUserInfo().getName());
-    orderDeliverecordsVO.setDeptName(userDto.getGroupName());
-    orderDeliverecordsVO.setSignStatus(status);
-    orderDeliverecordsVO.setSupplierName(supplierMap.get(entity.getSupplierId()));
-    OrderAttachmentDTO dto = new OrderAttachmentDTO();
-    dto.setAtttype(2);
-    dto.setParentId(entity.getId());
-    orderDeliverecordsVO.setAttachmentList(
-        assetServiceFeign.selectListByParentId(dto, TokenUtil.getToken()).getData());
+    logger.info("searchOrderDeliverecordsOne--获取单个送货单信息结束");
     // 添加送货记录明细信息
     OrderDelivemiddleQuery orderDelivemiddleQuery = new OrderDelivemiddleQuery();
-    orderDelivemiddleQuery.setDeliveryId(entity.getId());
+    orderDelivemiddleQuery.setDeliveryId(orderDeliverecordsVO.getId());
     orderDelivemiddleQuery.setPageSize(999999999);
-    ResponseEnvelope result =
-        iOrderDelivemiddleService.searchOrderDelivemiddleListPage(orderDelivemiddleQuery);
-    Page<OrderDelivemiddleVO> page = (Page<OrderDelivemiddleVO>) result.getData();
+    orderDelivemiddleQuery.setToken(deliverecordsQuery.getToken());
+    IPage<OrderDelivemiddleVO> page = null;
+    try {
+      page =
+          iOrderDelivemiddleService
+              .searchOrderDelivemiddleListPage(
+                  orderDelivemiddleQuery, TokenUtil.getUserInfo().getOrganizationId())
+              .get(9, TimeUnit.SECONDS);
+    } catch (Exception e) {
+      throw new RuntimeException("获取送货单明细列表数据失败！送货单id为：" + id);
+    }
     orderDeliverecordsVO.setDelivemiddleVOList(page.getRecords());
     return ResultVOUtil.returnSuccess(orderDeliverecordsVO);
   }

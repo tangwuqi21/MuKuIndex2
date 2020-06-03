@@ -120,6 +120,7 @@ public class OrderDelivedetailServiceImpl
       pageResult.setRecords(map.get("content"));
       pageResult.setSize(page.getSize());
       pageResult.setTotal(page.getTotal());
+      pageResult.setPages(page.getPages());
       resultMap.put("content", pageResult);
       resultMap.put("title", map.get("title"));
       resultMap.put("detailCode", orderDelivemiddle.getDeliverydetailCode());

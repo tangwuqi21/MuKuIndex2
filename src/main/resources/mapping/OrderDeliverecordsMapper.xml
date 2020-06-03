@@ -2,27 +2,27 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.rhdk.purchasingservice.mapper.OrderDeliverecordsMapper">
 
-        <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="com.rhdk.purchasingservice.pojo.entity.OrderDeliverecords">
-                    <id column="ID" property="id"/>
-                    <result column="DELIVERY_CODE" property="deliveryCode"/>
-                    <result column="DELIVERY_NAME" property="deliveryName"/>
-                    <result column="DELIVERY_DATE" property="deliveryDate"/>
-                    <result column="SUPPLIER_ID" property="supplierId"/>
-                    <result column="SIGN_ADDRESS" property="signAddress"/>
-                    <result column="ORDER_ID" property="orderId"/>
-                    <result column="REMARK" property="remark"/>
-                    <result column="CREATE_BY" property="createBy"/>
-                    <result column="CREATE_DATE" property="createDate"/>
-                    <result column="UPDATE_BY" property="updateBy"/>
-                    <result column="UPDATE_DATE" property="updateDate"/>
-                    <result column="ORG_ID" property="orgId"/>
-                    <result column="DEL_FLAG" property="delFlag"/>
-                    <result column="SIGN_STATUS" property="signStatus"/>
-        </resultMap>
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.rhdk.purchasingservice.pojo.entity.OrderDeliverecords">
+        <id column="ID" property="id"/>
+        <result column="DELIVERY_CODE" property="deliveryCode"/>
+        <result column="DELIVERY_NAME" property="deliveryName"/>
+        <result column="DELIVERY_DATE" property="deliveryDate"/>
+        <result column="SUPPLIER_ID" property="supplierId"/>
+        <result column="SIGN_ADDRESS" property="signAddress"/>
+        <result column="ORDER_ID" property="orderId"/>
+        <result column="REMARK" property="remark"/>
+        <result column="CREATE_BY" property="createBy"/>
+        <result column="CREATE_DATE" property="createDate"/>
+        <result column="UPDATE_BY" property="updateBy"/>
+        <result column="UPDATE_DATE" property="updateDate"/>
+        <result column="ORG_ID" property="orgId"/>
+        <result column="DEL_FLAG" property="delFlag"/>
+        <result column="SIGN_STATUS" property="signStatus"/>
+    </resultMap>
 
-        <!-- 通用查询结果列 -->
-        <sql id="Base_Column_List">
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
         ID, DELIVERY_CODE, DELIVERY_NAME, DELIVERY_DATE,SIGN_STATUS, SUPPLIER_ID, SIGN_ADDRESS, ORDER_ID, REMARK, CREATE_BY, CREATE_DATE, UPDATE_BY, UPDATE_DATE, ORG_ID, DEL_FLAG
          </sql>
 
@@ -33,8 +33,31 @@
         </foreach>
     </select>
 
-    <select id="getDeliverecordInfo" resultType="com.rhdk.purchasingservice.pojo.entity.OrderDeliverecords" parameterType="java.lang.Long">
-        select <include refid="Base_Column_List"/> from T_ORDER_DELIVERECORDS where DEL_FLAG=0 and id=#{deliveryId}
+    <select id="getDeliverecordInfo" resultType="com.rhdk.purchasingservice.pojo.entity.OrderDeliverecords"
+            parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from T_ORDER_DELIVERECORDS where DEL_FLAG=0 and id=#{deliveryId}
+    </select>
+
+    <select id="selectRecordsList" resultType="com.rhdk.purchasingservice.pojo.vo.OrderDeliverecordsVO">
+        select
+        <include refid="Base_Column_List"/>
+
+        from T_ORDER_DELIVERECORDS where DEL_FLAG=0
+        <if test="dto.id!=null and dto.id!=''">
+            and ID=#{dto.id}
+        </if>
+        <if test="dto.supplierId!=null and dto.supplierId!=''">
+            and SUPPLIER_ID=#{dto.supplierId}
+        </if>
+        <if test="orgId!=null and orgId!=''">
+            and ORG_ID=#{orgId}
+        </if>
+        <if test="dto.deliveryName!=null and dto.deliveryName!=''">
+            and DELIVERY_NAME like
+            ('%'||#{dto.deliveryName}||'%')
+        </if>
     </select>
 
 </mapper>

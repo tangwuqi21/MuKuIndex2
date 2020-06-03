@@ -186,4 +186,22 @@
     <select id="selectIdsByDeliverId" resultType="java.lang.Long">
         select ID from T_ORDER_DELIVEMIDDLE where del_flag=0 and DELIVERY_ID=#{id}
     </select>
+
+    <select id="selectMiddleList" resultType="com.rhdk.purchasingservice.pojo.vo.OrderDelivemiddleVO">
+        select
+        <include refid="Base_Column_List"/>
+        from T_ORDER_DELIVEMIDDLE where del_flag=0
+        <if test="dto.deliveryId!=null and dto.deliveryId!=''">
+            and DELIVERY_ID=#{dto.deliveryId}
+        </if>
+        <if test="dto.moduleId!=null and dto.moduleId!=''">
+            and MODULE_ID=#{dto.moduleId}
+        </if>
+        <if test="dto.signStatus!=null and dto.signStatus!=''">
+            and SIGN_STATUS=#{dto.signStatus}
+        </if>
+        <if test="dto.id!=null and dto.id!=''">
+            and ID=#{dto.id}
+        </if>
+    </select>
 </mapper>

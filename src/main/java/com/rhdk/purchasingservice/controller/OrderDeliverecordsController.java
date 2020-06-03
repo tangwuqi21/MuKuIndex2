@@ -25,6 +25,7 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 送货单 前端控制器
@@ -53,7 +54,15 @@ public class OrderDeliverecordsController {
   @RequestMapping(value = "/searchOrderDeliverecordsListPage", method = RequestMethod.POST)
   public ResponseEnvelope<IPage<OrderDeliverecordsVO>> searchOrderDeliverecordsListPage(
       @RequestBody OrderDeliverecordsQuery dto) {
-    return iOrderDeliverecordsService.searchOrderDeliverecordsListPage(dto);
+    dto.setToken(TokenUtil.getToken());
+    try {
+      return ResultVOUtil.returnSuccess(
+          iOrderDeliverecordsService
+              .searchOrderDeliverecordsListPage(dto, TokenUtil.getUserInfo().getOrganizationId())
+              .get(5, TimeUnit.SECONDS));
+    } catch (Exception e) {
+      return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
+    }
   }
 
   /**

@@ -65,4 +65,7 @@ public class OrderDelivemiddleQuery extends BaseDTO implements Serializable {
 
   @ApiModelProperty(value = "签收状态，0-未签收，1-部分签收，2-已签收")
   private Integer signStatus;
+
+  @ApiModelProperty(value = "token", hidden = true)
+  private String token;
 }

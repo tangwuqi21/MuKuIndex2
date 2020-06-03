@@ -14,10 +14,14 @@ public class TokenUtil {
 
   // 获得token
   public static String getToken() {
-    String token =
-        ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
-            .getRequest()
-            .getHeader("Authorization");
+    /*String token =
+    ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+        .getRequest()
+        .getHeader("Authorization");*/
+    ServletRequestAttributes sra =
+        (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+    RequestContextHolder.setRequestAttributes(sra, true);
+    String token = sra.getRequest().getHeader("Authorization");
     return token;
   }
 

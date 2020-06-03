@@ -10,6 +10,7 @@ import com.rhdk.purchasingservice.pojo.entity.AssetEntityPrpt;
 import com.rhdk.purchasingservice.pojo.entity.AssetTmplInfo;
 import com.rhdk.purchasingservice.pojo.entity.Customer;
 import com.rhdk.purchasingservice.pojo.query.AssetQuery;
+import com.rhdk.purchasingservice.pojo.query.EntityUpVo;
 import com.rhdk.purchasingservice.pojo.query.TmplPrptsFilter;
 import com.rhdk.purchasingservice.pojo.vo.AssetCatVO;
 import com.rhdk.purchasingservice.pojo.vo.AssetTmplInfoVO;
@@ -359,6 +360,19 @@ public interface AssetServiceFeign {
   ResponseEnvelope<List<Map<String, Object>>> getEntityIdsByMid(
       @RequestParam("middleIds") Long[] middleIds,
       @RequestHeader(value = "Authorization") String token);
+
+  /**
+   * 根据送货明细记录id来查询附件清单的资产id集合
+   *
+   * @param middleIds
+   * @param token
+   * @return
+   */
+  @RequestMapping(
+      value = "/assetservice/assetEntityInfo/updateEntityInfoStatus",
+      method = RequestMethod.POST)
+  ResponseEnvelope updateEntityInfoStatus(
+      @RequestBody EntityUpVo middleIds, @RequestHeader(value = "Authorization") String token);
 
   /**
    * 根据资产类别id来查询资产的searchkey

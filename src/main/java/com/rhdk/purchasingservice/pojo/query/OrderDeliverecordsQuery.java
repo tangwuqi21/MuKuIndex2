@@ -57,4 +57,7 @@ public class OrderDeliverecordsQuery extends BaseDTO implements Serializable {
   @ApiModelProperty(value = "明细记录列表", hidden = true)
   @NotNull(message = "明细记录不能为空")
   private List<OrderDelivemiddleQuery> orderDelivemiddleDTOList;
+
+  @ApiModelProperty(value = "token", hidden = true)
+  private String token;
 }

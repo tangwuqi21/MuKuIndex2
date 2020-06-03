@@ -26,6 +26,7 @@ import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 送货记录明细中间表 前端控制器
@@ -54,7 +55,15 @@ public class OrderDelivemiddleController {
   @RequestMapping(value = "/searchOrderDelivemiddleListPage", method = RequestMethod.POST)
   public ResponseEnvelope<IPage<OrderDelivemiddleVO>> searchOrderDelivemiddleListPage(
       @RequestBody OrderDelivemiddleQuery dto) {
-    return iOrderDelivemiddleService.searchOrderDelivemiddleListPage(dto);
+    dto.setToken(TokenUtil.getToken());
+    try {
+      return ResultVOUtil.returnSuccess(
+          iOrderDelivemiddleService
+              .searchOrderDelivemiddleListPage(dto, TokenUtil.getUserInfo().getOrganizationId())
+              .get(5, TimeUnit.SECONDS));
+    } catch (Exception e) {
+      return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
+    }
   }
 
   /**
@@ -116,6 +125,16 @@ public class OrderDelivemiddleController {
   public ResponseEnvelope updateOrderMiddle(@RequestBody OrderDelivemiddleDTO dto) {
     try {
       return iOrderDelivemiddleService.updateOrderMiddle(dto);
+    } catch (Exception e) {
+      return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
+    }
+  }
+
+  @ApiOperation(value = "送货单明细更新2", notes = "送货记录明细中间表API")
+  @RequestMapping(value = "/updateMiddleById", method = RequestMethod.POST)
+  public ResponseEnvelope updateMiddleById(@RequestBody OrderDelivemiddleDTO dto) {
+    try {
+      return iOrderDelivemiddleService.updateMiddleById(dto);
     } catch (Exception e) {
       return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
     }

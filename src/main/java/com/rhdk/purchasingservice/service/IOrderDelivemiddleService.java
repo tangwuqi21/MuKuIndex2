@@ -1,5 +1,6 @@
 package com.rhdk.purchasingservice.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.pojo.dto.OrderDelivemiddleDTO;
@@ -10,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 /**
  * 送货记录明细中间表 服务类
@@ -21,10 +23,11 @@ public interface IOrderDelivemiddleService extends IService<OrderDelivemiddle> {
   /**
    * 送货记录下的明细列表查询，返回送货明细基本信息 关联的送货单基本信息
    *
-   * @param DTO
+   * @param dto
    * @return
    */
-  ResponseEnvelope searchOrderDelivemiddleListPage(OrderDelivemiddleQuery DTO);
+  Future<IPage<OrderDelivemiddleVO>> searchOrderDelivemiddleListPage(
+      OrderDelivemiddleQuery dto, Long orgId);
 
   /**
    * 根据送货记录下明细id来查询送货记录下单一明细的详情
@@ -104,4 +107,6 @@ public interface IOrderDelivemiddleService extends IService<OrderDelivemiddle> {
    * @return
    */
   List<Long> selectIdsByDeliverId(Long id);
+
+  ResponseEnvelope updateMiddleById(OrderDelivemiddleDTO dto);
 }

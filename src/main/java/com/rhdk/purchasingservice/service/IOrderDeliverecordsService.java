@@ -1,5 +1,6 @@
 package com.rhdk.purchasingservice.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.pojo.dto.OrderDeliverecordsDTO;
@@ -8,6 +9,7 @@ import com.rhdk.purchasingservice.pojo.query.OrderDeliverecordsQuery;
 import com.rhdk.purchasingservice.pojo.vo.OrderDeliverecordsVO;
 
 import java.util.List;
+import java.util.concurrent.Future;
 
 /**
  * 送货单 服务类
@@ -22,7 +24,8 @@ public interface IOrderDeliverecordsService extends IService<OrderDeliverecords>
    * @param DTO
    * @return
    */
-  ResponseEnvelope searchOrderDeliverecordsListPage(OrderDeliverecordsQuery DTO);
+  Future<IPage<OrderDeliverecordsVO>> searchOrderDeliverecordsListPage(
+      OrderDeliverecordsQuery DTO, Long orgId);
 
   /**
    * 根据送货记录id查询送货记录详情信息，返回送货记录基本信息，合同基本信息 送货记录下的明细记录基本信息

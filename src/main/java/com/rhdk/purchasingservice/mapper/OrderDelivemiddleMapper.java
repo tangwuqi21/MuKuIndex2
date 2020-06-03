@@ -1,10 +1,14 @@
 package com.rhdk.purchasingservice.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.rhdk.purchasingservice.pojo.entity.AssetEntityPrpt;
 import com.rhdk.purchasingservice.pojo.entity.OrderDelivedetail;
 import com.rhdk.purchasingservice.pojo.entity.OrderDelivemiddle;
+import com.rhdk.purchasingservice.pojo.query.OrderDelivemiddleQuery;
 import com.rhdk.purchasingservice.pojo.vo.AssetEntityInfoVO;
+import com.rhdk.purchasingservice.pojo.vo.OrderDelivemiddleVO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -40,4 +44,7 @@ public interface OrderDelivemiddleMapper extends BaseMapper<OrderDelivemiddle> {
       @Param("orderDetailList") List<OrderDelivedetail> orderDelivedetailList);
 
   List<Long> selectIdsByDeliverId(@Param("id") Long id);
+
+  IPage<OrderDelivemiddleVO> selectMiddleList(
+      Page page, @Param("dto") OrderDelivemiddleQuery dto, @Param("orgId") Long orgId);
 }
