@@ -249,11 +249,6 @@ public class OrderDelivemiddleServiceImpl
   @Override
   @Transactional
   public ResponseEnvelope deleteOrderDetailrecords(Long id) {
-    // 逻辑删除送货中间表
-    int num = orderDelivemiddleMapper.deleteById(id);
-    if (num <= 0) {
-      throw new RuntimeException("删除送货明细记录资产失败！明细id为：" + id);
-    }
     // 逻辑删除送货明细附件表
     OrderAttachmentDTO dto = new OrderAttachmentDTO();
     dto.setAtttype(3);
@@ -294,6 +289,11 @@ public class OrderDelivemiddleServiceImpl
         throw new RuntimeException(
             "远程调用fegin更新量管资产数量失败！资产明细id为：" + id + ",资产模板id为：" + entityUpVo.getAssetTemplId());
       }
+    }
+    // 逻辑删除送货中间表
+    int num = orderDelivemiddleMapper.deleteById(id);
+    if (num <= 0) {
+      throw new RuntimeException("删除送货明细记录资产失败！明细id为：" + id);
     }
     return ResultVOUtil.returnSuccess();
   }
