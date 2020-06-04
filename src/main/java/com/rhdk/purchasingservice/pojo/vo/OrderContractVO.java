@@ -87,4 +87,7 @@ public class OrderContractVO implements Serializable {
 
   @ApiModelProperty(value = "部门名称")
   private String deptName;
+
+  @ApiModelProperty(value = "机构id")
+  private Long orgId;
 }

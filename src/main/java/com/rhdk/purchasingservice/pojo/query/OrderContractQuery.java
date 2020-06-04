@@ -54,4 +54,10 @@ public class OrderContractQuery extends BaseDTO implements Serializable {
 
   @ApiModelProperty(value = "备注", hidden = true)
   private String remark;
+
+  @ApiModelProperty(value = "备注", hidden = true)
+  private List<Long> contractIds;
+
+  @ApiModelProperty(value = "token", hidden = true)
+  private String token;
 }

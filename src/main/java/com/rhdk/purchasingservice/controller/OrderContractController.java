@@ -22,6 +22,7 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 合同表 前端控制器
@@ -50,7 +51,15 @@ public class OrderContractController {
   @RequestMapping(value = "/searchOrderContractListPage", method = RequestMethod.POST)
   public ResponseEnvelope<IPage<OrderContractVO>> searchOrderContractListPage(
       @RequestBody OrderContractQuery dto) {
-    return iOrderContractService.searchOrderContractListPage(dto);
+    dto.setToken(TokenUtil.getToken());
+    try {
+      return ResultVOUtil.returnSuccess(
+          iOrderContractService
+              .searchOrderContractListPage(dto, TokenUtil.getUserInfo().getOrganizationId())
+              .get(5, TimeUnit.SECONDS));
+    } catch (Exception e) {
+      return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
+    }
   }
 
   /**
@@ -62,7 +71,11 @@ public class OrderContractController {
   @ApiOperation(value = "合同表详细查询", notes = "合同表API")
   @RequestMapping(value = "/searchOrderContractOne", method = RequestMethod.POST)
   public ResponseEnvelope<OrderContractVO> searchOrderContractOne(Long id) {
-    return iOrderContractService.searchOrderContractOne(id);
+    try {
+      return iOrderContractService.searchOrderContractOne(id);
+    } catch (Exception e) {
+      return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
+    }
   }
 
   /**

@@ -176,13 +176,15 @@ public class OrderDelivemiddleServiceImpl
     OrderDelivemiddleQuery orderDelivemiddleQuery = new OrderDelivemiddleQuery();
     orderDelivemiddleQuery.setId(id);
     orderDelivemiddleQuery.setToken(TokenUtil.getToken());
+    IPage<OrderDelivemiddleVO> result = null;
     try {
-      model =
+      result =
           searchOrderDelivemiddleListPage(
                   orderDelivemiddleQuery, TokenUtil.getUserInfo().getOrganizationId())
-              .get(5, TimeUnit.SECONDS)
-              .getRecords()
-              .get(0);
+              .get(5, TimeUnit.SECONDS);
+      if (result != null && result.getRecords().size() > 0) {
+        model = result.getRecords().get(0);
+      }
     } catch (Exception e) {
       throw new RuntimeException("获取单个送货明细详情出错！送货明细id为：" + id);
     }

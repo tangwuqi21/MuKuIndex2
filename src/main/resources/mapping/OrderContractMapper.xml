@@ -38,11 +38,14 @@
     where o.contract_id=#{id} and o.DEL_FLAG=0 and c.DEL_FLAG=0
     </select>
 
-    <select id="getContractIdList" resultType="java.lang.Long" parameterType="java.lang.String">
+    <select id="getContractIdList" resultType="java.lang.Long">
         select CONTRACT_ID from T_ORDER_CONTRACT where DEL_FLAG=0
-        <if test="contractCompany !=null and contractCompany !=''">
+        <if test="dto.contractCompany !=null and dto.contractCompany !=''">
             and CONTRACT_COMPANY like
-            ('%'||#{contractCompany}||'%')
+            ('%'||#{dto.contractCompany}||'%')
+        </if>
+        <if test="dto.id!=null and dto.id!=''">
+            and ID=#{dto.id}
         </if>
         order by CREATE_DATE desc
     </select>
@@ -50,4 +53,22 @@
     <update id="updateContract">
         update T_ORDER_CONTRACT set CONTRACT_COMPANY=#{contractCompany},UPDATE_DATE=sysdate,UPDATE_BY=#{userId},ORG_ID=#{orgId} where CONTRACT_ID=#{id} and DEL_FLAG=0
     </update>
+
+    <select id="selectContractList" resultType="com.rhdk.purchasingservice.pojo.vo.OrderContractVO">
+        select
+        <include refid="Base_Column_List"/>
+        from T_CONTRACT where DEL_FLAG=0
+        <if test="dto.contractCode !=null and dto.contractCode !=''">
+            and CONTRACT_CODE like
+            ('%'||#{dto.contractCode}||'%')
+        </if>
+        <if test="dto.contractName !=null and dto.contractName !=''">
+            and CONTRACT_NAME like
+            ('%'||#{dto.contractName}||'%')
+        </if>
+        <if test="orgId !=null and orgId !=''">
+            and ORG_ID =#{orgId}
+        </if>
+        order by CREATE_DATE desc
+    </select>
 </mapper>

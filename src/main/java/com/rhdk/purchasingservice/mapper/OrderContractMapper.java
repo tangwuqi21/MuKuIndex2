@@ -1,7 +1,10 @@
 package com.rhdk.purchasingservice.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.rhdk.purchasingservice.pojo.entity.OrderContract;
+import com.rhdk.purchasingservice.pojo.query.OrderContractQuery;
 import com.rhdk.purchasingservice.pojo.vo.OrderContractVO;
 import org.apache.ibatis.annotations.Param;
 
@@ -19,11 +22,14 @@ public interface OrderContractMapper extends BaseMapper<OrderContract> {
 
   OrderContractVO selectContractByCId(@Param("id") Long id);
 
-  List<Long> getContractIdList(@Param("contractCompany") String contractCompany);
+  List<Long> getContractIdList(@Param("dto") OrderContractQuery dto);
 
   void updateContract(
       @Param("id") Long id,
       @Param("contractCompany") String contractCompany,
       @Param("userId") Long userId,
       @Param("orgId") Long orgId);
+
+  IPage<OrderContractVO> selectContractList(
+      Page page, @Param("dto") OrderContractQuery dto, @Param("orgId") Long orgId);
 }

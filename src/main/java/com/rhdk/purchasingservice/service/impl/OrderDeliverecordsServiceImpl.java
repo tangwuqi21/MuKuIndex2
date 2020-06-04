@@ -150,13 +150,15 @@ public class OrderDeliverecordsServiceImpl
     deliverecordsQuery.setToken(TokenUtil.getToken());
     deliverecordsQuery.setId(id);
     logger.info("searchOrderDeliverecordsOne--获取单个送货单信息开始");
+    IPage<OrderDeliverecordsVO> result = null;
     try {
-      orderDeliverecordsVO =
+      result =
           searchOrderDeliverecordsListPage(
                   deliverecordsQuery, TokenUtil.getUserInfo().getOrganizationId())
-              .get(5, TimeUnit.SECONDS)
-              .getRecords()
-              .get(0);
+              .get(5, TimeUnit.SECONDS);
+      if (result != null && result.getRecords().size() > 0) {
+        orderDeliverecordsVO = result.getRecords().get(0);
+      }
     } catch (Exception e) {
       throw new RuntimeException("获取单个送货详情出错！送货单id为：" + id);
     }

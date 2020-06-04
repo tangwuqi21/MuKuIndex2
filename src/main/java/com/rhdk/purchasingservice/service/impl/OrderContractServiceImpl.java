@@ -1,6 +1,7 @@
 package com.rhdk.purchasingservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.igen.acc.domain.dto.OrgUserDto;
@@ -26,15 +27,17 @@ import com.rhdk.purchasingservice.service.IOrderContractService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 合同表 服务实现类
@@ -61,85 +64,60 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
   private static org.slf4j.Logger logger = LoggerFactory.getLogger(OrderContractServiceImpl.class);
 
   @Override
-  public ResponseEnvelope searchOrderContractListPage(OrderContractQuery dto) {
-    Page<OrderContractVO> page2 = new Page<OrderContractVO>();
-    Page<OrderContract> page = new Page<OrderContract>();
+  @Async
+  public Future<IPage<OrderContractVO>> searchOrderContractListPage(
+      OrderContractQuery dto, Long orgId) {
+    logger.info("searchOrderContractListPage-获取合同id列表开始");
+    Page page = new Page();
     page.setSize(dto.getPageSize());
     page.setCurrent(dto.getCurrentPage());
-    QueryWrapper<OrderContract> queryWrapper = new QueryWrapper<OrderContract>();
-    OrderContract entity = new OrderContract();
-    queryWrapper.orderByDesc("CREATE_DATE");
-    logger.info("searchOrderContractListPage-获取合同id列表开始");
-    List<Long> paramStr = orderContractMapper.getContractIdList(dto.getContractCompany());
+    IPage<OrderContractVO> recordsList = null;
+    List<Long> paramStr = orderContractMapper.getContractIdList(dto);
     logger.info("searchOrderContractListPage-获取合同id列表结束，获取了" + paramStr.size() + "条");
     if (paramStr.size() > 0) {
-      queryWrapper.in("ID", paramStr);
+      dto.setContractIds(paramStr);
     } else {
-      return ResultVOUtil.returnSuccess(page2);
+      return new AsyncResult<>(recordsList);
     }
-    dto.setContractCompany(null);
-    // 这里加入模糊搜索条件
-    if (!StringUtils.isEmpty(dto.getContractCode())) {
-      queryWrapper.like("CONTRACT_CODE", dto.getContractCode());
-      dto.setContractCode(null);
-    }
-    if (!StringUtils.isEmpty(dto.getContractName())) {
-      queryWrapper.like("CONTRACT_NAME", dto.getContractName());
-      dto.setContractName(null);
-    }
-    BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
-    entity.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
-    queryWrapper.setEntity(entity);
-    page = orderContractMapper.selectPage(page, queryWrapper);
-    List<OrderContract> resultList = page.getRecords();
-    logger.info("getFileList-获取合同附件列表开始");
-    List<OrderContractVO> contractVOList =
-        resultList.stream()
-            .map(
-                a -> {
-                  // 根据合同id去附件表里获取每个合同对应的附件
-                  OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
-                  OrderContractVO mo = orderContractMapper.selectContractByCId(a.getId());
-                  OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
-                  attachmentDTO.setParentId(mo.getOrderId());
-                  attachmentDTO.setAtttype(1);
-                  OrderContractVO at =
-                      OrderContractVO.builder()
-                          .attachmentList(
-                              assetServiceFeign
-                                  .selectListByParentId(attachmentDTO, TokenUtil.getToken())
-                                  .getData())
-                          .contractCode(a.getContractCode())
-                          .contractCompany(mo.getContractCompany())
-                          .contractName(a.getContractName())
-                          .contractDate(a.getContractDate())
-                          .contractMoney(a.getContractMoney())
-                          .id(mo.getOrderId())
-                          .contractType(a.getContractType())
-                          .createBy(a.getCreateBy())
-                          .createDate(a.getCreateDate())
-                          .updateBy(a.getUpdateBy())
-                          .updateDate(a.getUpdateDate())
-                          .delFlag(a.getDelFlag())
-                          .createName(userDto.getUserInfo().getName())
-                          .deptName(userDto.getGroupName())
-                          .build();
-                  return at;
-                })
-            .collect(Collectors.toList());
+    recordsList = orderContractMapper.selectContractList(page, dto, orgId);
+    List<OrderContractVO> resultList = recordsList.getRecords();
+    resultList.forEach(
+        a -> {
+          OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
+          OrderContractVO mo = orderContractMapper.selectContractByCId(a.getId());
+          OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
+          attachmentDTO.setParentId(mo.getOrderId());
+          attachmentDTO.setAtttype(1);
+          a.setAttachmentList(
+              assetServiceFeign.selectListByParentId(attachmentDTO, dto.getToken()).getData());
+          a.setContractCompany(mo.getContractCompany());
+          a.setId(mo.getOrderId());
+          a.setCreateName(userDto.getUserInfo().getName());
+          a.setDeptName(userDto.getGroupName());
+        });
     logger.info("getFileList-获取合同附件列表结束");
-    page2.setRecords(contractVOList); /**/
-    page2.setSize(page.getSize());
-    page2.setCurrent(page.getCurrent());
-    page2.setTotal(page.getTotal());
-    page2.setOrders(page.getOrders());
-    return ResultVOUtil.returnSuccess(page2);
+    recordsList.setRecords(resultList);
+    return new AsyncResult<>(recordsList);
   }
 
   @Override
   public ResponseEnvelope searchOrderContractOne(Long id) {
     OrderContractVO orderContractVO = new OrderContractVO();
-    OrderAttachmentDTO orderDto = new OrderAttachmentDTO();
+    OrderContractQuery dto = new OrderContractQuery();
+    dto.setToken(TokenUtil.getToken());
+    dto.setId(id);
+    IPage<OrderContractVO> result = null;
+    try {
+      result =
+          searchOrderContractListPage(dto, TokenUtil.getUserInfo().getOrganizationId())
+              .get(5, TimeUnit.SECONDS);
+      if (result != null && result.getRecords().size() > 0) {
+        orderContractVO = result.getRecords().get(0);
+      }
+    } catch (Exception e) {
+      throw new RuntimeException("获取单个合同详情出错！合同id为：" + id);
+    }
+    /*  OrderAttachmentDTO orderDto = new OrderAttachmentDTO();
     orderDto.setParentId(id);
     orderDto.setAtttype(1);
     List<Map<String, Object>> attachmentList =
@@ -156,7 +134,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     orderContractVO.setAttachmentList(attachmentList);
     orderContractVO.setCreateName(userDto.getUserInfo().getName());
     orderContractVO.setDeptName(userDto.getGroupName());
-    orderContractVO.setId(id);
+    orderContractVO.setId(id);*/
     return ResultVOUtil.returnSuccess(orderContractVO);
   }
 
@@ -246,7 +224,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     OrderContract entity = new OrderContract();
     queryWrapper.orderByDesc("CREATE_DATE");
     logger.info("getContractInforList-获取导出合同主体id列表信息开始");
-    List<Long> paramStr = orderContractMapper.getContractIdList(dto.getContractCompany());
+    List<Long> paramStr = orderContractMapper.getContractIdList(dto);
     if (paramStr.size() > 0) {
       queryWrapper.in("ID", paramStr);
     }
