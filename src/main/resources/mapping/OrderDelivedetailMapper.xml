@@ -78,4 +78,17 @@
             #{id,jdbcType=BIGINT}
         </foreach>
     </update>
+
+    <select id="getEntityIdsByMid" parameterType="java.lang.Long" resultType="java.util.Map">
+        select * from (select MIDDLE_ID as middleId,listagg(ASSET_ID,',') within group (order by ASSET_ID ) as ids from
+        T_ORDER_DELIVEDETAIL
+        where DEL_FLAG=0 and MIDDLE_ID is not null
+        <if test="middleIds != null and middleIds.size() > 0">
+            and MIDDLE_ID in
+            <foreach collection="middleIds" item="id" index="index" open="(" close=")" separator=",">
+                #{id,jdbcType=BIGINT}
+            </foreach>
+        </if>
+        GROUP BY MIDDLE_ID) where ids is not null
+    </select>
 </mapper>

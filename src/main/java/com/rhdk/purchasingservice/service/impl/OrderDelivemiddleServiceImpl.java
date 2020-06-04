@@ -100,10 +100,9 @@ public class OrderDelivemiddleServiceImpl
         });
     Map<String, Object> signStatMap = checkReceiveIsExist(middleList);
     // 6.查询所属附件资产清单id集合
-    Long[] arr = new Long[0];
+    List<Long> arr = new ArrayList<>();
     Map<String, String> assetIdMap = new HashMap<>();
-    List<Map<String, Object>> resMap =
-        assetServiceFeign.getEntityIdsByMid(arr, dto.getToken()).getData();
+    List<Map<String, Object>> resMap = orderDelivedetailMapper.getEntityIdsByMid(arr);
     for (Map<String, Object> mo : resMap) {
       assetIdMap.put(mo.get("MIDDLEID").toString(), mo.get("IDS").toString());
     }

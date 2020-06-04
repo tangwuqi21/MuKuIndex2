@@ -311,21 +311,6 @@ public interface AssetServiceFeign {
       @RequestHeader(value = "Authorization") String token);
 
   /**
-   * 根据送货明细记录id来查询附件清单的资产id集合
-   *
-   * @param middleIds
-   * @param token
-   * @return
-   */
-  @RequestMapping(
-      value = "/assetservice/assetEntityInfo/getEntityIdsByMid",
-      method = RequestMethod.POST,
-      consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
-  ResponseEnvelope<List<Map<String, Object>>> getEntityIdsByMid(
-      @RequestParam("middleIds") Long[] middleIds,
-      @RequestHeader(value = "Authorization") String token);
-
-  /**
    * 根据资产类别id来查询资产的searchkey
    *
    * @param id

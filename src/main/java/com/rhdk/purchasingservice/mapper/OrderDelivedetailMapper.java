@@ -7,6 +7,7 @@ import com.rhdk.purchasingservice.pojo.query.AssetQuery;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 送货明细 Mapper 接口
@@ -28,4 +29,6 @@ public interface OrderDelivedetailMapper extends BaseMapper<OrderDelivedetail> {
   Integer updateDetailsDel(@Param("assetIds") List<Long> assetIds, @Param("id") Long id);
 
   Integer updateAssetStatus(@Param("assetQuery") AssetQuery assetQuery);
+
+  List<Map<String, Object>> getEntityIdsByMid(@Param("middleIds") List<Long> middleIds);
 }
