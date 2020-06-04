@@ -60,7 +60,7 @@ public class OrderDelivemiddleController {
       return ResultVOUtil.returnSuccess(
           iOrderDelivemiddleService
               .searchOrderDelivemiddleListPage(dto, TokenUtil.getUserInfo().getOrganizationId())
-              .get(5, TimeUnit.SECONDS));
+              .get(8, TimeUnit.SECONDS));
     } catch (Exception e) {
       return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
     }
@@ -84,7 +84,7 @@ public class OrderDelivemiddleController {
    * @param id
    * @return
    */
-  @ApiOperation(value = "送货记录明细中间表详细查询", notes = "送货记录明细中间表API")
+  @ApiOperation(value = "根据送货记录下明细id来查询对应的资产实体信息集合", notes = "送货记录明细中间表API")
   @RequestMapping(value = "/searchAssetListByMid", method = RequestMethod.POST)
   public ResponseEnvelope searchAssetListByMid(Long id) {
     return iOrderDelivemiddleService.searchAssetListByMid(id);

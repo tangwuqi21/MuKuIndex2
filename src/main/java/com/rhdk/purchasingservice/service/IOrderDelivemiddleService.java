@@ -111,4 +111,6 @@ public interface IOrderDelivemiddleService extends IService<OrderDelivemiddle> {
   ResponseEnvelope updateMiddleById(OrderDelivemiddleDTO dto);
 
   ResponseEnvelope searchAssetListByMid(Long id);
+
+  Map<String, Object> checkReceiveIsExist(List<Long> middleList);
 }

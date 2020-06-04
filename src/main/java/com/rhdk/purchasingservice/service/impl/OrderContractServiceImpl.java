@@ -81,20 +81,22 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     }
     recordsList = orderContractMapper.selectContractList(page, dto, orgId);
     List<OrderContractVO> resultList = recordsList.getRecords();
-    resultList.forEach(
-        a -> {
-          OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
-          OrderContractVO mo = orderContractMapper.selectContractByCId(a.getId());
-          OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
-          attachmentDTO.setParentId(mo.getOrderId());
-          attachmentDTO.setAtttype(1);
-          a.setAttachmentList(
-              assetServiceFeign.selectListByParentId(attachmentDTO, dto.getToken()).getData());
-          a.setContractCompany(mo.getContractCompany());
-          a.setId(mo.getOrderId());
-          a.setCreateName(userDto.getUserInfo().getName());
-          a.setDeptName(userDto.getGroupName());
-        });
+    resultList
+        .parallelStream()
+        .forEach(
+            a -> {
+              OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
+              OrderContractVO mo = orderContractMapper.selectContractByCId(a.getId());
+              OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
+              attachmentDTO.setParentId(mo.getOrderId());
+              attachmentDTO.setAtttype(1);
+              a.setAttachmentList(
+                  assetServiceFeign.selectListByParentId(attachmentDTO, dto.getToken()).getData());
+              a.setContractCompany(mo.getContractCompany());
+              a.setId(mo.getOrderId());
+              a.setCreateName(userDto.getUserInfo().getName());
+              a.setDeptName(userDto.getGroupName());
+            });
     logger.info("getFileList-获取合同附件列表结束");
     recordsList.setRecords(resultList);
     return new AsyncResult<>(recordsList);

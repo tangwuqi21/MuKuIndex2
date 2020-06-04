@@ -12,6 +12,7 @@ import com.rhdk.purchasingservice.common.utils.ResultVOUtil;
 import com.rhdk.purchasingservice.common.utils.TokenUtil;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.feign.AssetServiceFeign;
+import com.rhdk.purchasingservice.feign.InventoryServiceFeign;
 import com.rhdk.purchasingservice.mapper.OrderAttachmentMapper;
 import com.rhdk.purchasingservice.mapper.OrderContractMapper;
 import com.rhdk.purchasingservice.mapper.OrderDelivemiddleMapper;
@@ -74,6 +75,8 @@ public class OrderDeliverecordsServiceImpl
 
   @Autowired private AssetServiceFeign assetServiceFeign;
 
+  @Autowired private InventoryServiceFeign inventoryServiceFeign;
+
   private static org.slf4j.Logger logger =
       LoggerFactory.getLogger(OrderDeliverecordsServiceImpl.class);
 
@@ -106,32 +109,36 @@ public class OrderDeliverecordsServiceImpl
     logger.info("searchOrderDeliverecordsListPage--获取送货单信息开始");
     OrderAttachmentDTO dto1 = new OrderAttachmentDTO();
     dto1.setAtttype(2);
-    resultList.forEach(
-        temp -> {
-          // 获取合同数据
-          OrderContractVO orderContract = orderContractMapper.selectContractById(temp.getOrderId());
-          OrgUserDto userDto = commonService.getOrgUserById(temp.getOrgId(), temp.getCreateBy());
-          List<Integer> signStatList = orderDelivemiddleMapper.getSignStatus(temp.getId());
-          // 获取送货单的签收状态，一个送货单下面关联多个明细单状态
-          Integer status = getAssetStatus(signStatList);
-          // 获取附件列表
-          dto1.setParentId(temp.getId());
-          temp.setAttachmentList(
-              assetServiceFeign.selectListByParentId(dto1, dto.getToken()).getData());
-          temp.setCreateName(userDto.getUserInfo().getName());
-          temp.setDeptName(userDto.getGroupName());
-          if (orderContract != null) {
-            temp.setContractType(orderContract.getContractType());
-            temp.setContractCode(orderContract.getContractCode());
-            temp.setContractName(orderContract.getContractName());
-          } else {
-            temp.setContractCode("--");
-            temp.setContractName("--");
-            temp.setContractType(0);
-          }
-          temp.setSignStatus(status);
-          temp.setSupplierName(supplierMap.get(temp.getSupplierId()));
-        });
+    resultList
+        .parallelStream()
+        .forEach(
+            temp -> {
+              // 获取合同数据
+              OrderContractVO orderContract =
+                  orderContractMapper.selectContractById(temp.getOrderId());
+              OrgUserDto userDto =
+                  commonService.getOrgUserById(temp.getOrgId(), temp.getCreateBy());
+              List<Integer> signStatList = orderDelivemiddleMapper.getSignStatus(temp.getId());
+              // 获取送货单的签收状态，一个送货单下面关联多个明细单状态
+              Integer status = getAssetStatus(signStatList);
+              // 获取附件列表
+              dto1.setParentId(temp.getId());
+              temp.setAttachmentList(
+                  assetServiceFeign.selectListByParentId(dto1, dto.getToken()).getData());
+              temp.setCreateName(userDto.getUserInfo().getName());
+              temp.setDeptName(userDto.getGroupName());
+              if (orderContract != null) {
+                temp.setContractType(orderContract.getContractType());
+                temp.setContractCode(orderContract.getContractCode());
+                temp.setContractName(orderContract.getContractName());
+              } else {
+                temp.setContractCode("--");
+                temp.setContractName("--");
+                temp.setContractType(0);
+              }
+              temp.setSignStatus(status);
+              temp.setSupplierName(supplierMap.get(temp.getSupplierId()));
+            });
     logger.info("searchOrderDeliverecordsListPage--获取送货单信息共：" + resultList.size() + "条，结束");
     recordsList.setRecords(resultList);
     return new AsyncResult<>(recordsList);
@@ -287,10 +294,16 @@ public class OrderDeliverecordsServiceImpl
       }
       // 这里需要判断是否存在待删除的明细数据
       List<Long> middleIds = iOrderDelivemiddleService.selectIdsByDeliverId(dto.getId());
+      Map<String, Object> signStatMap = iOrderDelivemiddleService.checkReceiveIsExist(middleIds);
       for (Long mid : middleIds) {
         // 不包含的数据则进行删除
         if (!middleList.contains(mid)) {
           iOrderDelivemiddleService.deleteOrderDetailrecords(mid);
+          // 通知签收模块进行数据删除操作
+          if (!StringUtils.isEmpty(signStatMap.get(mid.toString()))) {
+            Integer dataId = Integer.valueOf(signStatMap.get(mid.toString()).toString());
+            inventoryServiceFeign.deleteReceiveOne(dataId, TokenUtil.getToken());
+          }
         }
       }
     } else {
@@ -323,9 +336,16 @@ public class OrderDeliverecordsServiceImpl
     }
     // 这里根据送货单id来获取送货单下的所有明细id集合，然后循环删除明细清单列表
     List<Long> detailIds = iOrderDelivemiddleService.selectIdsByDeliverId(id);
+    // 获取明细对应的签收状态
+    Map<String, Object> signStatMap = iOrderDelivemiddleService.checkReceiveIsExist(detailIds);
     for (Long detailId : detailIds) {
       try {
         iOrderDelivemiddleService.deleteOrderDetailrecords(detailId);
+        // 通知签收模块进行数据删除操作
+        if (!StringUtils.isEmpty(signStatMap.get(detailId.toString()))) {
+          Integer dataId = Integer.valueOf(signStatMap.get(detailId.toString()).toString());
+          inventoryServiceFeign.deleteReceiveOne(dataId, TokenUtil.getToken());
+        }
       } catch (Exception e) {
         throw new RuntimeException("删除送货单明细信息失败！送货单明细id为：" + detailId);
       }

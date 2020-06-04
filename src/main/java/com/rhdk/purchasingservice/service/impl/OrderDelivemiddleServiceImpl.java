@@ -8,6 +8,7 @@ import com.rhdk.purchasingservice.common.enums.ResultEnum;
 import com.rhdk.purchasingservice.common.utils.*;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.feign.AssetServiceFeign;
+import com.rhdk.purchasingservice.feign.InventoryServiceFeign;
 import com.rhdk.purchasingservice.mapper.*;
 import com.rhdk.purchasingservice.pojo.dto.OrderAttachmentDTO;
 import com.rhdk.purchasingservice.pojo.dto.OrderDelivemiddleDTO;
@@ -29,7 +30,6 @@ import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
@@ -72,7 +72,7 @@ public class OrderDelivemiddleServiceImpl
 
   @Autowired private AssetServiceFeign assetServiceFeign;
 
-  @Autowired private RedisTemplate redisTemplate;
+  @Autowired private InventoryServiceFeign inventoryServiceFeign;
 
   private static org.slf4j.Logger logger =
       LoggerFactory.getLogger(OrderDelivemiddleServiceImpl.class);
@@ -93,13 +93,12 @@ public class OrderDelivemiddleServiceImpl
     IPage<OrderDelivemiddleVO> recordsList =
         orderDelivemiddleMapper.selectMiddleList(page, dto, orgId);
     List<OrderDelivemiddleVO> resultList = recordsList.getRecords();
-    // Map<String,Object>
     List<Long> middleList = new ArrayList<>();
     resultList.forEach(
         a -> {
           middleList.add(a.getId());
         });
-
+    Map<String, Object> signStatMap = checkReceiveIsExist(middleList);
     // 6.查询所属附件资产清单id集合
     Long[] arr = new Long[0];
     Map<String, String> assetIdMap = new HashMap<>();
@@ -108,69 +107,99 @@ public class OrderDelivemiddleServiceImpl
     for (Map<String, Object> mo : resMap) {
       assetIdMap.put(mo.get("MIDDLEID").toString(), mo.get("IDS").toString());
     }
-    resultList.forEach(
-        a -> {
-          // 改造
-          // 1.查询送货信息
-          OrderDeliverecords orderDeliverecord =
-              orderDeliverecordsMapper.getDeliverecordInfo(a.getDeliveryId());
-          // 2.查询合作伙伴信息
-          PurcasingContract purcasingContract =
-              purcasingContractMapper.selectById(orderDeliverecord.getOrderId());
-          // 3.查询合同信息
-          OrderContract orderContract = new OrderContract();
-          if (purcasingContract != null) {
-            orderContract = orderContractMapper.selectById(purcasingContract.getContractId());
-          }
-          // 4.查询模板名称
-          AssetTmplInfoVO assetTmplInfo =
-              assetServiceFeign.selectPrptValByTmplId(a.getModuleId(), dto.getToken()).getData();
-          // 5.查询供应商名称
-          Customer customer =
-              assetServiceFeign
-                  .searchCustomerOne(orderDeliverecord.getSupplierId(), dto.getToken())
-                  .getData();
-          AssetQuery assetQuery = new AssetQuery();
-          assetQuery.setAssetTempId(a.getModuleId());
-          assetQuery.setPrptIds(a.getPrptIds());
-          OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
-          attachmentDTO.setAtttype(3);
-          attachmentDTO.setParentId(a.getId());
-          a.setAttachmentList(
-              assetServiceFeign.selectListByParentId(attachmentDTO, dto.getToken()).getData());
-          a.setDeliveryCode(orderDeliverecord.getDeliveryCode());
-          a.setDeliveryName(orderDeliverecord.getDeliveryName());
-          a.setSupplierId(orderDeliverecord.getSupplierId());
-          a.setSignAddress(orderDeliverecord.getSignAddress());
-          if (purcasingContract != null && orderContract != null) {
-            a.setContractCode(orderContract.getContractCode());
-            a.setContractName(orderContract.getContractName());
-            a.setContractType(orderContract.getContractType());
-          } else {
-            a.setContractCode("--");
-            a.setContractName("--");
-            a.setContractType(0);
-          }
-          if (assetTmplInfo != null) {
-            a.setPrptValues(assetTmplInfo.getUnit() + "," + assetTmplInfo.getPrice());
-            a.setModuleName(assetTmplInfo.getName());
-            a.setWmType(assetTmplInfo.getWmType());
-          }
-          if (customer != null) {
-            a.setSupplierName(customer.getCusName());
-          }
-          if (assetIdMap.size() > 0) {
-            String ass =
-                assetIdMap.get(a.getId().toString()) == null
-                    ? ""
-                    : assetIdMap.get(a.getId().toString());
-            a.setAssetIds(ass);
-          }
-        });
+    resultList
+        .parallelStream()
+        .forEach(
+            a -> {
+              // 改造
+              // 1.查询送货信息
+              OrderDeliverecords orderDeliverecord =
+                  orderDeliverecordsMapper.getDeliverecordInfo(a.getDeliveryId());
+              // 2.查询合作伙伴信息
+              PurcasingContract purcasingContract =
+                  purcasingContractMapper.selectById(orderDeliverecord.getOrderId());
+              // 3.查询合同信息
+              OrderContract orderContract = new OrderContract();
+              if (purcasingContract != null) {
+                orderContract = orderContractMapper.selectById(purcasingContract.getContractId());
+              }
+              // 4.查询模板名称
+              AssetTmplInfoVO assetTmplInfo =
+                  assetServiceFeign
+                      .selectPrptValByTmplId(a.getModuleId(), dto.getToken())
+                      .getData();
+              // 5.查询供应商名称
+              Customer customer =
+                  assetServiceFeign
+                      .searchCustomerOne(orderDeliverecord.getSupplierId(), dto.getToken())
+                      .getData();
+              AssetQuery assetQuery = new AssetQuery();
+              assetQuery.setAssetTempId(a.getModuleId());
+              assetQuery.setPrptIds(a.getPrptIds());
+              OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
+              attachmentDTO.setAtttype(3);
+              attachmentDTO.setParentId(a.getId());
+              a.setAttachmentList(
+                  assetServiceFeign.selectListByParentId(attachmentDTO, dto.getToken()).getData());
+              a.setDeliveryCode(orderDeliverecord.getDeliveryCode());
+              a.setDeliveryName(orderDeliverecord.getDeliveryName());
+              a.setSupplierId(orderDeliverecord.getSupplierId());
+              a.setSignAddress(orderDeliverecord.getSignAddress());
+              if (purcasingContract != null && orderContract != null) {
+                a.setContractCode(orderContract.getContractCode());
+                a.setContractName(orderContract.getContractName());
+                a.setContractType(orderContract.getContractType());
+              } else {
+                a.setContractCode("--");
+                a.setContractName("--");
+                a.setContractType(0);
+              }
+              if (assetTmplInfo != null) {
+                a.setPrptValues(assetTmplInfo.getUnit() + "," + assetTmplInfo.getPrice());
+                a.setModuleName(assetTmplInfo.getName());
+                a.setWmType(assetTmplInfo.getWmType());
+              }
+              if (customer != null) {
+                a.setSupplierName(customer.getCusName());
+              }
+              if (assetIdMap.size() > 0) {
+                String ass =
+                    assetIdMap.get(a.getId().toString()) == null
+                        ? ""
+                        : assetIdMap.get(a.getId().toString());
+                a.setAssetIds(ass);
+              }
+              if (signStatMap != null) {
+                String str =
+                    signStatMap.get(a.getId().toString()) == null
+                        ? ""
+                        : signStatMap.get(a.getId().toString()).toString();
+                a.setSignRecord(str);
+              }
+            });
     recordsList.setRecords(resultList);
     return new AsyncResult<>(recordsList);
   }
 
+  /**
+   * 获取明细签收状态Map值
+   *
+   * @param middleIds
+   * @return
+   */
+  @Override
+  public Map<String, Object> checkReceiveIsExist(List<Long> middleIds) {
+    Long[] strArray = new Long[middleIds.size()];
+    middleIds.toArray(strArray);
+    Map<String, Object> resutl = new HashMap<>();
+    try {
+      resutl = inventoryServiceFeign.checkReceiveIsExist(strArray, TokenUtil.getToken()).getData();
+    } catch (Exception e) {
+      throw new RuntimeException("获取明细签收状态失败！明细id为：" + middleIds.toString());
+    }
+
+    return resutl;
+  }
   /**
    * 获取单个的送货中间表明细信息 需要获取送货单信息 获取模板信息 获取供应商信息
    *
@@ -878,23 +907,11 @@ public class OrderDelivemiddleServiceImpl
 
   @Override
   public ResponseEnvelope searchAssetListByMid(Long id) {
-    List<AssetEntityInfo> resList = new ArrayList<>();
+    List<Long> resList = new ArrayList<>();
     if (id != null) {
       List<Long> middleIds = new ArrayList<>();
       middleIds.add(id);
-      List<Long> assetIds = orderDelivedetailMapper.getAssetIdsByDId(middleIds);
-      if (assetIds.size() > 0) {
-        Long[] strArray = new Long[assetIds.size()];
-        assetIds.toArray(strArray);
-        try {
-          resList =
-              assetServiceFeign.selectEntityInfosByIds(strArray, TokenUtil.getToken()).getData();
-        } catch (Exception e) {
-          throw new RuntimeException("获取资产实体集合信息失败！明细id为：" + id);
-        }
-      } else {
-        throw new RuntimeException("获取资产明细表资产id集合失败！明细id为：" + id);
-      }
+      resList = orderDelivedetailMapper.getAssetIdsByDId(middleIds);
     }
     return ResultVOUtil.returnSuccess(resList);
   }
