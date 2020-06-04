@@ -280,37 +280,37 @@ public class OrderDeliverecordsServiceImpl
       }
     }
     // 更新中间表相关字段
-    if (dto.getOrderDelivemiddleDTOList().size() > 0) {
-      List<Long> middleList = new ArrayList<>();
-      for (OrderDelivemiddleDTO model : dto.getOrderDelivemiddleDTOList()) {
-        // 明细id如果为空则进行明细的新增操作
-        if (StringUtils.isEmpty(model.getId())) {
-          model.setDeliveryId(entity.getId());
-          iOrderDelivemiddleService.addOrderDelivemiddle(model);
-        } else {
-          iOrderDelivemiddleService.updateOrderMiddle(model);
-          middleList.add(model.getId());
+    // 本次修改的id集合
+    List<Long> middleList = new ArrayList<>();
+    // 本次新增的id集合
+    List<Long> insertIds = new ArrayList<>();
+    for (OrderDelivemiddleDTO model : dto.getOrderDelivemiddleDTOList()) {
+      // 明细id如果为空则进行明细的新增操作
+      if (StringUtils.isEmpty(model.getId())) {
+        model.setDeliveryId(entity.getId());
+        OrderDelivemiddle entiy = iOrderDelivemiddleService.addOrderDelivemiddle(model);
+        insertIds.add(entiy.getId());
+      } else {
+        iOrderDelivemiddleService.updateOrderMiddle(model);
+        middleList.add(model.getId());
+      }
+    }
+    // 这里需要判断是否存在待删除的明细数据
+    List<Long> middleIds = iOrderDelivemiddleService.selectIdsByDeliverId(dto.getId());
+    Map<String, Object> signStatMap = null;
+    if (middleIds.size() > 0) {
+      signStatMap = iOrderDelivemiddleService.checkReceiveIsExist(middleIds);
+    }
+    for (Long mid : middleIds) {
+      // 不包含的数据则进行删除,这里需要排除掉本次新增的记录
+      if (!middleList.contains(mid) && !insertIds.contains(mid)) {
+        iOrderDelivemiddleService.deleteOrderDetailrecords(mid);
+        // 通知签收模块进行数据删除操作
+        if (!StringUtils.isEmpty(signStatMap.get(mid.toString()))) {
+          Integer dataId = Integer.valueOf(signStatMap.get(mid.toString()).toString());
+          inventoryServiceFeign.deleteReceiveOne(dataId, TokenUtil.getToken());
         }
       }
-      // 这里需要判断是否存在待删除的明细数据
-      List<Long> middleIds = iOrderDelivemiddleService.selectIdsByDeliverId(dto.getId());
-      Map<String, Object> signStatMap = null;
-      if (middleIds.size() > 0) {
-        signStatMap = iOrderDelivemiddleService.checkReceiveIsExist(middleIds);
-      }
-      for (Long mid : middleIds) {
-        // 不包含的数据则进行删除
-        if (!middleList.contains(mid)) {
-          iOrderDelivemiddleService.deleteOrderDetailrecords(mid);
-          // 通知签收模块进行数据删除操作
-          if (!StringUtils.isEmpty(signStatMap.get(mid.toString()))) {
-            Integer dataId = Integer.valueOf(signStatMap.get(mid.toString()).toString());
-            inventoryServiceFeign.deleteReceiveOne(dataId, TokenUtil.getToken());
-          }
-        }
-      }
-    } else {
-      throw new RuntimeException(ResultEnum.DETAIL_NOTNULL.getMessage());
     }
     return ResultVOUtil.returnSuccess();
   }

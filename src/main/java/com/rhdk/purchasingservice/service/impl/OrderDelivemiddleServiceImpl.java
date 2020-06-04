@@ -443,6 +443,15 @@ public class OrderDelivemiddleServiceImpl
         if (num2 <= 0) {
           throw new RuntimeException("切换模板物管资产同步更新资产信息状态失败！入参信息为：" + model.toString());
         }
+        // 更新附件表
+        for (OrderAttachmentDTO mo : model.getAttachmentList()) {
+          OrderAttachmentDTO orderAttachment = new OrderAttachmentDTO();
+          orderAttachment.setParentId(model.getId());
+          orderAttachment.setAtttype(3);
+          orderAttachment.setFileurl(mo.getFileurl());
+          orderAttachment.setOrgfilename(mo.getOrgfilename());
+          orderAttachmentMapper.updateByParentIdAndType(orderAttachment);
+        }
       } else {
         // 执行量管的数据记录
         try {
