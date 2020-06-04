@@ -115,7 +115,10 @@ public class OrderContractController {
     log.info("根据条件导出合同列表数据");
     Map<String, Object> map = new HashMap<>();
     // 获取数据源
-    List<OrderContractVO> data = iOrderContractService.getContractInforList(dto);
+    dto.setToken(TokenUtil.getToken());
+    List<OrderContractVO> data =
+        iOrderContractService.getContractInforList(
+            dto, TokenUtil.getUserInfo().getOrganizationId());
     map.put("tempName", "contractInfo");
     map.put("tempData", data);
     try {

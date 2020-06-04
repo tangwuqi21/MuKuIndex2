@@ -200,7 +200,10 @@ public class OrderDelivemiddleController {
     // ResponseEntity<byte[]> result = null;
     Map<String, Object> map = new HashMap<>();
     // 获取数据源
-    List<OrderDelivemiddleVO> data = iOrderDelivemiddleService.getDeliverDetailList(dto);
+    dto.setToken(TokenUtil.getToken());
+    List<OrderDelivemiddleVO> data =
+        iOrderDelivemiddleService.getDeliverDetailList(
+            dto, TokenUtil.getUserInfo().getOrganizationId());
     map.put("tempName", "deliverDetail");
     map.put("tempData", data);
     try {

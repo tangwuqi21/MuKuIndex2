@@ -68,5 +68,5 @@ public interface IOrderDeliverecordsService extends IService<OrderDeliverecords>
    * @param dto
    * @return
    */
-  List<OrderDeliverecordsVO> getDeliverInforList(OrderDeliverecordsQuery dto);
+  List<OrderDeliverecordsVO> getDeliverInforList(OrderDeliverecordsQuery dto, Long orgId);
 }

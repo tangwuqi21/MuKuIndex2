@@ -143,7 +143,10 @@ public class OrderDeliverecordsController {
     // ResponseEntity<byte[]> result = null;
     Map<String, Object> map = new HashMap<>();
     // 获取数据源
-    List<OrderDeliverecordsVO> data = iOrderDeliverecordsService.getDeliverInforList(dto);
+    dto.setToken(TokenUtil.getToken());
+    List<OrderDeliverecordsVO> data =
+        iOrderDeliverecordsService.getDeliverInforList(
+            dto, TokenUtil.getUserInfo().getOrganizationId());
     map.put("tempName", "deliverInfo");
     map.put("tempData", data);
     try {

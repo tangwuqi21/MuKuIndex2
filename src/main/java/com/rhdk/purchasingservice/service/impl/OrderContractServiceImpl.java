@@ -119,24 +119,6 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     } catch (Exception e) {
       throw new RuntimeException("获取单个合同详情出错！合同id为：" + id);
     }
-    /*  OrderAttachmentDTO orderDto = new OrderAttachmentDTO();
-    orderDto.setParentId(id);
-    orderDto.setAtttype(1);
-    List<Map<String, Object>> attachmentList =
-        assetServiceFeign.selectListByParentId(orderDto, TokenUtil.getToken()).getData();
-    logger.info("searchOrderContractOne-获取采购合同信息开始");
-    PurcasingContract model = purcasingContractMapper.selectById(id);
-    logger.info("searchOrderContractOne-获取采购合同信息：" + model.toString() + "结束");
-    OrgUserDto userDto = commonService.getOrgUserById(model.getOrgId(), model.getCreateBy());
-    logger.info("searchOrderContractOne-获取关联合同主体信息开始");
-    OrderContract orderContract = this.selectOne(model.getContractId());
-    logger.info("searchOrderContractOne-获取关联合同主体信息：" + orderContract.toString() + "结束");
-    BeanCopyUtil.copyPropertiesIgnoreNull(orderContract, orderContractVO);
-    orderContractVO.setContractCompany(model.getContractCompany());
-    orderContractVO.setAttachmentList(attachmentList);
-    orderContractVO.setCreateName(userDto.getUserInfo().getName());
-    orderContractVO.setDeptName(userDto.getGroupName());
-    orderContractVO.setId(id);*/
     return ResultVOUtil.returnSuccess(orderContractVO);
   }
 
@@ -221,51 +203,43 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
   }
 
   @Override
-  public List<OrderContractVO> getContractInforList(OrderContractQuery dto) {
-    QueryWrapper<OrderContract> queryWrapper = new QueryWrapper<OrderContract>();
-    OrderContract entity = new OrderContract();
-    queryWrapper.orderByDesc("CREATE_DATE");
-    logger.info("getContractInforList-获取导出合同主体id列表信息开始");
-    List<Long> paramStr = orderContractMapper.getContractIdList(dto);
-    if (paramStr.size() > 0) {
-      queryWrapper.in("ID", paramStr);
-    }
-    dto.setContractCompany(null);
-    BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
-    entity.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
-    queryWrapper.setEntity(entity);
-    List<OrderContract> resultList = orderContractMapper.selectList(queryWrapper);
-    logger.info("getContractInforList-获取导出合同主体id列表信息结束，获取了" + paramStr.size() + "条数据");
+  public List<OrderContractVO> getContractInforList(OrderContractQuery dto, Long orgId) {
     List<OrderContractVO> contractVOList = new ArrayList<>();
-    Integer rownum = 1;
-    for (OrderContract a : resultList) {
-      // 根据合同id去附件表里获取每个合同对应的附件
-      OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
-      OrderContractVO contractVO = orderContractMapper.selectContractByCId(a.getId());
-      OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
-      attachmentDTO.setParentId(a.getId());
-      attachmentDTO.setAtttype(1);
-      List<Map<String, Object>> fileList =
-          assetServiceFeign.selectListByParentId(attachmentDTO, TokenUtil.getToken()).getData();
-      String haveFile = fileList.size() > 0 ? "是" : "否";
-      OrderContractVO at =
-          OrderContractVO.builder()
-              .haveFile(haveFile)
-              .contractCode(a.getContractCode())
-              .contractCompany(contractVO.getContractCompany())
-              .contractName(a.getContractName())
-              .contractDate(a.getContractDate())
-              .contractMoney(a.getContractMoney())
-              .id(contractVO.getOrderId())
-              .contractTypeName(a.getContractType() == 1 ? "采购合同" : "其他")
-              .createDate(a.getCreateDate())
-              .createName(userDto.getUserInfo().getName())
-              .deptName(userDto.getGroupName())
-              .no(rownum)
-              .build();
-      contractVOList.add(at);
-      rownum += 1;
+    Page page = new Page();
+    page.setSize(dto.getPageSize());
+    page.setCurrent(dto.getCurrentPage());
+    IPage<OrderContractVO> recordsList = null;
+    List<Long> paramStr = orderContractMapper.getContractIdList(dto);
+    logger.info("getContractInforList-获取合同id列表结束，获取了" + paramStr.size() + "条");
+    if (paramStr.size() > 0) {
+      dto.setContractIds(paramStr);
+    } else {
+      return contractVOList;
     }
+    recordsList = orderContractMapper.selectContractList(page, dto, orgId);
+    contractVOList = recordsList.getRecords();
+    contractVOList.forEach(
+        a -> {
+          // 根据合同id去附件表里获取每个合同对应的附件
+          OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
+          OrderContractVO contractVO = orderContractMapper.selectContractByCId(a.getId());
+          OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
+          attachmentDTO.setParentId(a.getId());
+          attachmentDTO.setAtttype(1);
+          List<Map<String, Object>> fileList =
+              assetServiceFeign.selectListByParentId(attachmentDTO, dto.getToken()).getData();
+          String haveFile = fileList.size() > 0 ? "是" : "否";
+          if (contractVO != null) {
+            a.setId(contractVO.getOrderId());
+            a.setContractCompany(contractVO.getContractCompany());
+          }
+          a.setHaveFile(haveFile);
+          a.setContractTypeName(a.getContractType() == 1 ? "采购合同" : "其他");
+          if (userDto != null) {
+            a.setCreateName(userDto.getUserInfo().getName());
+            a.setDeptName(userDto.getGroupName());
+          }
+        });
     return contractVOList;
   }
 
@@ -310,13 +284,5 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
       throw new RuntimeException("批量删除采购合同失败，报错信息为：" + e.getMessage());
     }
     return ResultVOUtil.returnSuccess();
-  }
-
-  public OrderContract selectOne(Long id) {
-    OrderContract entity = new OrderContract();
-    entity.setId(id);
-    QueryWrapper<OrderContract> queryWrapper = new QueryWrapper<>();
-    queryWrapper.setEntity(entity);
-    return orderContractMapper.selectOne(queryWrapper);
   }
 }

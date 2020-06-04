@@ -98,7 +98,7 @@ public interface IOrderDelivemiddleService extends IService<OrderDelivemiddle> {
    * @param dto
    * @return
    */
-  List<OrderDelivemiddleVO> getDeliverDetailList(OrderDelivemiddleQuery dto);
+  List<OrderDelivemiddleVO> getDeliverDetailList(OrderDelivemiddleQuery dto, Long orgId);
 
   /**
    * 根据送货单id来获取所有明细id集合
