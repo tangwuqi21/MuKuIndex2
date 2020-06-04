@@ -294,7 +294,10 @@ public class OrderDeliverecordsServiceImpl
       }
       // 这里需要判断是否存在待删除的明细数据
       List<Long> middleIds = iOrderDelivemiddleService.selectIdsByDeliverId(dto.getId());
-      Map<String, Object> signStatMap = iOrderDelivemiddleService.checkReceiveIsExist(middleIds);
+      Map<String, Object> signStatMap = null;
+      if (middleIds.size() > 0) {
+        signStatMap = iOrderDelivemiddleService.checkReceiveIsExist(middleIds);
+      }
       for (Long mid : middleIds) {
         // 不包含的数据则进行删除
         if (!middleList.contains(mid)) {
@@ -337,7 +340,10 @@ public class OrderDeliverecordsServiceImpl
     // 这里根据送货单id来获取送货单下的所有明细id集合，然后循环删除明细清单列表
     List<Long> detailIds = iOrderDelivemiddleService.selectIdsByDeliverId(id);
     // 获取明细对应的签收状态
-    Map<String, Object> signStatMap = iOrderDelivemiddleService.checkReceiveIsExist(detailIds);
+    Map<String, Object> signStatMap = null;
+    if (detailIds.size() > 0) {
+      signStatMap = iOrderDelivemiddleService.checkReceiveIsExist(detailIds);
+    }
     for (Long detailId : detailIds) {
       try {
         iOrderDelivemiddleService.deleteOrderDetailrecords(detailId);

@@ -93,90 +93,94 @@ public class OrderDelivemiddleServiceImpl
     IPage<OrderDelivemiddleVO> recordsList =
         orderDelivemiddleMapper.selectMiddleList(page, dto, orgId);
     List<OrderDelivemiddleVO> resultList = recordsList.getRecords();
-    List<Long> middleList = new ArrayList<>();
-    resultList.forEach(
-        a -> {
-          middleList.add(a.getId());
-        });
-    Map<String, Object> signStatMap = checkReceiveIsExist(middleList);
-    // 6.查询所属附件资产清单id集合
-    List<Long> arr = new ArrayList<>();
-    Map<String, String> assetIdMap = new HashMap<>();
-    List<Map<String, Object>> resMap = orderDelivedetailMapper.getEntityIdsByMid(arr);
-    for (Map<String, Object> mo : resMap) {
-      assetIdMap.put(mo.get("MIDDLEID").toString(), mo.get("IDS").toString());
+    if (resultList.size() > 0) {
+      List<Long> middleList = new ArrayList<>();
+      resultList.forEach(
+          a -> {
+            middleList.add(a.getId());
+          });
+      Map<String, Object> signStatMap = checkReceiveIsExist(middleList);
+      // 6.查询所属附件资产清单id集合
+      List<Long> arr = new ArrayList<>();
+      Map<String, String> assetIdMap = new HashMap<>();
+      List<Map<String, Object>> resMap = orderDelivedetailMapper.getEntityIdsByMid(arr);
+      for (Map<String, Object> mo : resMap) {
+        assetIdMap.put(mo.get("MIDDLEID").toString(), mo.get("IDS").toString());
+      }
+      resultList
+          .parallelStream()
+          .forEach(
+              a -> {
+                // 改造
+                // 1.查询送货信息
+                OrderDeliverecords orderDeliverecord =
+                    orderDeliverecordsMapper.getDeliverecordInfo(a.getDeliveryId());
+                // 2.查询合作伙伴信息
+                PurcasingContract purcasingContract =
+                    purcasingContractMapper.selectById(orderDeliverecord.getOrderId());
+                // 3.查询合同信息
+                OrderContract orderContract = new OrderContract();
+                if (purcasingContract != null) {
+                  orderContract = orderContractMapper.selectById(purcasingContract.getContractId());
+                }
+                // 4.查询模板名称
+                AssetTmplInfoVO assetTmplInfo =
+                    assetServiceFeign
+                        .selectPrptValByTmplId(a.getModuleId(), dto.getToken())
+                        .getData();
+                // 5.查询供应商名称
+                Customer customer =
+                    assetServiceFeign
+                        .searchCustomerOne(orderDeliverecord.getSupplierId(), dto.getToken())
+                        .getData();
+                AssetQuery assetQuery = new AssetQuery();
+                assetQuery.setAssetTempId(a.getModuleId());
+                assetQuery.setPrptIds(a.getPrptIds());
+                OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
+                attachmentDTO.setAtttype(3);
+                attachmentDTO.setParentId(a.getId());
+                a.setAttachmentList(
+                    assetServiceFeign
+                        .selectListByParentId(attachmentDTO, dto.getToken())
+                        .getData());
+                a.setDeliveryCode(orderDeliverecord.getDeliveryCode());
+                a.setDeliveryName(orderDeliverecord.getDeliveryName());
+                a.setSupplierId(orderDeliverecord.getSupplierId());
+                a.setSignAddress(orderDeliverecord.getSignAddress());
+                if (purcasingContract != null && orderContract != null) {
+                  a.setContractCode(orderContract.getContractCode());
+                  a.setContractName(orderContract.getContractName());
+                  a.setContractType(orderContract.getContractType());
+                } else {
+                  a.setContractCode("--");
+                  a.setContractName("--");
+                  a.setContractType(0);
+                }
+                if (assetTmplInfo != null) {
+                  a.setPrptValues(assetTmplInfo.getUnit() + "," + assetTmplInfo.getPrice());
+                  a.setModuleName(assetTmplInfo.getName());
+                  a.setWmType(assetTmplInfo.getWmType());
+                }
+                if (customer != null) {
+                  a.setSupplierName(customer.getCusName());
+                }
+                if (assetIdMap.size() > 0) {
+                  String ass =
+                      assetIdMap.get(a.getId().toString()) == null
+                          ? ""
+                          : assetIdMap.get(a.getId().toString());
+                  a.setAssetIds(ass);
+                }
+                if (signStatMap != null) {
+                  String str =
+                      signStatMap.get(a.getId().toString()) == null
+                          ? ""
+                          : signStatMap.get(a.getId().toString()).toString();
+                  a.setSignRecord(str);
+                }
+              });
+      recordsList.setRecords(resultList);
     }
-    resultList
-        .parallelStream()
-        .forEach(
-            a -> {
-              // 改造
-              // 1.查询送货信息
-              OrderDeliverecords orderDeliverecord =
-                  orderDeliverecordsMapper.getDeliverecordInfo(a.getDeliveryId());
-              // 2.查询合作伙伴信息
-              PurcasingContract purcasingContract =
-                  purcasingContractMapper.selectById(orderDeliverecord.getOrderId());
-              // 3.查询合同信息
-              OrderContract orderContract = new OrderContract();
-              if (purcasingContract != null) {
-                orderContract = orderContractMapper.selectById(purcasingContract.getContractId());
-              }
-              // 4.查询模板名称
-              AssetTmplInfoVO assetTmplInfo =
-                  assetServiceFeign
-                      .selectPrptValByTmplId(a.getModuleId(), dto.getToken())
-                      .getData();
-              // 5.查询供应商名称
-              Customer customer =
-                  assetServiceFeign
-                      .searchCustomerOne(orderDeliverecord.getSupplierId(), dto.getToken())
-                      .getData();
-              AssetQuery assetQuery = new AssetQuery();
-              assetQuery.setAssetTempId(a.getModuleId());
-              assetQuery.setPrptIds(a.getPrptIds());
-              OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
-              attachmentDTO.setAtttype(3);
-              attachmentDTO.setParentId(a.getId());
-              a.setAttachmentList(
-                  assetServiceFeign.selectListByParentId(attachmentDTO, dto.getToken()).getData());
-              a.setDeliveryCode(orderDeliverecord.getDeliveryCode());
-              a.setDeliveryName(orderDeliverecord.getDeliveryName());
-              a.setSupplierId(orderDeliverecord.getSupplierId());
-              a.setSignAddress(orderDeliverecord.getSignAddress());
-              if (purcasingContract != null && orderContract != null) {
-                a.setContractCode(orderContract.getContractCode());
-                a.setContractName(orderContract.getContractName());
-                a.setContractType(orderContract.getContractType());
-              } else {
-                a.setContractCode("--");
-                a.setContractName("--");
-                a.setContractType(0);
-              }
-              if (assetTmplInfo != null) {
-                a.setPrptValues(assetTmplInfo.getUnit() + "," + assetTmplInfo.getPrice());
-                a.setModuleName(assetTmplInfo.getName());
-                a.setWmType(assetTmplInfo.getWmType());
-              }
-              if (customer != null) {
-                a.setSupplierName(customer.getCusName());
-              }
-              if (assetIdMap.size() > 0) {
-                String ass =
-                    assetIdMap.get(a.getId().toString()) == null
-                        ? ""
-                        : assetIdMap.get(a.getId().toString());
-                a.setAssetIds(ass);
-              }
-              if (signStatMap != null) {
-                String str =
-                    signStatMap.get(a.getId().toString()) == null
-                        ? ""
-                        : signStatMap.get(a.getId().toString()).toString();
-                a.setSignRecord(str);
-              }
-            });
-    recordsList.setRecords(resultList);
     return new AsyncResult<>(recordsList);
   }
 
