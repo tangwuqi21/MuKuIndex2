@@ -150,6 +150,20 @@ public interface AssetServiceFeign {
       @RequestBody AssetQuery assetQuery, @RequestHeader(value = "Authorization") String token);
 
   /**
+   * 根据资产id集合来查询资产信息
+   *
+   * @param assetIds
+   * @param token
+   * @return
+   */
+  @RequestMapping(
+      value = "/assetservice/assetEntityInfo/selectEntityInfosByIds",
+      method = RequestMethod.POST)
+  ResponseEnvelope<List<AssetEntityInfo>> selectEntityInfosByIds(
+      @RequestParam("assetIds") Long[] assetIds,
+      @RequestHeader(value = "Authorization") String token);
+
+  /**
    * 更新资产实体信息
    *
    * @param assetEntityInfo

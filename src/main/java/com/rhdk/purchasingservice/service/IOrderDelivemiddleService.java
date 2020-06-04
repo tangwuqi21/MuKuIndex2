@@ -109,4 +109,6 @@ public interface IOrderDelivemiddleService extends IService<OrderDelivemiddle> {
   List<Long> selectIdsByDeliverId(Long id);
 
   ResponseEnvelope updateMiddleById(OrderDelivemiddleDTO dto);
+
+  ResponseEnvelope searchAssetListByMid(Long id);
 }

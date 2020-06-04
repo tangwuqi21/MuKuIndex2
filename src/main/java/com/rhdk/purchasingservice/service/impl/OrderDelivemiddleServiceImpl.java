@@ -93,6 +93,13 @@ public class OrderDelivemiddleServiceImpl
     IPage<OrderDelivemiddleVO> recordsList =
         orderDelivemiddleMapper.selectMiddleList(page, dto, orgId);
     List<OrderDelivemiddleVO> resultList = recordsList.getRecords();
+    // Map<String,Object>
+    List<Long> middleList = new ArrayList<>();
+    resultList.forEach(
+        a -> {
+          middleList.add(a.getId());
+        });
+
     // 6.查询所属附件资产清单id集合
     Long[] arr = new Long[0];
     Map<String, String> assetIdMap = new HashMap<>();
@@ -867,6 +874,29 @@ public class OrderDelivemiddleServiceImpl
       throw new RuntimeException("更新资产明细记录，id不能为空！");
     }
     return ResultVOUtil.returnSuccess();
+  }
+
+  @Override
+  public ResponseEnvelope searchAssetListByMid(Long id) {
+    List<AssetEntityInfo> resList = new ArrayList<>();
+    if (id != null) {
+      List<Long> middleIds = new ArrayList<>();
+      middleIds.add(id);
+      List<Long> assetIds = orderDelivedetailMapper.getAssetIdsByDId(middleIds);
+      if (assetIds.size() > 0) {
+        Long[] strArray = new Long[assetIds.size()];
+        assetIds.toArray(strArray);
+        try {
+          resList =
+              assetServiceFeign.selectEntityInfosByIds(strArray, TokenUtil.getToken()).getData();
+        } catch (Exception e) {
+          throw new RuntimeException("获取资产实体集合信息失败！明细id为：" + id);
+        }
+      } else {
+        throw new RuntimeException("获取资产明细表资产id集合失败！明细id为：" + id);
+      }
+    }
+    return ResultVOUtil.returnSuccess(resList);
   }
 
   @Async

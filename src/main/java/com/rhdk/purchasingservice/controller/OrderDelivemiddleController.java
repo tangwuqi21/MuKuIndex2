@@ -79,6 +79,18 @@ public class OrderDelivemiddleController {
   }
 
   /**
+   * 根据送货记录下明细id来查询对应的资产实体信息集合
+   *
+   * @param id
+   * @return
+   */
+  @ApiOperation(value = "送货记录明细中间表详细查询", notes = "送货记录明细中间表API")
+  @RequestMapping(value = "/searchAssetListByMid", method = RequestMethod.POST)
+  public ResponseEnvelope searchAssetListByMid(Long id) {
+    return iOrderDelivemiddleService.searchAssetListByMid(id);
+  }
+
+  /**
    * 送货记录下，添加单一明细信息
    *
    * @param dto
