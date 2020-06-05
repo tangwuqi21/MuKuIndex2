@@ -106,7 +106,7 @@ public interface IOrderDelivemiddleService extends IService<OrderDelivemiddle> {
    * @param id
    * @return
    */
-  List<Long> selectIdsByDeliverId(Long id);
+  List<Long> getMIdsByDeliveryId(Long id);
 
   ResponseEnvelope updateMiddleById(OrderDelivemiddleDTO dto);
 

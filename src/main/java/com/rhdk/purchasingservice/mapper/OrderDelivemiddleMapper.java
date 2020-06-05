@@ -22,8 +22,6 @@ import java.util.Map;
  */
 public interface OrderDelivemiddleMapper extends BaseMapper<OrderDelivemiddle> {
 
-  List<Map<String, Object>> getTitleList(@Param("moduleId") Long moduleId);
-
   List<Map<String, Object>> getTitleMap(@Param("moduleId") Long moduleId);
 
   List<Long> getMIdsByDeliveryId(@Param("id") Long id);
@@ -42,8 +40,6 @@ public interface OrderDelivemiddleMapper extends BaseMapper<OrderDelivemiddle> {
 
   Integer insertDetailsPlan(
       @Param("orderDetailList") List<OrderDelivedetail> orderDelivedetailList);
-
-  List<Long> selectIdsByDeliverId(@Param("id") Long id);
 
   IPage<OrderDelivemiddleVO> selectMiddleList(
       Page page, @Param("dto") OrderDelivemiddleQuery dto, @Param("orgId") Long orgId);

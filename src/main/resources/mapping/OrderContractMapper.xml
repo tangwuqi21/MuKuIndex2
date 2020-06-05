@@ -25,17 +25,17 @@
          </sql>
 
     <select id="selectContractById" resultType="com.rhdk.purchasingservice.pojo.vo.OrderContractVO">
-    select o.id as "orderId",c.contract_name as "contractName",c.contract_code as "contractCode",
-    CONTRACT_TYPE as "contractType",c.Contract_money as "contractMoney",
-    o.contract_company as "contractCompany",c.CONTRACT_DATE as "contractDate",c.CREATE_DATE as "createDate" from T_ORDER_CONTRACT o LEFT JOIN T_CONTRACT c on o.CONTRACT_ID=c.ID
-    where o.id=#{orderId} and o.DEL_FLAG=0 and c.DEL_FLAG=0
-    </select>
-
-    <select id="selectContractByCId" resultType="com.rhdk.purchasingservice.pojo.vo.OrderContractVO">
-    select o.id as "orderId",c.contract_name as "contractName",c.contract_code as "contractCode",
-    CONTRACT_TYPE as "contractType",c.Contract_money as "contractMoney",
-    o.contract_company as "contractCompany",c.CONTRACT_DATE as "contractDate",c.CREATE_DATE as "createDate" from T_ORDER_CONTRACT o LEFT JOIN T_CONTRACT c on o.CONTRACT_ID=c.ID
-    where o.contract_id=#{id} and o.DEL_FLAG=0 and c.DEL_FLAG=0
+        select o.id as "orderId",c.contract_name as "contractName",c.contract_code as "contractCode",
+        CONTRACT_TYPE as "contractType",c.Contract_money as "contractMoney",
+        o.contract_company as "contractCompany",c.CONTRACT_DATE as "contractDate",c.CREATE_DATE as "createDate" from
+        T_ORDER_CONTRACT o LEFT JOIN T_CONTRACT c on o.CONTRACT_ID=c.ID
+        where o.DEL_FLAG=0 and c.DEL_FLAG=0
+        <if test="orderId !=null and orderId !=''">
+            and o.id=#{orderId}
+        </if>
+        <if test="contractId !=null and contractId !=''">
+            and o.contract_id=#{contractId}
+        </if>
     </select>
 
     <select id="getContractIdList" resultType="java.lang.Long">

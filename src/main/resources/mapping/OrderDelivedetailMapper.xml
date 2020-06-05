@@ -24,10 +24,6 @@
         ID, MIDDLE_ID, ASSET_NAME, ITEM_NO, ASSET_ID,ASSET_CAT_ID,ASSET_CAT_SEARCH_KEY, ASSET_NUMBER,CREATE_BY, CREATE_DATE, UPDATE_BY, UPDATE_DATE, DEL_FLAG
          </sql>
 
-    <select id="getAssetIds" parameterType="java.lang.Long" resultType="java.lang.Long">
-        select ASSET_ID from T_ORDER_DELIVEDETAIL where MIDDLE_ID=#{id} and DEL_FLAG=0
-    </select>
-
     <delete id="deleteDeliveDetails">
         delete from T_ORDER_DELIVEDETAIL where ASSET_ID in
         <foreach collection="detailAssetIds" item="id" index="index" open="(" close=")" separator=",">

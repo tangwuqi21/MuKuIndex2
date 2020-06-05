@@ -115,7 +115,7 @@ public class OrderDeliverecordsServiceImpl
             temp -> {
               // 获取合同数据
               OrderContractVO orderContract =
-                  orderContractMapper.selectContractById(temp.getOrderId());
+                  orderContractMapper.selectContractById(temp.getOrderId(), null);
               OrgUserDto userDto =
                   commonService.getOrgUserById(temp.getOrgId(), temp.getCreateBy());
               List<Integer> signStatList = orderDelivemiddleMapper.getSignStatus(temp.getId());
@@ -292,7 +292,7 @@ public class OrderDeliverecordsServiceImpl
       }
     }
     // 这里需要判断是否存在待删除的明细数据
-    List<Long> middleIds = iOrderDelivemiddleService.selectIdsByDeliverId(dto.getId());
+    List<Long> middleIds = iOrderDelivemiddleService.getMIdsByDeliveryId(dto.getId());
     Map<String, Object> signStatMap = null;
     if (middleIds.size() > 0) {
       signStatMap = iOrderDelivemiddleService.checkReceiveIsExist(middleIds);
@@ -342,7 +342,7 @@ public class OrderDeliverecordsServiceImpl
       throw new RuntimeException("删除送货单附件信息失败！送货单id为：" + id + "，报错信息为：" + e.getMessage());
     }
     // 这里根据送货单id来获取送货单下的所有明细id集合，然后循环删除明细清单列表
-    List<Long> detailIds = iOrderDelivemiddleService.selectIdsByDeliverId(id);
+    List<Long> detailIds = iOrderDelivemiddleService.getMIdsByDeliveryId(id);
     // 获取明细对应的签收状态
     Map<String, Object> signStatMap = null;
     if (detailIds.size() > 0) {
@@ -391,7 +391,7 @@ public class OrderDeliverecordsServiceImpl
         .forEach(
             a -> {
               OrderContractVO orderContract =
-                  orderContractMapper.selectContractById(a.getOrderId());
+                  orderContractMapper.selectContractById(a.getOrderId(), null);
               OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
               List<Integer> signStatList = orderDelivemiddleMapper.getSignStatus(a.getId());
               Integer status = getAssetStatus(signStatList);

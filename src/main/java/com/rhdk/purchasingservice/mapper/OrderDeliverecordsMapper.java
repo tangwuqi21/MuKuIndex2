@@ -7,8 +7,6 @@ import com.rhdk.purchasingservice.pojo.query.OrderDeliverecordsQuery;
 import com.rhdk.purchasingservice.pojo.vo.OrderDeliverecordsVO;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
-
 /**
  * 送货单 Mapper 接口
  *
@@ -16,8 +14,6 @@ import java.util.List;
  * @since 2020-05-12
  */
 public interface OrderDeliverecordsMapper extends BaseMapper<OrderDeliverecords> {
-  List<Long> getIdsBySupplierId(@Param("supplierIds") List<Long> supplierIds);
-
   OrderDeliverecords getDeliverecordInfo(@Param("deliveryId") Long deliveryId);
 
   IPage<OrderDeliverecordsVO> selectRecordsList(

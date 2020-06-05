@@ -17,8 +17,6 @@ import java.util.Map;
  */
 public interface OrderDelivedetailMapper extends BaseMapper<OrderDelivedetail> {
 
-  List<Long> getAssetIds(@Param("id") Long id);
-
   Integer deleteDeliveDetails(@Param("detailAssetIds") List<Long> detailAssetIds);
 
   Integer updateDetails(

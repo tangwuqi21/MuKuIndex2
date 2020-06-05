@@ -26,13 +26,6 @@
         ID, DELIVERY_CODE, DELIVERY_NAME, DELIVERY_DATE,SIGN_STATUS, SUPPLIER_ID, SIGN_ADDRESS, ORDER_ID, REMARK, CREATE_BY, CREATE_DATE, UPDATE_BY, UPDATE_DATE, ORG_ID, DEL_FLAG
          </sql>
 
-    <select id="getIdsBySupplierId" resultType="java.lang.Long">
-        select id from T_ORDER_DELIVERECORDS where DEL_FLAG=0 and SUPPLIER_ID in
-        <foreach collection="supplierIds" item="id" index="index" open="(" close=")" separator=",">
-            #{id,jdbcType=BIGINT}
-        </foreach>
-    </select>
-
     <select id="getDeliverecordInfo" resultType="com.rhdk.purchasingservice.pojo.entity.OrderDeliverecords"
             parameterType="java.lang.Long">
         select

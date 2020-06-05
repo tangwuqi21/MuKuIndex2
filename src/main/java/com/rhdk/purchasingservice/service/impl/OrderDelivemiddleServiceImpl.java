@@ -379,7 +379,9 @@ public class OrderDelivemiddleServiceImpl
           if (!fileUrl.equals(attachmentInfo.get("fileurl"))) {
             // 明细附件发生了改变，需要重新解析数据表格进行数据的上传
             // 通过明细中间表找到明细表，通过明细表，去到资产实体表中进行之前的数据删除，然后删除明细中间表的数据
-            List<Long> detailAssetIds = orderDelivedetailMapper.getAssetIds(model.getId());
+            List<Long> midList = new ArrayList<>();
+            midList.add(model.getId());
+            List<Long> detailAssetIds = orderDelivedetailMapper.getAssetIdsByDId(midList);
             try {
               // 删除明细表的数据
               orderDelivedetailMapper.deleteDeliveDetails(detailAssetIds);
@@ -408,7 +410,9 @@ public class OrderDelivemiddleServiceImpl
         // 量管的资产，更新明细表和资产实体表中的数量
         // 这里需要根据明细表中的数据同步更新资产表中量管资产的数量
         Long assetNum = numT - numT2;
-        List<Long> detailAssetIds = orderDelivedetailMapper.getAssetIds(model.getId());
+        List<Long> midList = new ArrayList<>();
+        midList.add(model.getId());
+        List<Long> detailAssetIds = orderDelivedetailMapper.getAssetIdsByDId(midList);
         Long[] strArray = new Long[detailAssetIds.size()];
         detailAssetIds.toArray(strArray);
         if (!StringUtils.isEmpty(model.getAssetCatId())) {
@@ -903,8 +907,8 @@ public class OrderDelivemiddleServiceImpl
   }
 
   @Override
-  public List<Long> selectIdsByDeliverId(Long id) {
-    return orderDelivemiddleMapper.selectIdsByDeliverId(id);
+  public List<Long> getMIdsByDeliveryId(Long id) {
+    return orderDelivemiddleMapper.getMIdsByDeliveryId(id);
   }
 
   @Override

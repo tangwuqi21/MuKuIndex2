@@ -32,12 +32,6 @@
     ORDER BY p.PRPT_order asc
     </select>
 
-    <select id="getTitleList" resultType="hashmap" parameterType="java.lang.Long">
-      select p.PRPT_ID,pr.name,p.ASSET_TEMP_ID,p.PRPT_order,p.PK_FLAG,pr.code,p.PRPT_VALUE
-    from T_ASSET_TMPL_PRPTS p left join T_ASSET_PRPT_INFO pr on p.PRPT_ID=pr.id where p.ASSET_TEMP_ID=#{moduleId} and p.del_flag=0
-    ORDER BY p.PRPT_order asc
-    </select>
-
     <select id="getMIdsByDeliveryId" resultType="java.lang.Long" parameterType="java.lang.Long">
         select id from T_ORDER_DELIVEMIDDLE where DELIVERY_ID=#{id} and del_flag=0
     </select>
@@ -182,10 +176,6 @@
         </foreach>
         SELECT 1 FROM DUAL
     </insert>
-
-    <select id="selectIdsByDeliverId" resultType="java.lang.Long">
-        select ID from T_ORDER_DELIVEMIDDLE where del_flag=0 and DELIVERY_ID=#{id}
-    </select>
 
     <select id="selectMiddleList" resultType="com.rhdk.purchasingservice.pojo.vo.OrderDelivemiddleVO">
         select

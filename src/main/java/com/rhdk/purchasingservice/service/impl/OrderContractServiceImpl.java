@@ -86,7 +86,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
         .forEach(
             a -> {
               OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
-              OrderContractVO mo = orderContractMapper.selectContractByCId(a.getId());
+              OrderContractVO mo = orderContractMapper.selectContractById(null, a.getId());
               OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
               attachmentDTO.setParentId(mo.getOrderId());
               attachmentDTO.setAtttype(1);
@@ -222,7 +222,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
         a -> {
           // 根据合同id去附件表里获取每个合同对应的附件
           OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
-          OrderContractVO contractVO = orderContractMapper.selectContractByCId(a.getId());
+          OrderContractVO contractVO = orderContractMapper.selectContractById(null, a.getId());
           OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
           attachmentDTO.setParentId(a.getId());
           attachmentDTO.setAtttype(1);
