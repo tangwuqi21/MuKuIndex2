@@ -104,7 +104,7 @@ public class OrderDeliverecordsController {
    */
   @ApiOperation(value = "送货单更新", notes = "送货单API")
   @RequestMapping(value = "/updateOrderDeliverecords", method = RequestMethod.POST)
-  public ResponseEnvelope updateOrderDeliverecords(@RequestBody OrderDeliverecordsDTO dto) {
+  public ResponseEnvelope updateOrderDeliverecords(@RequestBody @Valid OrderDeliverecordsDTO dto) {
     try {
       return iOrderDeliverecordsService.updateOrderDeliverecords(dto);
     } catch (Exception e) {

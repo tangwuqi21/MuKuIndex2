@@ -69,7 +69,7 @@
         <if test="orgId !=null and orgId !=''">
             and ORG_ID =#{orgId}
         </if>
-        <if test="dto.contractIds.size()>0">
+        <if test="dto.contractIds != null and dto.contractIds.size()>0">
             and ID in
             <foreach collection="dto.contractIds" item="cid" index="index" open="(" close=")" separator=",">
                 #{cid}

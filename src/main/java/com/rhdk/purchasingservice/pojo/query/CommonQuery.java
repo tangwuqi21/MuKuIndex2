@@ -12,4 +12,7 @@ import java.io.Serializable;
 public class CommonQuery extends BaseDTO implements Serializable {
   @ApiModelProperty(value = "合同名称")
   private String contractName;
+
+  @ApiModelProperty(value = "token", hidden = true)
+  private String token;
 }

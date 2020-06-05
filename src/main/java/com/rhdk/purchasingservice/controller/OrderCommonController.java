@@ -1,7 +1,8 @@
 package com.rhdk.purchasingservice.controller;
 
+import com.rhdk.purchasingservice.common.utils.TokenUtil;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
-import com.rhdk.purchasingservice.pojo.query.CommonQuery;
+import com.rhdk.purchasingservice.pojo.query.OrderContractQuery;
 import com.rhdk.purchasingservice.service.CommonService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -31,12 +32,13 @@ public class OrderCommonController {
   /**
    * 合同列表选择框数据查询
    *
-   * @param commonQuery
+   * @param dto
    * @return
    */
   @ApiOperation(value = "合同列表查询", notes = "需提供采购合同id，合同名称、往来单位、源单类型、源单编码")
   @RequestMapping(value = "/getContractInfoList", method = RequestMethod.POST)
-  public ResponseEnvelope getContractInfoList(@RequestBody CommonQuery commonQuery) {
-    return commonService.getContractInfoList(commonQuery);
+  public ResponseEnvelope getContractInfoList(@RequestBody OrderContractQuery dto) {
+    dto.setToken(TokenUtil.getToken());
+    return commonService.getContractInfoList(dto, TokenUtil.getUserInfo().getOrganizationId());
   }
 }
