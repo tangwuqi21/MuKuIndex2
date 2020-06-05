@@ -220,7 +220,7 @@ public class OrderDelivemiddleServiceImpl
       result =
           searchOrderDelivemiddleListPage(
                   orderDelivemiddleQuery, TokenUtil.getUserInfo().getOrganizationId())
-              .get(5, TimeUnit.SECONDS);
+              .get(10, TimeUnit.SECONDS);
       if (result != null && result.getRecords().size() > 0) {
         model = result.getRecords().get(0);
       }

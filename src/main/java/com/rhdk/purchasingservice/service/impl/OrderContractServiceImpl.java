@@ -112,7 +112,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     try {
       result =
           searchOrderContractListPage(dto, TokenUtil.getUserInfo().getOrganizationId())
-              .get(5, TimeUnit.SECONDS);
+              .get(10, TimeUnit.SECONDS);
       if (result != null && result.getRecords().size() > 0) {
         orderContractVO = result.getRecords().get(0);
       }

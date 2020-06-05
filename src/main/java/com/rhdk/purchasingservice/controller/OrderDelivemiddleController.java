@@ -60,7 +60,7 @@ public class OrderDelivemiddleController {
       return ResultVOUtil.returnSuccess(
           iOrderDelivemiddleService
               .searchOrderDelivemiddleListPage(dto, TokenUtil.getUserInfo().getOrganizationId())
-              .get(8, TimeUnit.SECONDS));
+              .get(10, TimeUnit.SECONDS));
     } catch (Exception e) {
       return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
     }

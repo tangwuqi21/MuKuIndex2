@@ -162,7 +162,7 @@ public class OrderDeliverecordsServiceImpl
       result =
           searchOrderDeliverecordsListPage(
                   deliverecordsQuery, TokenUtil.getUserInfo().getOrganizationId())
-              .get(5, TimeUnit.SECONDS);
+              .get(10, TimeUnit.SECONDS);
       if (result != null && result.getRecords().size() > 0) {
         orderDeliverecordsVO = result.getRecords().get(0);
       }
@@ -262,10 +262,6 @@ public class OrderDeliverecordsServiceImpl
       throw new RuntimeException("更新送货单记录失败，请检查相关参数，记录id为：" + dto.getId());
     }
     // 更新送货记录附件内容
-    if (CollectionUtils.isEmpty(dto.getAttachmentList())) {
-      //      return ResultVOUtil.returnFail(
-      //          ResultEnum.FILE_NOTNULL.getCode(), ResultEnum.FILE_NOTNULL.getMessage());
-    }
     for (OrderAttachmentDTO model : dto.getAttachmentList()) {
       OrderAttachment orderAttachment = new OrderAttachment();
       orderAttachment.setParentId(dto.getId());
@@ -304,11 +300,19 @@ public class OrderDeliverecordsServiceImpl
     for (Long mid : middleIds) {
       // 不包含的数据则进行删除,这里需要排除掉本次新增的记录
       if (!middleList.contains(mid) && !insertIds.contains(mid)) {
-        iOrderDelivemiddleService.deleteOrderDetailrecords(mid);
+        try {
+          iOrderDelivemiddleService.deleteOrderDetailrecords(mid);
+        } catch (Exception e) {
+          throw new RuntimeException("修改送货单不存在的送货明细信息删除！送货单明细id为：" + mid);
+        }
         // 通知签收模块进行数据删除操作
-        if (!StringUtils.isEmpty(signStatMap.get(mid.toString()))) {
-          Integer dataId = Integer.valueOf(signStatMap.get(mid.toString()).toString());
-          inventoryServiceFeign.deleteReceiveOne(dataId, TokenUtil.getToken());
+        try {
+          if (signStatMap != null && !StringUtils.isEmpty(signStatMap.get(mid.toString()))) {
+            Integer dataId = Integer.valueOf(signStatMap.get(mid.toString()).toString());
+            inventoryServiceFeign.deleteReceiveOne(dataId, TokenUtil.getToken());
+          }
+        } catch (Exception e) {
+          throw new RuntimeException("修改送货单删除签收暂存状态信息失败！送货单明细id为：" + mid);
         }
       }
     }
@@ -347,13 +351,17 @@ public class OrderDeliverecordsServiceImpl
     for (Long detailId : detailIds) {
       try {
         iOrderDelivemiddleService.deleteOrderDetailrecords(detailId);
+      } catch (Exception e) {
+        throw new RuntimeException("删除送货单明细信息失败！送货单明细id为：" + detailId);
+      }
+      try {
         // 通知签收模块进行数据删除操作
-        if (!StringUtils.isEmpty(signStatMap.get(detailId.toString()))) {
+        if (signStatMap != null && !StringUtils.isEmpty(signStatMap.get(detailId.toString()))) {
           Integer dataId = Integer.valueOf(signStatMap.get(detailId.toString()).toString());
           inventoryServiceFeign.deleteReceiveOne(dataId, TokenUtil.getToken());
         }
       } catch (Exception e) {
-        throw new RuntimeException("删除送货单明细信息失败！送货单明细id为：" + detailId);
+        throw new RuntimeException("删除签收暂存状态信息失败！送货单明细id为：" + detailId);
       }
     }
     return ResultVOUtil.returnSuccess();

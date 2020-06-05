@@ -56,7 +56,7 @@ public class OrderContractController {
       return ResultVOUtil.returnSuccess(
           iOrderContractService
               .searchOrderContractListPage(dto, TokenUtil.getUserInfo().getOrganizationId())
-              .get(5, TimeUnit.SECONDS));
+              .get(10, TimeUnit.SECONDS));
     } catch (Exception e) {
       return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
     }
