@@ -24,12 +24,12 @@
         ID, MIDDLE_ID, ASSET_NAME, ITEM_NO, ASSET_ID,ASSET_CAT_ID,ASSET_CAT_SEARCH_KEY, ASSET_NUMBER,CREATE_BY, CREATE_DATE, UPDATE_BY, UPDATE_DATE, DEL_FLAG
          </sql>
 
-    <delete id="deleteDeliveDetails">
-        delete from T_ORDER_DELIVEDETAIL where ASSET_ID in
+    <update id="deleteDeliveDetails">
+        update T_ORDER_DELIVEDETAIL set DEL_FLAG=1 where ASSET_ID in
         <foreach collection="detailAssetIds" item="id" index="index" open="(" close=")" separator=",">
             #{id,jdbcType=BIGINT}
         </foreach>
-    </delete>
+    </update>
 
     <update id="updateDetails">
         update T_ORDER_DELIVEDETAIL set ASSET_NUMBER=#{dto.assetNumber}
@@ -67,13 +67,6 @@
         </foreach>
     </update>
 
-    <update id="updateAssetStatus" parameterType="com.rhdk.purchasingservice.pojo.query.AssetQuery">
-        update T_ORDER_DELIVEDETAIL set MIDDLE_ID=#{assetQuery.middleId}
-        where DEL_FLAG=0 and ASSET_ID in
-        <foreach collection="assetQuery.assetIds" item="id" index="index" open="(" close=")" separator=",">
-            #{id,jdbcType=BIGINT}
-        </foreach>
-    </update>
 
     <select id="getEntityIdsByMid" parameterType="java.lang.Long" resultType="java.util.Map">
         select * from (select MIDDLE_ID as middleId,listagg(ASSET_ID,',') within group (order by ASSET_ID ) as ids from

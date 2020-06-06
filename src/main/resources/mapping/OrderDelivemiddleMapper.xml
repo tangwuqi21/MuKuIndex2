@@ -142,6 +142,9 @@
         insert all
         <foreach collection="orderDetailList" item="item" index="index">
             into T_ORDER_DELIVEDETAIL (ID, ASSET_ID,
+            <if test="item.middleId !=null and item.middleId !=''">
+                MIDDLE_ID,
+            </if>
             <if test="item.assetName !=null and item.assetName !=''">
                 ASSET_NAME,
             </if>
@@ -159,6 +162,9 @@
             CREATE_DATE)
             values
             (#{item.id},#{item.assetId},
+            <if test="item.middleId !=null and item.middleId !=''">
+                #{item.middleId},
+            </if>
             <if test="item.assetName !=null and item.assetName !=''">
                 #{item.assetName},
             </if>

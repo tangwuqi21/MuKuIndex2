@@ -3,7 +3,6 @@ package com.rhdk.purchasingservice.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.rhdk.purchasingservice.pojo.dto.OrderDelivemiddleDTO;
 import com.rhdk.purchasingservice.pojo.entity.OrderDelivedetail;
-import com.rhdk.purchasingservice.pojo.query.AssetQuery;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -25,8 +24,6 @@ public interface OrderDelivedetailMapper extends BaseMapper<OrderDelivedetail> {
   List<Long> getAssetIdsByDId(@Param("middleIds") List<Long> middleIds);
 
   Integer updateDetailsDel(@Param("assetIds") List<Long> assetIds, @Param("id") Long id);
-
-  Integer updateAssetStatus(@Param("assetQuery") AssetQuery assetQuery);
 
   List<Map<String, Object>> getEntityIdsByMid(@Param("middleIds") List<Long> middleIds);
 }

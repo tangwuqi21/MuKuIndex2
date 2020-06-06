@@ -41,4 +41,10 @@ public class OrderCommonController {
     dto.setToken(TokenUtil.getToken());
     return commonService.getContractInfoList(dto, TokenUtil.getUserInfo().getOrganizationId());
   }
+
+  @ApiOperation(value = "同步Redis数据", notes = "同步oracle数据到Redis中")
+  @RequestMapping(value = "/insertRedisData", method = RequestMethod.POST)
+  public ResponseEnvelope insertRedisData() {
+    return commonService.insertRedisData();
+  }
 }

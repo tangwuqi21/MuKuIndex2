@@ -142,7 +142,7 @@ public class OrderDelivemiddleController {
     }
   }
 
-  @ApiOperation(value = "送货单明细更新2", notes = "送货记录明细中间表API")
+  @ApiOperation(value = "送货单明细更新签收状态及签收单号", notes = "送货记录明细中间表API")
   @RequestMapping(value = "/updateMiddleById", method = RequestMethod.POST)
   public ResponseEnvelope updateMiddleById(@RequestBody OrderDelivemiddleDTO dto) {
     try {

@@ -80,9 +80,6 @@ public interface IOrderDelivemiddleService extends IService<OrderDelivemiddle> {
    */
   ResponseEnvelope uploadFileCheck(MultipartFile file, Long moduleId) throws Exception;
 
-  /** @param dto */
-  Integer updateAssetStatus(OrderDelivemiddleDTO dto);
-
   /**
    * 根据送货记录下明细id来删除送货记录下单一明细的附件信息
    *

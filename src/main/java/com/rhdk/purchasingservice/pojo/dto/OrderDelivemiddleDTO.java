@@ -84,4 +84,10 @@ public class OrderDelivemiddleDTO implements Serializable {
 
   @ApiModelProperty(value = "资产状态标识", hidden = true)
   private Integer assetStatus;
+
+  @ApiModelProperty(value = "资产实体redisKey", hidden = true)
+  private String assetKey;
+
+  @ApiModelProperty(value = "pk值的Rediskey", hidden = true)
+  private String pkValKey;
 }

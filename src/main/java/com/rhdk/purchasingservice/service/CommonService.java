@@ -9,4 +9,6 @@ public interface CommonService {
   ResponseEnvelope getContractInfoList(OrderContractQuery dto, Long orgId);
 
   OrgUserDto getOrgUserById(long orgId, Long userId);
+
+  ResponseEnvelope insertRedisData();
 }

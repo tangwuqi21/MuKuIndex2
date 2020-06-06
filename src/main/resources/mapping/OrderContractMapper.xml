@@ -77,4 +77,8 @@
         </if>
         order by CREATE_DATE desc
     </select>
+
+    <select id="getTemplIds" resultType="java.lang.Long">
+         select id from T_ASSET_TMPL_INFO where del_flag=0 order by id asc
+    </select>
 </mapper>
