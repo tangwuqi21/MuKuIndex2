@@ -30,6 +30,6 @@ public class NumberUtils {
   public static String createCode(String type) {
     Date date = new Date();
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-    return type + sdf.format(date) + String.format("%04d", new Random().nextInt(9999));
+    return type + sdf.format(date) + String.format("%03d", new Random().nextInt(999));
   }
 }
