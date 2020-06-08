@@ -18,6 +18,7 @@ import com.rhdk.purchasingservice.pojo.entity.*;
 import com.rhdk.purchasingservice.pojo.query.AssetQuery;
 import com.rhdk.purchasingservice.pojo.query.EntityUpVo;
 import com.rhdk.purchasingservice.pojo.query.OrderDelivemiddleQuery;
+import com.rhdk.purchasingservice.pojo.query.TmplPrptsFilter;
 import com.rhdk.purchasingservice.pojo.vo.AssetCatVO;
 import com.rhdk.purchasingservice.pojo.vo.AssetEntityInfoVO;
 import com.rhdk.purchasingservice.pojo.vo.AssetTmplInfoVO;
@@ -122,24 +123,37 @@ public class OrderDelivemiddleServiceImpl
                 // 1.查询送货信息
                 OrderDeliverecords orderDeliverecord =
                     orderDeliverecordsMapper.getDeliverecordInfo(a.getDeliveryId());
-                // 2.查询合作伙伴信息
-                PurcasingContract purcasingContract =
-                    purcasingContractMapper.selectById(orderDeliverecord.getOrderId());
                 // 3.查询合同信息
                 OrderContract orderContract = new OrderContract();
+                PurcasingContract purcasingContract =
+                    purcasingContractMapper.selectById(orderDeliverecord.getOrderId());
                 if (purcasingContract != null) {
                   orderContract = orderContractMapper.selectById(purcasingContract.getContractId());
                 }
                 // 4.查询模板名称
-                AssetTmplInfoVO assetTmplInfo =
-                    assetServiceFeign
-                        .selectPrptValByTmplId(a.getModuleId(), dto.getToken())
-                        .getData();
-                // 5.查询供应商名称
-                Customer customer =
-                    assetServiceFeign
-                        .searchCustomerOne(orderDeliverecord.getSupplierId(), dto.getToken())
-                        .getData();
+                AssetTmplInfoVO assetTmplInfo = new AssetTmplInfoVO();
+                if (redisTemplate.hasKey("CUST_" + orderDeliverecord.getSupplierId())) {
+
+                } else {
+
+                }
+                assetServiceFeign.selectPrptValByTmplId(a.getModuleId(), dto.getToken()).getData();
+                // 5.查询供应商名称,这里的客户信息从Redis中获取，若Redis中不存在则从库中取，同时更新到Redis中
+                Customer customer = new Customer();
+                if (redisTemplate.hasKey("CUST_" + orderDeliverecord.getSupplierId())) {
+                  customer =
+                      JSON.parseObject(
+                          redisUtils.get("CUST_" + orderDeliverecord.getSupplierId()),
+                          Customer.class);
+                } else {
+                  customer =
+                      assetServiceFeign
+                          .searchCustomerOne(orderDeliverecord.getSupplierId(), dto.getToken())
+                          .getData();
+                  redisUtils.set(
+                      "CUST_" + orderDeliverecord.getSupplierId(),
+                      JSON.toJSON(customer).toString());
+                }
                 AssetQuery assetQuery = new AssetQuery();
                 assetQuery.setAssetTempId(a.getModuleId());
                 assetQuery.setPrptIds(a.getPrptIds());
@@ -339,6 +353,14 @@ public class OrderDelivemiddleServiceImpl
       // 3.逻辑删除资产属性值信息
       if (rownum > 0) {
         assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
+        // 这里同步对Redis的PK值进行删除
+        TmplPrptsFilter tmplPrptsFilter = new TmplPrptsFilter();
+        tmplPrptsFilter.setTmplId(orderDelivemiddle.getModuleId());
+        Set<String> valSet =
+            assetServiceFeign.searchPKValByTmpId(tmplPrptsFilter, TokenUtil.getToken()).getData();
+        for (String str : valSet) {
+          redisUtils.delete(str);
+        }
       }
     }
     // 逻辑删除送货中间表
@@ -490,12 +512,12 @@ public class OrderDelivemiddleServiceImpl
     return ResultVOUtil.returnSuccess();
   }
 
-
   /**
    * 根据明细id，逻辑删除明细下的资产明细和资产实体、资产实体属性值（只更新状态为0的资产）
+   *
    * @param middleId
    */
-  public void updateDetailAndAsset(Long middleId){
+  public void updateDetailAndAsset(Long middleId) {
     // 通过明细中间表找到明细表，通过明细表，去到资产实体表中进行之前的数据删除，然后删除明细中间表的数据
     List<Long> midList = new ArrayList<>();
     midList.add(middleId);
@@ -505,21 +527,18 @@ public class OrderDelivemiddleServiceImpl
       orderDelivedetailMapper.updateDetailsDel(detailAssetIds, middleId);
     } catch (Exception e) {
       throw new RuntimeException(
-              "物管资产明细记录附件变更，同步删除明细资产信息失败！要删除的资产id为：" + detailAssetIds.toString());
+          "物管资产明细记录附件变更，同步删除明细资产信息失败！要删除的资产id为：" + detailAssetIds.toString());
     }
     // 同步更新状态为0的资产实体信息和资产实体属性值信息
     // 2.逻辑删除资产信息实体类
     Long[] strArray = new Long[detailAssetIds.size()];
     detailAssetIds.toArray(strArray);
-    Integer rownum =
-            assetServiceFeign.deleteEntitys(strArray, 0, TokenUtil.getToken()).getData();
+    Integer rownum = assetServiceFeign.deleteEntitys(strArray, 0, TokenUtil.getToken()).getData();
     // 3.逻辑删除资产属性值信息
     if (rownum > 0) {
       assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
     }
   }
-
-
 
   /** 执行量管资产的新增或修改操作 只用于量管记录的变更 */
   public ResponseEnvelope addOrUpdateNumberAsset(OrderDelivemiddleDTO dto) {
@@ -953,17 +972,18 @@ public class OrderDelivemiddleServiceImpl
     for (String mn : arr) {
       assetIds.add(Long.valueOf(mn));
     }
-//    if (assetIds.size() > 0) {
-//      Long[] strArray = new Long[assetIds.size()];
-//      assetIds.toArray(strArray);
-//      orderDelivedetailMapper.deleteDeliveDetails(assetIds);
-//      // 2.删除资产信息实体类
-//      Integer num = assetServiceFeign.deleteEntitys(strArray, -2, TokenUtil.getToken()).getData();
-//      // 3.删除资产属性值信息
-//      if (num > 0) {
-//        assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
-//      }
-//    }
+    //    if (assetIds.size() > 0) {
+    //      Long[] strArray = new Long[assetIds.size()];
+    //      assetIds.toArray(strArray);
+    //      orderDelivedetailMapper.deleteDeliveDetails(assetIds);
+    //      // 2.删除资产信息实体类
+    //      Integer num = assetServiceFeign.deleteEntitys(strArray, -2,
+    // TokenUtil.getToken()).getData();
+    //      // 3.删除资产属性值信息
+    //      if (num > 0) {
+    //        assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
+    //      }
+    //    }
     return ResultVOUtil.returnSuccess();
   }
 
