@@ -71,7 +71,7 @@ public class OrderDeliverecordsVO implements Serializable {
   private Long createBy;
 
   @ApiModelProperty(value = "创建日期")
-  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+  @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
   private Date createDate;
 
   @ApiModelProperty(value = "所属公司id")

@@ -61,7 +61,7 @@ public class OrderDelivemiddleVO implements Serializable {
   private Integer delFlag;
 
   @ApiModelProperty(value = "创建时间")
-  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+  @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
   private Date createDate;
 
   @ApiModelProperty(value = "创建人")
