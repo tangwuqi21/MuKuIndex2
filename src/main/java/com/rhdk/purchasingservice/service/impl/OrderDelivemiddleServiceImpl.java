@@ -141,6 +141,7 @@ public class OrderDelivemiddleServiceImpl
                       assetServiceFeign
                           .selectPrptValByTmplId(a.getModuleId(), dto.getToken())
                           .getData();
+                  redisUtils.set("TEMP_" + a.getModuleId(), JSON.toJSON(assetTmplInfo).toString());
                 }
                 // 5.查询供应商名称,这里的客户信息从Redis中获取，若Redis中不存在则从库中取，同时更新到Redis中
                 Customer customer = new Customer();
