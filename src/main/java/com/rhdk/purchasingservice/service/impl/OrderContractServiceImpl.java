@@ -187,16 +187,22 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
           ResultEnum.FILE_NOTNULL.getCode(), ResultEnum.FILE_NOTNULL.getMessage());
     }
     logger.info("updateAttachment-修改合同附件信息开始");
+    // 1.先将之前的附件列表统一删除，
+    OrderAttachmentDTO orderAttachmentDTO = new OrderAttachmentDTO();
+    orderAttachmentDTO.setParentId(model.getId());
+    orderAttachmentDTO.setAtttype(1);
+    try {
+      assetServiceFeign.deleteAttachmentByParentId(orderAttachmentDTO, TokenUtil.getToken());
+    } catch (Exception e) {
+      throw new RuntimeException("删除采购合同附件失败，合同id为：" + model.getId());
+    }
+    // 2.重新上传附件
     for (OrderAttachmentDTO model2 : dto.getAttachmentList()) {
       OrderAttachment orderAttachment = new OrderAttachment();
       model2.setParentId(model.getId());
       model2.setAtttype(1);
       BeanCopyUtil.copyPropertiesIgnoreNull(model2, orderAttachment);
-      if (model2.getId() != null) {
-        orderAttachmentMapper.updateById(orderAttachment);
-      } else {
-        orderAttachmentMapper.insert(orderAttachment);
-      }
+      orderAttachmentMapper.insert(orderAttachment);
     }
     logger.info("updateAttachment-修改合同附件信息结束");
     return ResultVOUtil.returnSuccess();

@@ -261,19 +261,23 @@ public class OrderDeliverecordsServiceImpl
     if (num <= 0) {
       throw new RuntimeException("更新送货单记录失败，请检查相关参数，记录id为：" + dto.getId());
     }
-    // 更新送货记录附件内容
+    // 1.先将之前的附件列表统一删除，
+    OrderAttachmentDTO orderAttachmentDTO = new OrderAttachmentDTO();
+    orderAttachmentDTO.setParentId(dto.getId());
+    orderAttachmentDTO.setAtttype(2);
+    try {
+      assetServiceFeign.deleteAttachmentByParentId(orderAttachmentDTO, TokenUtil.getToken());
+    } catch (Exception e) {
+      throw new RuntimeException("删除送货单附件失败，合同id为：" + dto.getId());
+    }
+    // 2.新增送货记录附件内容
     for (OrderAttachmentDTO model : dto.getAttachmentList()) {
       OrderAttachment orderAttachment = new OrderAttachment();
       orderAttachment.setParentId(dto.getId());
       orderAttachment.setAtttype(2);
       orderAttachment.setFileurl(model.getFileurl());
       orderAttachment.setOrgfilename(model.getOrgfilename());
-      if (StringUtils.isEmpty(model.getId())) {
-        orderAttachmentMapper.insert(orderAttachment);
-      } else {
-        orderAttachment.setId(model.getId());
-        orderAttachmentMapper.updateById(orderAttachment);
-      }
+      orderAttachmentMapper.insert(orderAttachment);
     }
     // 更新中间表相关字段
     // 本次修改的id集合
