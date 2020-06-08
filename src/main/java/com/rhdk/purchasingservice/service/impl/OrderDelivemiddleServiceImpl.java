@@ -359,12 +359,14 @@ public class OrderDelivemiddleServiceImpl
       if (rownum > 0) {
         assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
         // 这里同步对Redis的PK值进行删除
-        TmplPrptsFilter tmplPrptsFilter = new TmplPrptsFilter();
-        tmplPrptsFilter.setTmplId(orderDelivemiddle.getModuleId());
-        Set<String> valSet =
-            assetServiceFeign.searchPKValByTmpId(tmplPrptsFilter, TokenUtil.getToken()).getData();
-        for (String str : valSet) {
-          redisUtils.delete(str);
+        if ("2".equals(assetTmplInfoVO.getWmType())) {
+          TmplPrptsFilter tmplPrptsFilter = new TmplPrptsFilter();
+          tmplPrptsFilter.setTmplId(orderDelivemiddle.getModuleId());
+          Set<String> valSet =
+              assetServiceFeign.searchPKValByTmpId(tmplPrptsFilter, TokenUtil.getToken()).getData();
+          for (String str : valSet) {
+            redisUtils.delete(str);
+          }
         }
       }
     }
