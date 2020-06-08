@@ -132,12 +132,16 @@ public class OrderDelivemiddleServiceImpl
                 }
                 // 4.查询模板名称
                 AssetTmplInfoVO assetTmplInfo = new AssetTmplInfoVO();
-                if (redisTemplate.hasKey("CUST_" + orderDeliverecord.getSupplierId())) {
-
+                if (redisTemplate.hasKey("TEMP_" + a.getModuleId())) {
+                  assetTmplInfo =
+                      JSON.parseObject(
+                          redisUtils.get("TEMP_" + a.getModuleId()), AssetTmplInfoVO.class);
                 } else {
-
+                  assetTmplInfo =
+                      assetServiceFeign
+                          .selectPrptValByTmplId(a.getModuleId(), dto.getToken())
+                          .getData();
                 }
-                assetServiceFeign.selectPrptValByTmplId(a.getModuleId(), dto.getToken()).getData();
                 // 5.查询供应商名称,这里的客户信息从Redis中获取，若Redis中不存在则从库中取，同时更新到Redis中
                 Customer customer = new Customer();
                 if (redisTemplate.hasKey("CUST_" + orderDeliverecord.getSupplierId())) {
