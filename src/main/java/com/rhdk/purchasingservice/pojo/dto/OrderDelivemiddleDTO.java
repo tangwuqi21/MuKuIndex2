@@ -90,4 +90,10 @@ public class OrderDelivemiddleDTO implements Serializable {
 
   @ApiModelProperty(value = "pk值的Rediskey", hidden = true)
   private String pkValKey;
+
+  @ApiModelProperty(value = "单位id", hidden = true)
+  private Long unitId;
+
+  @ApiModelProperty(value = "单价id", hidden = true)
+  private Long priceId;
 }

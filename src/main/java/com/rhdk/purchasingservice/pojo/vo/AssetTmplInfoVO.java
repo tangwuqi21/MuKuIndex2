@@ -48,7 +48,7 @@ public class AssetTmplInfoVO implements Serializable {
   private Long priceId;
 
   @ApiModelProperty(value = "单价")
-  private String price;
+  private Long price;
 
   @ApiModelProperty(value = "库管方式（1:量管 2:物管）")
   private Integer wmType;

@@ -183,6 +183,14 @@ public class OrderDelivemiddleServiceImpl
                 }
                 if (assetTmplInfo != null) {
                   a.setPrptValues(assetTmplInfo.getUnit() + "," + assetTmplInfo.getPrice());
+                  if (assetTmplInfo.getUnit() != null) {
+                    a.setUnitVal(assetTmplInfo.getUnit());
+                    a.setUnitId(assetTmplInfo.getUnitId());
+                  }
+                  if (assetTmplInfo.getPrice() != null) {
+                    a.setPriceVal(assetTmplInfo.getPrice());
+                    a.setPriceId(assetTmplInfo.getPriceId());
+                  }
                   a.setModuleName(assetTmplInfo.getName());
                   a.setWmType(assetTmplInfo.getWmType());
                 }
@@ -270,6 +278,9 @@ public class OrderDelivemiddleServiceImpl
     // 这里自动生成送货明细业务编码，规则为：SHD+时间戳
     String code = NumberUtils.createCode("MX");
     entity.setDeliverydetailCode(code);
+    if (dto.getUnitId() != null && dto.getPriceId() != null) {
+      entity.setPrptIds(dto.getUnitId() + "," + dto.getPriceId());
+    }
     orderDelivemiddleMapper.insert(entity);
     if (StringUtils.isEmpty(entity.getId())) {
       throw new RuntimeException("送货明细记录插入失败！插入实体信息为：" + dto.toString());
@@ -387,6 +398,9 @@ public class OrderDelivemiddleServiceImpl
     Long numT2 = entity.getAssetNumber();
     BeanCopyUtil.copyPropertiesIgnoreNull(model, entity);
     // 更新送货记录内容
+    if (model.getUnitId() != null && model.getPriceId() != null) {
+      entity.setPrptIds(model.getUnitId() + "," + model.getPriceId());
+    }
     int num = orderDelivemiddleMapper.updateById(entity);
     if (num <= 0) {
       throw new RuntimeException("更新送货明细记录失败！明细信息id为：" + entity.getId());

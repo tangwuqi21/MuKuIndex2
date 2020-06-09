@@ -127,7 +127,13 @@ public class OrderDelivemiddleVO implements Serializable {
   private String unitVal;
 
   @ApiModelProperty(value = "单价值", hidden = true)
-  private String priceVal;
+  private Long priceVal;
+
+  @ApiModelProperty(value = "单位id", hidden = true)
+  private Long unitId;
+
+  @ApiModelProperty(value = "单价id", hidden = true)
+  private Long priceId;
 
   @ApiModelProperty(value = "是否存在暂存的签收记录，没有返回空字符串", hidden = true)
   private String signRecord;
