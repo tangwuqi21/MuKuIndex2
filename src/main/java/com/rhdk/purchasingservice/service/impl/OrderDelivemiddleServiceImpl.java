@@ -556,6 +556,11 @@ public class OrderDelivemiddleServiceImpl
     }
     // 同步更新状态为0的资产实体信息和资产实体属性值信息,物管数据进行资产实体的信息删除，量管不需要做操作
     if ("2".equals(wmType)) {
+      // 逻辑删除送货明细附件表
+      OrderAttachmentDTO dto = new OrderAttachmentDTO();
+      dto.setAtttype(3);
+      dto.setParentId(middleId);
+      assetServiceFeign.deleteAttachmentByParentId(dto, TokenUtil.getToken());
       // 2.逻辑删除资产信息实体类
       Long[] strArray = new Long[detailAssetIds.size()];
       detailAssetIds.toArray(strArray);
