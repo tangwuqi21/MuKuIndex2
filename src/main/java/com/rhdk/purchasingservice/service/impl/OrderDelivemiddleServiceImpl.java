@@ -379,7 +379,6 @@ public class OrderDelivemiddleServiceImpl
       if (rownum > 0) {
         assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
         // 这里同步对Redis的PK值进行删除
-        if ("2".equals(assetTmplInfoVO.getWmType())) {
           TmplPrptsFilter tmplPrptsFilter = new TmplPrptsFilter();
           tmplPrptsFilter.setTmplId(orderDelivemiddle.getModuleId());
           Set<String> valSet =
@@ -387,7 +386,7 @@ public class OrderDelivemiddleServiceImpl
           for (String str : valSet) {
             redisUtils.delete(str);
           }
-        }
+
       }
     }
     // 逻辑删除送货中间表
@@ -448,7 +447,7 @@ public class OrderDelivemiddleServiceImpl
           if (!fileUrl.equals(attachmentInfo.get("fileurl"))) {
             // 明细附件发生了改变，需要重新解析数据表格进行数据的上传
             // 通过明细中间表找到明细表，通过明细表，去到资产实体表中进行之前的数据删除，然后删除明细中间表的数据
-            updateDetailAndAsset(model.getId());
+            updateDetailAndAsset(model.getId(), model.getWmType(),model.getModuleId());
             // 校验资产PK值，同步Redis数据入库
             try {
               insertAllEntityInfo(
@@ -502,7 +501,7 @@ public class OrderDelivemiddleServiceImpl
       }
     } else {
       // 切换模板判断是否有明细id存在，如果有则进行之前的明细id删除，否则不进行操作
-      updateDetailAndAsset(model.getId());
+      updateDetailAndAsset(model.getId(), model.getWmType(),model.getModuleId());
       // 判断切换后的模板类型是物管还是量管，物管更新Redis数据入库，量管新增一条数据
       if ("2".equals(model.getWmType())) {
         // 校验PK值，同步Redis数据入库
@@ -547,7 +546,7 @@ public class OrderDelivemiddleServiceImpl
    *
    * @param middleId
    */
-  public void updateDetailAndAsset(Long middleId) {
+  public void updateDetailAndAsset(Long middleId, String wmType,Long moduleId) {
     // 通过明细中间表找到明细表，通过明细表，去到资产实体表中进行之前的数据删除，然后删除明细中间表的数据
     List<Long> midList = new ArrayList<>();
     midList.add(middleId);
@@ -559,14 +558,25 @@ public class OrderDelivemiddleServiceImpl
       throw new RuntimeException(
           "物管资产明细记录附件变更，同步删除明细资产信息失败！要删除的资产id为：" + detailAssetIds.toString());
     }
-    // 同步更新状态为0的资产实体信息和资产实体属性值信息
-    // 2.逻辑删除资产信息实体类
-    Long[] strArray = new Long[detailAssetIds.size()];
-    detailAssetIds.toArray(strArray);
-    Integer rownum = assetServiceFeign.deleteEntitys(strArray, 0, TokenUtil.getToken()).getData();
-    // 3.逻辑删除资产属性值信息
-    if (rownum > 0) {
-      assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
+    // 同步更新状态为0的资产实体信息和资产实体属性值信息,物管数据进行资产实体的信息删除，量管不需要做操作
+    if ("2".equals(wmType)) {
+      // 2.逻辑删除资产信息实体类
+      Long[] strArray = new Long[detailAssetIds.size()];
+      detailAssetIds.toArray(strArray);
+      Integer rownum = assetServiceFeign.deleteEntitys(strArray, 0, TokenUtil.getToken()).getData();
+      // 3.逻辑删除资产属性值信息
+      if (rownum > 0) {
+        assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
+          // 这里同步对Redis的PK值进行删除
+              TmplPrptsFilter tmplPrptsFilter = new TmplPrptsFilter();
+              tmplPrptsFilter.setTmplId(moduleId);
+              Set<String> valSet =
+                      assetServiceFeign.searchPKValByTmpId(tmplPrptsFilter, TokenUtil.getToken()).getData();
+              for (String str : valSet) {
+                  redisUtils.delete(str);
+              }
+
+      }
     }
   }
 
