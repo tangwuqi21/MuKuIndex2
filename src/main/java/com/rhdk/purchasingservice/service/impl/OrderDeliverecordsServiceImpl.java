@@ -13,7 +13,6 @@ import com.rhdk.purchasingservice.common.utils.TokenUtil;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.feign.AssetServiceFeign;
 import com.rhdk.purchasingservice.feign.InventoryServiceFeign;
-import com.rhdk.purchasingservice.mapper.OrderAttachmentMapper;
 import com.rhdk.purchasingservice.mapper.OrderContractMapper;
 import com.rhdk.purchasingservice.mapper.OrderDelivemiddleMapper;
 import com.rhdk.purchasingservice.mapper.OrderDeliverecordsMapper;
@@ -37,7 +36,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -63,8 +61,6 @@ public class OrderDeliverecordsServiceImpl
   @Autowired private OrderDeliverecordsMapper orderDeliverecordsMapper;
 
   @Autowired private IOrderDelivemiddleService iOrderDelivemiddleService;
-
-  @Autowired private OrderAttachmentMapper orderAttachmentMapper;
 
   @Autowired private OrderContractMapper orderContractMapper;
 
@@ -222,10 +218,10 @@ public class OrderDeliverecordsServiceImpl
     }
     logger.info("addOrderDeliverecords--新增送货单信息结束");
     // 循环保存送货记录明细基本信息，这里需要判断该资产是物管还是量管，物管需要有对应的明细Excel，量管可以没有对应的附件
-    if (CollectionUtils.isEmpty(dto.getOrderDelivemiddleDTOList())) {
-      logger.error("送货明细记录为空，关联送货单id为：" + entity.getId());
-      throw new RuntimeException(ResultEnum.DETAIL_NOTNULL.getMessage());
-    }
+    //    if (CollectionUtils.isEmpty(dto.getOrderDelivemiddleDTOList())) {
+    //      logger.error("送货明细记录为空，关联送货单id为：" + entity.getId());
+    //      throw new RuntimeException(ResultEnum.DETAIL_NOTNULL.getMessage());
+    //    }
     logger.info("addOrderDeliverecords--新增送货单明细信息开始");
     for (OrderDelivemiddleDTO delivemiddleDTO : dto.getOrderDelivemiddleDTOList()) {
       delivemiddleDTO.setDeliveryId(entity.getId());
