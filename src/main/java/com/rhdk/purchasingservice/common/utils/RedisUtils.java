@@ -20,7 +20,7 @@ public class RedisUtils {
 
   @Autowired private RedisTemplate<String, String> redisTemplate;
 
-  @Autowired private RedisTemplate<Object, Object> template;
+  @Autowired private RedisTemplate<String, Object> template;
 
   /**
    * 读取缓存

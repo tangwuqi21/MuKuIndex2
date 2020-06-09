@@ -78,7 +78,7 @@ public class OrderDelivemiddleServiceImpl
 
   @Autowired private InventoryServiceFeign inventoryServiceFeign;
 
-  @Autowired private RedisTemplate<String, String> redisTemplate;
+  @Autowired private RedisTemplate<String, Object> redisTemplate;
 
   @Resource private RedisUtils redisUtils;
 
@@ -134,14 +134,12 @@ public class OrderDelivemiddleServiceImpl
                 AssetTmplInfoVO assetTmplInfo = new AssetTmplInfoVO();
                 if (redisTemplate.hasKey("TEMP_" + a.getModuleId())) {
                   assetTmplInfo =
-                      JSON.parseObject(
-                          redisUtils.get("TEMP_" + a.getModuleId()), AssetTmplInfoVO.class);
+                      (AssetTmplInfoVO) redisTemplate.opsForValue().get("TEMP_" + a.getModuleId());
                 } else {
                   assetTmplInfo =
                       assetServiceFeign
                           .selectPrptValByTmplId(a.getModuleId(), dto.getToken())
                           .getData();
-                  redisUtils.set("TEMP_" + a.getModuleId(), JSON.toJSON(assetTmplInfo).toString());
                 }
                 // 5.查询供应商名称,这里的客户信息从Redis中获取，若Redis中不存在则从库中取，同时更新到Redis中
                 Customer customer = new Customer();

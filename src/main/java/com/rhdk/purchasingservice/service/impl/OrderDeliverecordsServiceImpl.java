@@ -20,7 +20,6 @@ import com.rhdk.purchasingservice.mapper.OrderDeliverecordsMapper;
 import com.rhdk.purchasingservice.pojo.dto.OrderAttachmentDTO;
 import com.rhdk.purchasingservice.pojo.dto.OrderDelivemiddleDTO;
 import com.rhdk.purchasingservice.pojo.dto.OrderDeliverecordsDTO;
-import com.rhdk.purchasingservice.pojo.entity.OrderAttachment;
 import com.rhdk.purchasingservice.pojo.entity.OrderDelivemiddle;
 import com.rhdk.purchasingservice.pojo.entity.OrderDeliverecords;
 import com.rhdk.purchasingservice.pojo.query.OrderDelivemiddleQuery;
@@ -181,9 +180,9 @@ public class OrderDeliverecordsServiceImpl
           iOrderDelivemiddleService
               .searchOrderDelivemiddleListPage(
                   orderDelivemiddleQuery, TokenUtil.getUserInfo().getOrganizationId())
-              .get(9, TimeUnit.SECONDS);
+              .get(10, TimeUnit.SECONDS);
     } catch (Exception e) {
-      throw new RuntimeException("获取送货单明细列表数据失败！送货单id为：" + id);
+      throw new RuntimeException("获取送货单明细列表数据失败！送货单id为：" + id + "，失败信息为：" + e.getMessage());
     }
     orderDeliverecordsVO.setDelivemiddleVOList(page.getRecords());
     return ResultVOUtil.returnSuccess(orderDeliverecordsVO);
@@ -271,13 +270,12 @@ public class OrderDeliverecordsServiceImpl
       throw new RuntimeException("删除送货单附件失败，合同id为：" + dto.getId());
     }
     // 2.新增送货记录附件内容
-    for (OrderAttachmentDTO model : dto.getAttachmentList()) {
-      OrderAttachment orderAttachment = new OrderAttachment();
-      orderAttachment.setParentId(dto.getId());
-      orderAttachment.setAtttype(2);
-      orderAttachment.setFileurl(model.getFileurl());
-      orderAttachment.setOrgfilename(model.getOrgfilename());
-      orderAttachmentMapper.insert(orderAttachment);
+    if (dto.getAttachmentList().size() > 0) {
+      for (OrderAttachmentDTO model : dto.getAttachmentList()) {
+        model.setParentId(dto.getId());
+        model.setAtttype(2);
+      }
+      assetServiceFeign.addBeatchAtta(dto.getAttachmentList(), TokenUtil.getToken()).getCode();
     }
     // 更新中间表相关字段
     // 本次修改的id集合

@@ -17,7 +17,6 @@ import com.rhdk.purchasingservice.mapper.OrderContractMapper;
 import com.rhdk.purchasingservice.mapper.PurcasingContractMapper;
 import com.rhdk.purchasingservice.pojo.dto.OrderAttachmentDTO;
 import com.rhdk.purchasingservice.pojo.dto.OrderContractDTO;
-import com.rhdk.purchasingservice.pojo.entity.OrderAttachment;
 import com.rhdk.purchasingservice.pojo.entity.OrderContract;
 import com.rhdk.purchasingservice.pojo.entity.PurcasingContract;
 import com.rhdk.purchasingservice.pojo.query.OrderContractQuery;
@@ -197,12 +196,12 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
       throw new RuntimeException("删除采购合同附件失败，合同id为：" + model.getId());
     }
     // 2.重新上传附件
-    for (OrderAttachmentDTO model2 : dto.getAttachmentList()) {
-      OrderAttachment orderAttachment = new OrderAttachment();
-      model2.setParentId(model.getId());
-      model2.setAtttype(1);
-      BeanCopyUtil.copyPropertiesIgnoreNull(model2, orderAttachment);
-      orderAttachmentMapper.insert(orderAttachment);
+    if (dto.getAttachmentList().size() > 0) {
+      for (OrderAttachmentDTO model2 : dto.getAttachmentList()) {
+        model2.setParentId(model.getId());
+        model2.setAtttype(1);
+      }
+      assetServiceFeign.addBeatchAtta(dto.getAttachmentList(), TokenUtil.getToken()).getCode();
     }
     logger.info("updateAttachment-修改合同附件信息结束");
     return ResultVOUtil.returnSuccess();
