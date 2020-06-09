@@ -379,14 +379,13 @@ public class OrderDelivemiddleServiceImpl
       if (rownum > 0) {
         assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
         // 这里同步对Redis的PK值进行删除
-          TmplPrptsFilter tmplPrptsFilter = new TmplPrptsFilter();
-          tmplPrptsFilter.setTmplId(orderDelivemiddle.getModuleId());
-          Set<String> valSet =
-              assetServiceFeign.searchPKValByTmpId(tmplPrptsFilter, TokenUtil.getToken()).getData();
-          for (String str : valSet) {
-            redisUtils.delete(str);
-          }
-
+        TmplPrptsFilter tmplPrptsFilter = new TmplPrptsFilter();
+        tmplPrptsFilter.setTmplId(orderDelivemiddle.getModuleId());
+        Set<String> valSet =
+            assetServiceFeign.searchPKValByTmpId(tmplPrptsFilter, TokenUtil.getToken()).getData();
+        for (String str : valSet) {
+          redisUtils.delete(str);
+        }
       }
     }
     // 逻辑删除送货中间表
@@ -447,7 +446,7 @@ public class OrderDelivemiddleServiceImpl
           if (!fileUrl.equals(attachmentInfo.get("fileurl"))) {
             // 明细附件发生了改变，需要重新解析数据表格进行数据的上传
             // 通过明细中间表找到明细表，通过明细表，去到资产实体表中进行之前的数据删除，然后删除明细中间表的数据
-            updateDetailAndAsset(model.getId(), model.getWmType(),model.getModuleId());
+            updateDetailAndAsset(model.getId(), model.getWmType(), model.getModuleId());
             // 校验资产PK值，同步Redis数据入库
             try {
               insertAllEntityInfo(
@@ -501,7 +500,7 @@ public class OrderDelivemiddleServiceImpl
       }
     } else {
       // 切换模板判断是否有明细id存在，如果有则进行之前的明细id删除，否则不进行操作
-      updateDetailAndAsset(model.getId(), model.getWmType(),model.getModuleId());
+      updateDetailAndAsset(model.getId(), model.getWmType(), model.getModuleId());
       // 判断切换后的模板类型是物管还是量管，物管更新Redis数据入库，量管新增一条数据
       if ("2".equals(model.getWmType())) {
         // 校验PK值，同步Redis数据入库
@@ -510,15 +509,6 @@ public class OrderDelivemiddleServiceImpl
               model.getPkValKey(), model.getAssetKey(), model.getModuleId(), model.getId());
         } catch (Exception e) {
           throw new RuntimeException("切换模板物管资产redis同步资产信息失败！" + e.getMessage());
-        }
-        // 更新附件表
-        for (OrderAttachmentDTO mo : model.getAttachmentList()) {
-          OrderAttachmentDTO orderAttachment = new OrderAttachmentDTO();
-          orderAttachment.setParentId(model.getId());
-          orderAttachment.setAtttype(3);
-          orderAttachment.setFileurl(mo.getFileurl());
-          orderAttachment.setOrgfilename(mo.getOrgfilename());
-          orderAttachmentMapper.updateByParentIdAndType(orderAttachment);
         }
       } else {
         // 执行量管的数据记录
@@ -535,7 +525,13 @@ public class OrderDelivemiddleServiceImpl
         orderAttachment.setAtttype(3);
         orderAttachment.setFileurl(mo.getFileurl());
         orderAttachment.setOrgfilename(mo.getOrgfilename());
-        orderAttachmentMapper.updateByParentIdAndType(orderAttachment);
+        if (StringUtils.isEmpty(mo.getId())) {
+          OrderAttachment entityA = new OrderAttachment();
+          BeanCopyUtil.copyPropertiesIgnoreNull(orderAttachment, entityA);
+          orderAttachmentMapper.insert(entityA);
+        } else {
+          orderAttachmentMapper.updateByParentIdAndType(orderAttachment);
+        }
       }
     }
     return ResultVOUtil.returnSuccess();
@@ -546,7 +542,7 @@ public class OrderDelivemiddleServiceImpl
    *
    * @param middleId
    */
-  public void updateDetailAndAsset(Long middleId, String wmType,Long moduleId) {
+  public void updateDetailAndAsset(Long middleId, String wmType, Long moduleId) {
     // 通过明细中间表找到明细表，通过明细表，去到资产实体表中进行之前的数据删除，然后删除明细中间表的数据
     List<Long> midList = new ArrayList<>();
     midList.add(middleId);
@@ -567,15 +563,14 @@ public class OrderDelivemiddleServiceImpl
       // 3.逻辑删除资产属性值信息
       if (rownum > 0) {
         assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
-          // 这里同步对Redis的PK值进行删除
-              TmplPrptsFilter tmplPrptsFilter = new TmplPrptsFilter();
-              tmplPrptsFilter.setTmplId(moduleId);
-              Set<String> valSet =
-                      assetServiceFeign.searchPKValByTmpId(tmplPrptsFilter, TokenUtil.getToken()).getData();
-              for (String str : valSet) {
-                  redisUtils.delete(str);
-              }
-
+        // 这里同步对Redis的PK值进行删除
+        TmplPrptsFilter tmplPrptsFilter = new TmplPrptsFilter();
+        tmplPrptsFilter.setTmplId(moduleId);
+        Set<String> valSet =
+            assetServiceFeign.searchPKValByTmpId(tmplPrptsFilter, TokenUtil.getToken()).getData();
+        for (String str : valSet) {
+          redisUtils.delete(str);
+        }
       }
     }
   }
