@@ -78,7 +78,7 @@ public class OrderDelivemiddleServiceImpl
 
   @Autowired private InventoryServiceFeign inventoryServiceFeign;
 
-  @Autowired private RedisTemplate<String, Object> redisTemplate;
+  @Autowired private RedisTemplate redisTemplate;
 
   @Resource private RedisUtils redisUtils;
 
@@ -132,31 +132,33 @@ public class OrderDelivemiddleServiceImpl
                 }
                 // 4.查询模板名称
                 AssetTmplInfoVO assetTmplInfo = new AssetTmplInfoVO();
-                if (redisTemplate.hasKey("TEMP_" + a.getModuleId())) {
-                  assetTmplInfo =
-                      (AssetTmplInfoVO) redisTemplate.opsForValue().get("TEMP_" + a.getModuleId());
-                } else {
-                  assetTmplInfo =
-                      assetServiceFeign
-                          .selectPrptValByTmplId(a.getModuleId(), dto.getToken())
-                          .getData();
-                }
+                //                if (redisTemplate.hasKey("TEMP_" + a.getModuleId())) {
+                //                  Object aaa = redisTemplate.opsForValue().get("TEMP_" +
+                // a.getModuleId());
+                //                  assetTmplInfo =
+                //                      (AssetTmplInfoVO) redisTemplate.opsForValue().get("TEMP_" +
+                // a.getModuleId());
+                //                } else {
+                assetTmplInfo =
+                    assetServiceFeign
+                        .selectPrptValByTmplId(a.getModuleId(), dto.getToken())
+                        .getData();
+                // }
                 // 5.查询供应商名称,这里的客户信息从Redis中获取，若Redis中不存在则从库中取，同时更新到Redis中
                 Customer customer = new Customer();
-                if (redisTemplate.hasKey("CUST_" + orderDeliverecord.getSupplierId())) {
-                  customer =
-                      JSON.parseObject(
-                          redisUtils.get("CUST_" + orderDeliverecord.getSupplierId()),
-                          Customer.class);
-                } else {
-                  customer =
-                      assetServiceFeign
-                          .searchCustomerOne(orderDeliverecord.getSupplierId(), dto.getToken())
-                          .getData();
-                  redisUtils.set(
-                      "CUST_" + orderDeliverecord.getSupplierId(),
-                      JSON.toJSON(customer).toString());
-                }
+                //                if (redisTemplate.hasKey("CUST_" +
+                // orderDeliverecord.getSupplierId())) {
+                //                  customer = (Customer) redisUtils.get("CUST_" +
+                // orderDeliverecord.getSupplierId());
+                //                  ;
+                //                } else {
+                customer =
+                    assetServiceFeign
+                        .searchCustomerOne(orderDeliverecord.getSupplierId(), dto.getToken())
+                        .getData();
+                redisUtils.set(
+                    "CUST_" + orderDeliverecord.getSupplierId(), JSON.toJSON(customer).toString());
+                // }
                 AssetQuery assetQuery = new AssetQuery();
                 assetQuery.setAssetTempId(a.getModuleId());
                 assetQuery.setPrptIds(a.getPrptIds());
@@ -923,7 +925,7 @@ public class OrderDelivemiddleServiceImpl
    */
   public void insertAllEntityInfo(String pkvalKey, String assetKey, Long moudleId, Long middleId) {
     // 1.校验Excel中的资产实体是否与库中已经存在的资产实体重复
-    String pkvalJsonArray = redisUtils.get(pkvalKey);
+    String pkvalJsonArray = (String) redisUtils.get(pkvalKey);
     List<String> pkStrList = new ArrayList<>();
     if (!StringUtils.isEmpty(pkvalJsonArray)) {
       pkStrList = JSONObject.parseArray(pkvalJsonArray, String.class);
@@ -938,7 +940,7 @@ public class OrderDelivemiddleServiceImpl
       }
     }
     // 2.进行资产数据Redis同步入库
-    String businessJsonArray = redisUtils.get(assetKey);
+    String businessJsonArray = (String) redisUtils.get(assetKey);
     List<AssetEntityInfoVO> businessIdList = new ArrayList<>();
     if (!StringUtils.isEmpty(businessJsonArray)) {
       businessIdList = JSONObject.parseArray(businessJsonArray, AssetEntityInfoVO.class);
