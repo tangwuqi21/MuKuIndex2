@@ -1,5 +1,8 @@
 package com.rhdk.purchasingservice.common.utils;
 
+import com.alibaba.fastjson.JSONObject;
+import com.rhdk.purchasingservice.pojo.entity.AssetEntityInfo;
+import com.rhdk.purchasingservice.pojo.vo.AssetEntityInfoVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -15,7 +18,9 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class RedisUtils {
 
-  @Autowired private RedisTemplate redisTemplate;
+  @Autowired private RedisTemplate<String, String> redisTemplate;
+
+  @Autowired private RedisTemplate<Object, Object> template;
 
   /**
    * 读取缓存
@@ -23,7 +28,7 @@ public class RedisUtils {
    * @param key
    * @return
    */
-  public Object get(final String key) {
+  public String get(final String key) {
     return redisTemplate.opsForValue().get(key);
   }
 
@@ -91,5 +96,27 @@ public class RedisUtils {
       e.printStackTrace();
     }
     return result;
+  }
+
+  /** 存取对象 */
+  public void saveObjectList(List<AssetEntityInfo> assetEntityInfoList) {
+    assetEntityInfoList
+        .parallelStream()
+        .forEach(
+            mo -> {
+              template.opsForValue().set(mo.getId() + "", mo);
+            });
+
+    //    for (int i = 1; i < 10; i++) {
+    //      User u = new User(i, "王伟", 21);
+    //      template.opsForHash().put("myCache", u.getId(), u);
+    //    }
+  }
+
+  public List<AssetEntityInfoVO> getObjectList(String type) {
+    String businessJsonArray = get(type);
+    List<AssetEntityInfoVO> businessIdList =
+        JSONObject.parseArray(businessJsonArray, AssetEntityInfoVO.class);
+    return businessIdList;
   }
 }
