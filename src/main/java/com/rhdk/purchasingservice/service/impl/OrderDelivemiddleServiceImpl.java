@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.rhdk.purchasingservice.common.enums.Constants;
 import com.rhdk.purchasingservice.common.enums.ResultEnum;
 import com.rhdk.purchasingservice.common.utils.*;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
@@ -132,10 +133,11 @@ public class OrderDelivemiddleServiceImpl
                 }
                 // 4.查询模板名称
                 AssetTmplInfoVO assetTmplInfo = new AssetTmplInfoVO();
-                if (redisTemplate.hasKey("TEMP_" + a.getModuleId())) {
+                if (redisTemplate.hasKey(Constants.TMPL_KEY + a.getModuleId())) {
                   assetTmplInfo =
                       JSON.parseObject(
-                          redisUtils.get("TEMP_" + a.getModuleId()), AssetTmplInfoVO.class);
+                          redisUtils.get(Constants.TMPL_KEY + a.getModuleId()),
+                          AssetTmplInfoVO.class);
                 } else {
                   assetTmplInfo =
                       assetServiceFeign
@@ -144,10 +146,10 @@ public class OrderDelivemiddleServiceImpl
                 }
                 // 5.查询供应商名称,这里的客户信息从Redis中获取，若Redis中不存在则从库中取，同时更新到Redis中
                 Customer customer = new Customer();
-                if (redisTemplate.hasKey("CUST_" + orderDeliverecord.getSupplierId())) {
+                if (redisTemplate.hasKey(Constants.CUST_KEY + orderDeliverecord.getSupplierId())) {
                   customer =
                       JSON.parseObject(
-                          redisUtils.get("CUST_" + orderDeliverecord.getSupplierId()),
+                          redisUtils.get(Constants.CUST_KEY + orderDeliverecord.getSupplierId()),
                           Customer.class);
                 } else {
                   customer =
@@ -342,10 +344,18 @@ public class OrderDelivemiddleServiceImpl
     orderDelivedetailMapper.updateDetailsDel(assetIds, id);
     // 这里需要区分明细的资产类型，量管的更新资产表中量管资产数量就行了
     OrderDelivemiddle orderDelivemiddle = orderDelivemiddleMapper.selectById(id);
-    AssetTmplInfoVO assetTmplInfoVO =
-        assetServiceFeign
-            .selectPrptValByTmplId(orderDelivemiddle.getModuleId(), TokenUtil.getToken())
-            .getData();
+    AssetTmplInfoVO assetTmplInfoVO = new AssetTmplInfoVO();
+    if (redisTemplate.hasKey(Constants.TMPL_KEY + orderDelivemiddle.getModuleId())) {
+      assetTmplInfoVO =
+          JSON.parseObject(
+              redisUtils.get(Constants.TMPL_KEY + orderDelivemiddle.getModuleId()),
+              AssetTmplInfoVO.class);
+    } else {
+      assetTmplInfoVO =
+          assetServiceFeign
+              .selectPrptValByTmplId(orderDelivemiddle.getModuleId(), TokenUtil.getToken())
+              .getData();
+    }
     // 量管的资产类型需要去更新对应资产实体表中资产实体的数量，物管的删除不需要进行资产实体的相关删除
     if (assetTmplInfoVO != null && "1".equals(assetTmplInfoVO.getWmType())) {
       // 调用fegin更新量管资产数量
@@ -807,10 +817,14 @@ public class OrderDelivemiddleServiceImpl
       // 这里统一设置Redis的过期时间为40分钟，40分钟不提交，则该条数据作废
       String key = moduleId + "_" + NumberUtils.createCode("SC");
       redisUtils.setWithTime(
-          key, JSON.toJSON(assetEntityInfoVOList).toString(), 40L, TimeUnit.MINUTES);
+          key,
+          JSON.toJSON(assetEntityInfoVOList).toString(),
+          Constants.TMPLINFO_TIMEOUT,
+          TimeUnit.MINUTES);
       // 将Excel中的PK值暂存到Redis中
       String key2 = moduleId + "_" + NumberUtils.createCode("PK");
-      redisUtils.setWithTime(key2, JSON.toJSON(pkStrList).toString(), 40L, TimeUnit.MINUTES);
+      redisUtils.setWithTime(
+          key2, JSON.toJSON(pkStrList).toString(), Constants.TMPLINFO_TIMEOUT, TimeUnit.MINUTES);
       resultMap.put("pkValKey", key2);
       resultMap.put("assetKey", key);
     } else {
@@ -1040,10 +1054,18 @@ public class OrderDelivemiddleServiceImpl
               OrderDeliverecords orderDeliverecord =
                   orderDeliverecordsMapper.getDeliverecordInfo(a.getDeliveryId());
               // 4.查询模板名称
-              AssetTmplInfoVO assetTmplInfo =
-                  assetServiceFeign
-                      .selectPrptValByTmplId(a.getModuleId(), dto.getToken())
-                      .getData();
+              AssetTmplInfoVO assetTmplInfo = new AssetTmplInfoVO();
+              if (redisTemplate.hasKey(Constants.TMPL_KEY + a.getModuleId())) {
+                assetTmplInfo =
+                    JSON.parseObject(
+                        redisUtils.get(Constants.TMPL_KEY + a.getModuleId()),
+                        AssetTmplInfoVO.class);
+              } else {
+                assetTmplInfo =
+                    assetServiceFeign
+                        .selectPrptValByTmplId(a.getModuleId(), dto.getToken())
+                        .getData();
+              }
               OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
               attachmentDTO.setAtttype(3);
               attachmentDTO.setParentId(a.getId());
