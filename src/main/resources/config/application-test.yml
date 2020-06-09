@@ -12,9 +12,12 @@ spring:
   application:
     name: purchasingService-test
   datasource:
-    url: jdbc:oracle:thin:@192.168.30.97:1521:helowin
-    username: RHDK_SSO
-    password: rhdk_sso
+    #    url: jdbc:oracle:thin:@192.168.30.97:1521:helowin
+    #    username: RHDK_SSO
+    #    password: rhdk_sso
+    url: jdbc:oracle:thin:@192.168.11.13:1521:RHDKOLDB
+    username: dk_uat
+    password: dk_uat
     driver-class-name: oracle.jdbc.OracleDriver
     type: com.alibaba.druid.pool.DruidDataSource
 
@@ -40,10 +43,14 @@ spring:
     resources:
       add-mappings: false
 
-#redis 连接信息
+  #redis 连接信息
   redis:
-    database: 2
-    host: 192.168.30.97
+    #    database: 2
+    #    host: 192.168.30.97
+    #    port: 6379
+    #    password: ronghe2020
+    database: 10
+    host: 192.168.11.25
     port: 6379
     password: ronghe2020
     pool:
@@ -70,7 +77,8 @@ eureka:
       enabled: false   #关闭健康检查，不然无法注册到eureka 注册中心
     #普通安全级别设置访问Eureka的访问密码
     serviceUrl:
-      defaultZone: http://192.168.30.94:8761/eureka
+      #      defaultZone: http://192.168.30.94:8761/eureka
+      defaultZone: http://192.168.21.142:8761//eureka
   instance:
     prefer-ip-address: true
     #自定义 eureka 监控服务的ip服务名等
