@@ -429,6 +429,8 @@ public class OrderDelivemiddleServiceImpl
     orderDeliverecordsMapper.updateById(orderDeliverecords);
     // 判断是否切换了模板
     if (model.getModuleId() == entity.getModuleId()) {
+      // 通过明细中间表找到明细表，通过明细表，去到资产实体表中进行之前的数据删除，然后删除明细中间表的数据
+      updateDetailAndAsset(model.getId(), model.getWmType(), model.getModuleId());
       if ("2".equals(model.getWmType())) {
         // 物管状态的需要进行附件内容是否变化判断
         OrderAttachmentDTO dto = new OrderAttachmentDTO();
@@ -444,9 +446,6 @@ public class OrderDelivemiddleServiceImpl
             fileUrl = model.getAttachmentList().get(0).getFileurl();
           }
           if (!fileUrl.equals(attachmentInfo.get("fileurl"))) {
-            // 明细附件发生了改变，需要重新解析数据表格进行数据的上传
-            // 通过明细中间表找到明细表，通过明细表，去到资产实体表中进行之前的数据删除，然后删除明细中间表的数据
-            updateDetailAndAsset(model.getId(), model.getWmType(), model.getModuleId());
             // 校验资产PK值，同步Redis数据入库
             try {
               insertAllEntityInfo(
@@ -454,15 +453,21 @@ public class OrderDelivemiddleServiceImpl
             } catch (Exception e) {
               throw new RuntimeException("物管资产明细记录附件变更，同步Redis资产信息入库失败！" + e.getMessage());
             }
-            // 更新附件表
-            for (OrderAttachmentDTO mo : model.getAttachmentList()) {
-              OrderAttachmentDTO orderAttachment = new OrderAttachmentDTO();
-              orderAttachment.setParentId(model.getId());
-              orderAttachment.setAtttype(3);
-              orderAttachment.setFileurl(mo.getFileurl());
-              orderAttachment.setOrgfilename(mo.getOrgfilename());
-              orderAttachmentMapper.updateByParentIdAndType(orderAttachment);
-            }
+          }
+        }
+        // 更新附件表
+        for (OrderAttachmentDTO mo : model.getAttachmentList()) {
+          OrderAttachmentDTO orderAttachment = new OrderAttachmentDTO();
+          orderAttachment.setParentId(model.getId());
+          orderAttachment.setAtttype(3);
+          orderAttachment.setFileurl(mo.getFileurl());
+          orderAttachment.setOrgfilename(mo.getOrgfilename());
+          if (StringUtils.isEmpty(mo.getId())) {
+            OrderAttachment entityA = new OrderAttachment();
+            BeanCopyUtil.copyPropertiesIgnoreNull(orderAttachment, entityA);
+            orderAttachmentMapper.insert(entityA);
+          } else {
+            orderAttachmentMapper.updateByParentIdAndType(orderAttachment);
           }
         }
       } else {
@@ -555,12 +560,12 @@ public class OrderDelivemiddleServiceImpl
           "物管资产明细记录附件变更，同步删除明细资产信息失败！要删除的资产id为：" + detailAssetIds.toString());
     }
     // 同步更新状态为0的资产实体信息和资产实体属性值信息,物管数据进行资产实体的信息删除，量管不需要做操作
+    // 逻辑删除送货明细附件表
+    OrderAttachmentDTO dto = new OrderAttachmentDTO();
+    dto.setAtttype(3);
+    dto.setParentId(middleId);
+    assetServiceFeign.deleteAttachmentByParentId(dto, TokenUtil.getToken());
     if ("2".equals(wmType)) {
-      // 逻辑删除送货明细附件表
-      OrderAttachmentDTO dto = new OrderAttachmentDTO();
-      dto.setAtttype(3);
-      dto.setParentId(middleId);
-      assetServiceFeign.deleteAttachmentByParentId(dto, TokenUtil.getToken());
       // 2.逻辑删除资产信息实体类
       Long[] strArray = new Long[detailAssetIds.size()];
       detailAssetIds.toArray(strArray);
