@@ -97,10 +97,7 @@ public class OrderDeliverecordsServiceImpl
     // 获取源单信息，获取附件列表信息
     List<OrderDeliverecordsVO> resultList = recordsList.getRecords();
     logger.info("searchOrderDeliverecordsListPage--获取送货单信息开始");
-    OrderAttachmentDTO dto1 = new OrderAttachmentDTO();
-    dto1.setAtttype(2);
-    resultList
-        .parallelStream()
+    resultList.stream()
         .forEach(
             temp -> {
               // 获取合同数据
@@ -112,6 +109,8 @@ public class OrderDeliverecordsServiceImpl
               // 获取送货单的签收状态，一个送货单下面关联多个明细单状态
               Integer status = getAssetStatus(signStatList);
               // 获取附件列表
+              OrderAttachmentDTO dto1 = new OrderAttachmentDTO();
+              dto1.setAtttype(2);
               dto1.setParentId(temp.getId());
               temp.setAttachmentList(
                   assetServiceFeign.selectListByParentId(dto1, dto.getToken()).getData());
@@ -376,8 +375,7 @@ public class OrderDeliverecordsServiceImpl
     }
     // 获取源单信息，获取附件列表信息
     orderDeliverecordsVOList = recordsList.getRecords();
-    orderDeliverecordsVOList
-        .parallelStream()
+    orderDeliverecordsVOList.stream()
         .forEach(
             a -> {
               OrderContractVO orderContract =

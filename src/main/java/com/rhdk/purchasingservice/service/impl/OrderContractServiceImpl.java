@@ -12,7 +12,6 @@ import com.rhdk.purchasingservice.common.utils.ResultVOUtil;
 import com.rhdk.purchasingservice.common.utils.TokenUtil;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.feign.AssetServiceFeign;
-import com.rhdk.purchasingservice.mapper.OrderAttachmentMapper;
 import com.rhdk.purchasingservice.mapper.OrderContractMapper;
 import com.rhdk.purchasingservice.mapper.PurcasingContractMapper;
 import com.rhdk.purchasingservice.pojo.dto.OrderAttachmentDTO;
@@ -50,8 +49,6 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
 
   @Autowired private CommonService commonService;
 
-  @Autowired private OrderAttachmentMapper orderAttachmentMapper;
-
   @Autowired private PurcasingContractMapper purcasingContractMapper;
 
   @Autowired private AssetServiceFeign assetServiceFeign;
@@ -74,8 +71,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     }
     recordsList = orderContractMapper.selectContractList(page, dto, orgId);
     List<OrderContractVO> resultList = recordsList.getRecords();
-    resultList
-        .parallelStream()
+    resultList.stream()
         .forEach(
             a -> {
               OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());

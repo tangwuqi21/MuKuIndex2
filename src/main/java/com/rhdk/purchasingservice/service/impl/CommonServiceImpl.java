@@ -45,8 +45,7 @@ public class CommonServiceImpl implements CommonService {
     page.setCurrent(dto.getCurrentPage());
     IPage<OrderContractVO> recordsList = orderContractMapper.selectContractList(page, dto, orgId);
     List<OrderContractVO> orderContractVOList = recordsList.getRecords();
-    orderContractVOList
-        .parallelStream()
+    orderContractVOList.stream()
         .forEach(
             a -> {
               PurcasingContract entity = new PurcasingContract();
@@ -81,8 +80,7 @@ public class CommonServiceImpl implements CommonService {
       try {
         valSet = assetServiceFeign.searchPKValByTmpId(tmplPrptsFilter, token).getData();
         if (valSet != null && valSet.size() > 0) {
-          valSet
-              .parallelStream()
+          valSet.stream()
               .forEach(
                   str -> {
                     redisUtils.set(str, tmplPrptsFilter.getTmplId().toString());

@@ -112,8 +112,7 @@ public class OrderDelivemiddleServiceImpl
       for (Map<String, Object> mo : resMap) {
         assetIdMap.put(mo.get("MIDDLEID").toString(), mo.get("IDS").toString());
       }
-      resultList
-          .parallelStream()
+      resultList.stream()
           .forEach(
               a -> {
                 // 改造
@@ -481,7 +480,19 @@ public class OrderDelivemiddleServiceImpl
       }
     } else {
       // 切换模板判断是否有明细id存在，如果有则进行之前的明细id删除，否则不进行操作
-      updateDetailAndAsset(model.getId(), model.getWmType(), model.getModuleId());
+      AssetTmplInfoVO assetTmplInfoVO = new AssetTmplInfoVO();
+      if (redisTemplate.hasKey(Constants.TMPL_KEY + entity.getModuleId())) {
+        assetTmplInfoVO =
+            JSON.parseObject(
+                redisUtils.get(Constants.TMPL_KEY + entity.getModuleId()), AssetTmplInfoVO.class);
+      } else {
+        assetTmplInfoVO =
+            assetServiceFeign
+                .selectPrptValByTmplId(entity.getModuleId(), TokenUtil.getToken())
+                .getData();
+      }
+      updateDetailAndAsset(
+          entity.getId(), assetTmplInfoVO.getWmType().toString(), entity.getModuleId());
       // 判断切换后的模板类型是物管还是量管，物管更新Redis数据入库，量管新增一条数据
       if ("2".equals(model.getWmType())) {
         // 校验PK值，同步Redis数据入库
@@ -974,8 +985,7 @@ public class OrderDelivemiddleServiceImpl
     // 封装入库
     List<AssetEntityPrpt> assetEntityPrptList = new ArrayList<>();
     List<OrderDelivedetail> orderDelivedetailList = new ArrayList<>();
-    businessIdList
-        .parallelStream()
+    businessIdList.stream()
         .forEach(
             a -> {
               assetEntityPrptList.addAll(a.getAssetEntityPrptList());
@@ -1042,8 +1052,7 @@ public class OrderDelivemiddleServiceImpl
     for (Map<String, Object> mo : resMap) {
       assetIdMap.put(mo.get("MIDDLEID").toString(), mo.get("IDS").toString());
     }
-    resultList
-        .parallelStream()
+    resultList.stream()
         .forEach(
             a -> {
               // 1.查询送货信息

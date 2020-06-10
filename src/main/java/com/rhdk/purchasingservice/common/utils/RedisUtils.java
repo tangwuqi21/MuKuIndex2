@@ -66,8 +66,7 @@ public class RedisUtils {
 
   /** 批量写入到缓存中 */
   public void setDataList(List<String> dataList, String tempId) {
-    dataList
-        .parallelStream()
+    dataList.stream()
         .forEach(
             a -> {
               set(a, tempId);
@@ -100,8 +99,7 @@ public class RedisUtils {
 
   /** 存取对象 */
   public void saveObjectList(List<AssetEntityInfo> assetEntityInfoList) {
-    assetEntityInfoList
-        .parallelStream()
+    assetEntityInfoList.stream()
         .forEach(
             mo -> {
               template.opsForValue().set(mo.getId() + "", mo);
