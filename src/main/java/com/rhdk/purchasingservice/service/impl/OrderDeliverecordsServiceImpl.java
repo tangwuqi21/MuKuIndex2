@@ -32,8 +32,6 @@ import com.rhdk.purchasingservice.service.IOrderDeliverecordsService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -42,8 +40,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 送货单 服务实现类
@@ -82,8 +78,7 @@ public class OrderDeliverecordsServiceImpl
    * @return
    */
   @Override
-  @Async
-  public Future<IPage<OrderDeliverecordsVO>> searchOrderDeliverecordsListPage(
+  public IPage<OrderDeliverecordsVO> searchOrderDeliverecordsListPage(
       OrderDeliverecordsQuery dto, Long orgId) {
     Page page = new Page();
     page.setSize(dto.getPageSize());
@@ -136,7 +131,7 @@ public class OrderDeliverecordsServiceImpl
             });
     logger.info("searchOrderDeliverecordsListPage--获取送货单信息共：" + resultList.size() + "条，结束");
     recordsList.setRecords(resultList);
-    return new AsyncResult<>(recordsList);
+    return recordsList;
   }
 
   /**
@@ -156,8 +151,7 @@ public class OrderDeliverecordsServiceImpl
     try {
       result =
           searchOrderDeliverecordsListPage(
-                  deliverecordsQuery, TokenUtil.getUserInfo().getOrganizationId())
-              .get(10, TimeUnit.SECONDS);
+              deliverecordsQuery, TokenUtil.getUserInfo().getOrganizationId());
       if (result != null && result.getRecords().size() > 0) {
         orderDeliverecordsVO = result.getRecords().get(0);
       }
@@ -173,10 +167,8 @@ public class OrderDeliverecordsServiceImpl
     IPage<OrderDelivemiddleVO> page = null;
     try {
       page =
-          iOrderDelivemiddleService
-              .searchOrderDelivemiddleListPage(
-                  orderDelivemiddleQuery, TokenUtil.getUserInfo().getOrganizationId())
-              .get(10, TimeUnit.SECONDS);
+          iOrderDelivemiddleService.searchOrderDelivemiddleListPage(
+              orderDelivemiddleQuery, TokenUtil.getUserInfo().getOrganizationId());
     } catch (Exception e) {
       throw new RuntimeException("获取送货单明细列表数据失败！送货单id为：" + id + "，失败信息为：" + e.getMessage());
     }

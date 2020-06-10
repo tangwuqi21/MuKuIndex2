@@ -26,7 +26,6 @@ import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 送货记录明细中间表 前端控制器
@@ -58,9 +57,8 @@ public class OrderDelivemiddleController {
     dto.setToken(TokenUtil.getToken());
     try {
       return ResultVOUtil.returnSuccess(
-          iOrderDelivemiddleService
-              .searchOrderDelivemiddleListPage(dto, TokenUtil.getUserInfo().getOrganizationId())
-              .get(10, TimeUnit.SECONDS));
+          iOrderDelivemiddleService.searchOrderDelivemiddleListPage(
+              dto, TokenUtil.getUserInfo().getOrganizationId()));
     } catch (Exception e) {
       return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
     }

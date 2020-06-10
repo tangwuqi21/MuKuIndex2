@@ -26,8 +26,6 @@ import com.rhdk.purchasingservice.service.IOrderContractService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -35,8 +33,6 @@ import org.springframework.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 合同表 服务实现类
@@ -63,9 +59,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
   private static org.slf4j.Logger logger = LoggerFactory.getLogger(OrderContractServiceImpl.class);
 
   @Override
-  @Async
-  public Future<IPage<OrderContractVO>> searchOrderContractListPage(
-      OrderContractQuery dto, Long orgId) {
+  public IPage<OrderContractVO> searchOrderContractListPage(OrderContractQuery dto, Long orgId) {
     logger.info("searchOrderContractListPage-获取合同id列表开始");
     Page page = new Page();
     page.setSize(dto.getPageSize());
@@ -76,7 +70,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     if (paramStr.size() > 0) {
       dto.setContractIds(paramStr);
     } else {
-      return new AsyncResult<>(recordsList);
+      return recordsList;
     }
     recordsList = orderContractMapper.selectContractList(page, dto, orgId);
     List<OrderContractVO> resultList = recordsList.getRecords();
@@ -98,7 +92,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
             });
     logger.info("getFileList-获取合同附件列表结束");
     recordsList.setRecords(resultList);
-    return new AsyncResult<>(recordsList);
+    return recordsList;
   }
 
   @Override
@@ -109,9 +103,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     dto.setId(id);
     IPage<OrderContractVO> result = null;
     try {
-      result =
-          searchOrderContractListPage(dto, TokenUtil.getUserInfo().getOrganizationId())
-              .get(10, TimeUnit.SECONDS);
+      result = searchOrderContractListPage(dto, TokenUtil.getUserInfo().getOrganizationId());
       if (result != null && result.getRecords().size() > 0) {
         orderContractVO = result.getRecords().get(0);
       }

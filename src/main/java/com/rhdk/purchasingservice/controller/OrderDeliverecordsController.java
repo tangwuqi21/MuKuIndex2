@@ -25,7 +25,6 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 送货单 前端控制器
@@ -57,9 +56,8 @@ public class OrderDeliverecordsController {
     dto.setToken(TokenUtil.getToken());
     try {
       return ResultVOUtil.returnSuccess(
-          iOrderDeliverecordsService
-              .searchOrderDeliverecordsListPage(dto, TokenUtil.getUserInfo().getOrganizationId())
-              .get(10, TimeUnit.SECONDS));
+          iOrderDeliverecordsService.searchOrderDeliverecordsListPage(
+              dto, TokenUtil.getUserInfo().getOrganizationId()));
     } catch (Exception e) {
       return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
     }

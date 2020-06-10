@@ -9,7 +9,6 @@ import com.rhdk.purchasingservice.pojo.query.OrderDeliverecordsQuery;
 import com.rhdk.purchasingservice.pojo.vo.OrderDeliverecordsVO;
 
 import java.util.List;
-import java.util.concurrent.Future;
 
 /**
  * 送货单 服务类
@@ -24,7 +23,7 @@ public interface IOrderDeliverecordsService extends IService<OrderDeliverecords>
    * @param DTO
    * @return
    */
-  Future<IPage<OrderDeliverecordsVO>> searchOrderDeliverecordsListPage(
+  IPage<OrderDeliverecordsVO> searchOrderDeliverecordsListPage(
       OrderDeliverecordsQuery DTO, Long orgId);
 
   /**

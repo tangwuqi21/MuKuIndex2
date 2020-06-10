@@ -22,7 +22,6 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 合同表 前端控制器
@@ -54,9 +53,8 @@ public class OrderContractController {
     dto.setToken(TokenUtil.getToken());
     try {
       return ResultVOUtil.returnSuccess(
-          iOrderContractService
-              .searchOrderContractListPage(dto, TokenUtil.getUserInfo().getOrganizationId())
-              .get(10, TimeUnit.SECONDS));
+          iOrderContractService.searchOrderContractListPage(
+              dto, TokenUtil.getUserInfo().getOrganizationId()));
     } catch (Exception e) {
       return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
     }

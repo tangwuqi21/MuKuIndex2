@@ -34,8 +34,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -47,7 +45,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.*;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -93,8 +90,7 @@ public class OrderDelivemiddleServiceImpl
    * @return
    */
   @Override
-  @Async
-  public Future<IPage<OrderDelivemiddleVO>> searchOrderDelivemiddleListPage(
+  public IPage<OrderDelivemiddleVO> searchOrderDelivemiddleListPage(
       OrderDelivemiddleQuery dto, Long orgId) {
     Page page = new Page();
     page.setSize(dto.getPageSize());
@@ -216,7 +212,7 @@ public class OrderDelivemiddleServiceImpl
               });
       recordsList.setRecords(resultList);
     }
-    return new AsyncResult<>(recordsList);
+    return recordsList;
   }
 
   /**
@@ -254,8 +250,7 @@ public class OrderDelivemiddleServiceImpl
     try {
       result =
           searchOrderDelivemiddleListPage(
-                  orderDelivemiddleQuery, TokenUtil.getUserInfo().getOrganizationId())
-              .get(10, TimeUnit.SECONDS);
+              orderDelivemiddleQuery, TokenUtil.getUserInfo().getOrganizationId());
       if (result != null && result.getRecords().size() > 0) {
         model = result.getRecords().get(0);
       }
@@ -404,14 +399,9 @@ public class OrderDelivemiddleServiceImpl
     Long numT = model.getAssetNumber();
     // 老的资产数量
     Long numT2 = entity.getAssetNumber();
-    BeanCopyUtil.copyPropertiesIgnoreNull(model, entity);
     // 更新送货记录内容
     if (model.getUnitId() != null && model.getPriceId() != null) {
       entity.setPrptIds(model.getUnitId() + "," + model.getPriceId());
-    }
-    int num = orderDelivemiddleMapper.updateById(entity);
-    if (num <= 0) {
-      throw new RuntimeException("更新送货明细记录失败！明细信息id为：" + entity.getId());
     }
     // 更新送货记录表中的签收状态
     List<Integer> signStatList = orderDelivemiddleMapper.getSignStatus(entity.getDeliveryId());
@@ -524,6 +514,12 @@ public class OrderDelivemiddleServiceImpl
           orderAttachmentMapper.updateByParentIdAndType(orderAttachment);
         }
       }
+    }
+    // 最后更新明细中间表
+    BeanCopyUtil.copyPropertiesIgnoreNull(model, entity);
+    int num = orderDelivemiddleMapper.updateById(entity);
+    if (num <= 0) {
+      throw new RuntimeException("更新送货明细记录失败！明细信息id为：" + entity.getId());
     }
     return ResultVOUtil.returnSuccess();
   }
@@ -864,7 +860,6 @@ public class OrderDelivemiddleServiceImpl
    * @param titleMap2
    * @return
    */
-  @Async
   public AssetEntityInfoVO resoveRow(
       Row row,
       FormulaEvaluator formulaEvaluator,

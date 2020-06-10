@@ -9,7 +9,6 @@ import com.rhdk.purchasingservice.pojo.query.OrderContractQuery;
 import com.rhdk.purchasingservice.pojo.vo.OrderContractVO;
 
 import java.util.List;
-import java.util.concurrent.Future;
 
 /**
  * 合同表 服务类
@@ -18,7 +17,7 @@ import java.util.concurrent.Future;
  * @since 2020-05-08
  */
 public interface IOrderContractService extends IService<OrderContract> {
-  Future<IPage<OrderContractVO>> searchOrderContractListPage(OrderContractQuery dto, Long orgId);
+  IPage<OrderContractVO> searchOrderContractListPage(OrderContractQuery dto, Long orgId);
 
   ResponseEnvelope searchOrderContractOne(Long id);
 

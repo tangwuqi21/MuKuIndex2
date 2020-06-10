@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
 
 /**
  * 送货记录明细中间表 服务类
@@ -26,7 +25,7 @@ public interface IOrderDelivemiddleService extends IService<OrderDelivemiddle> {
    * @param dto
    * @return
    */
-  Future<IPage<OrderDelivemiddleVO>> searchOrderDelivemiddleListPage(
+  IPage<OrderDelivemiddleVO> searchOrderDelivemiddleListPage(
       OrderDelivemiddleQuery dto, Long orgId);
 
   /**
