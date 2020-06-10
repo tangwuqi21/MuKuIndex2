@@ -474,20 +474,6 @@ public class OrderDelivemiddleServiceImpl
         // 量管的资产，更新明细表和资产实体表中的数量
         // 这里需要根据明细表中的数据同步更新资产表中量管资产的数量
         Long assetNum = numT - numT2;
-        List<Long> midList = new ArrayList<>();
-        midList.add(model.getId());
-        List<Long> detailAssetIds = orderDelivedetailMapper.getAssetIdsByDId(midList);
-        Long[] strArray = new Long[detailAssetIds.size()];
-        detailAssetIds.toArray(strArray);
-        if (!StringUtils.isEmpty(model.getAssetCatId())) {
-          AssetCatVO assetCatVO =
-              assetServiceFeign
-                  .searchAssetCatOne(model.getAssetCatId(), TokenUtil.getToken())
-                  .getData();
-          model.setAssetCatSearchKey(assetCatVO.getSearchKey());
-        }
-        model.setAssetNumber(model.getAssetNumber());
-        orderDelivedetailMapper.updateDetails(detailAssetIds, model);
         EntityUpVo entityUpVo = new EntityUpVo();
         entityUpVo.setAssetTemplId(model.getModuleId());
         entityUpVo.setAmount(assetNum);
