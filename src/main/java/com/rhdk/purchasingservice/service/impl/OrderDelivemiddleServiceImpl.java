@@ -390,32 +390,31 @@ public class OrderDelivemiddleServiceImpl
     return ResultVOUtil.returnSuccess();
   }
 
+  /**
+   * @param model
+   * @return
+   */
   @Override
   @Transactional
   public ResponseEnvelope updateOrderMiddle(OrderDelivemiddleDTO model) {
     OrderDelivemiddle entity = this.selectOne(model.getId());
-    // 本次要更新的资产数量
+    // 针对量管本次要更新的资产数量
     Long numT = model.getAssetNumber();
-    // 老的资产数量
+    // 针对量管老的资产数量
     Long numT2 = entity.getAssetNumber();
-    // 更新送货记录内容
+    // 入参封装
     if (model.getUnitId() != null && model.getPriceId() != null) {
       entity.setPrptIds(model.getUnitId() + "," + model.getPriceId());
     }
-    // 更新送货记录表中的签收状态
-    List<Integer> signStatList = orderDelivemiddleMapper.getSignStatus(entity.getDeliveryId());
-    Integer status = 0;
-    if (signStatList.size() == 1 && signStatList.contains(0)) {
-      status = 0;
-    } else if (signStatList.size() == 1 && signStatList.contains(2)) {
-      status = 2;
-    } else if (signStatList.size() >= 1) {
-      status = 1;
-    }
-    OrderDeliverecords orderDeliverecords =
-        orderDeliverecordsMapper.selectById(entity.getDeliveryId());
-    orderDeliverecords.setSignStatus(status);
-    orderDeliverecordsMapper.updateById(orderDeliverecords);
+    // 明细记录变更，分以下几种情况：
+    // 若切换模板前的资产类型是物管，切换后需要将之前的明细记录逻辑删除，对应资产状态若为待签收状态的也一并删除；
+    // 若切换模板前的资产类型是量管，切换后需要将之前的明细记录逻辑删除，对应资产信息不需要删除；
+    // 1、切换了模板
+    // （1）判断资产类型是物管还是量管，物管的需要走物管的新增逻辑；若是量管的则同步更新量管的资产数量即可；
+    // 2、未切换模板
+    // （1）判断是否是物管的资产类型，物管的资产类型需要判断是否重新上传了明细附件，若重新上传了明细附件，则需要将之前的明细附件对应的资产
+    // 状态为待签收的数据进行逻辑删除；然后重新走物管的新增逻辑；若是量管的则同步更新资产数量即可
+
     // 判断是否切换了模板
     if (model.getModuleId() == entity.getModuleId()) {
       // 通过明细中间表找到明细表，通过明细表，去到资产实体表中进行之前的数据删除，然后删除明细中间表的数据
@@ -532,6 +531,20 @@ public class OrderDelivemiddleServiceImpl
     if (num <= 0) {
       throw new RuntimeException("更新送货明细记录失败！明细信息id为：" + entity.getId());
     }
+    // 更新送货记录表中的签收状态
+    List<Integer> signStatList = orderDelivemiddleMapper.getSignStatus(entity.getDeliveryId());
+    Integer status = 0;
+    if (signStatList.size() == 1 && signStatList.contains(0)) {
+      status = 0;
+    } else if (signStatList.size() == 1 && signStatList.contains(2)) {
+      status = 2;
+    } else if (signStatList.size() >= 1) {
+      status = 1;
+    }
+    OrderDeliverecords orderDeliverecords =
+        orderDeliverecordsMapper.selectById(entity.getDeliveryId());
+    orderDeliverecords.setSignStatus(status);
+    orderDeliverecordsMapper.updateById(orderDeliverecords);
     return ResultVOUtil.returnSuccess();
   }
 
@@ -861,7 +874,7 @@ public class OrderDelivemiddleServiceImpl
   }
 
   /**
-   * 解决Excel中的每一行数据
+   * 解析Excel中的每一行数据 封装资产实体信息 资产PK值信息 暂存入Redis中
    *
    * @param row
    * @param formulaEvaluator
@@ -953,7 +966,7 @@ public class OrderDelivemiddleServiceImpl
   }
 
   /**
-   * 批量入库资产信息
+   * 批量入库物管资产信息 同步Redis中的数据入库
    *
    * @param pkvalKey
    * @return
@@ -1004,15 +1017,16 @@ public class OrderDelivemiddleServiceImpl
   @Override
   @Transactional(rollbackFor = Exception.class)
   public ResponseEnvelope deleteDetailFile(String dto) {
-    if (StringUtils.isEmpty(dto)) {
-      throw new RuntimeException("请求参数有误，明细资产ids字段不能为空！");
-    }
+    // 此方法2020/06/10已去除
+    //    if (StringUtils.isEmpty(dto)) {
+    //      throw new RuntimeException("请求参数有误，明细资产ids字段不能为空！");
+    //    }
     // 1.删除送货记录明细信息
-    List<Long> assetIds = new ArrayList<>();
-    String[] arr = dto.split(",");
-    for (String mn : arr) {
-      assetIds.add(Long.valueOf(mn));
-    }
+    //    List<Long> assetIds = new ArrayList<>();
+    //    String[] arr = dto.split(",");
+    //    for (String mn : arr) {
+    //      assetIds.add(Long.valueOf(mn));
+    //    }
     //    if (assetIds.size() > 0) {
     //      Long[] strArray = new Long[assetIds.size()];
     //      assetIds.toArray(strArray);
@@ -1095,11 +1109,23 @@ public class OrderDelivemiddleServiceImpl
     return resultList;
   }
 
+  /**
+   * 通过送货单id来获取送货明细下的所有明细id集合
+   *
+   * @param id
+   * @return
+   */
   @Override
   public List<Long> getMIdsByDeliveryId(Long id) {
     return orderDelivemiddleMapper.getMIdsByDeliveryId(id);
   }
 
+  /**
+   * 此方法用来提供给签收模块，用户对明细记录进行签收入库， 回显明细中间表的签收号和签收状态
+   *
+   * @param dto
+   * @return
+   */
   @Override
   public ResponseEnvelope updateMiddleById(OrderDelivemiddleDTO dto) {
     if (dto.getId() != null) {
