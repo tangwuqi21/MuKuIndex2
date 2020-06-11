@@ -18,7 +18,7 @@ public enum ResultEnum {
 
   ID_NOTNULL(-1, "更新操作主键id不能为空"),
 
-  TEMPLATE_NOTFORMAT(-1, "模板格式不正确"),
+  TEMPLATE_NOTFORMAT(-1, "资产类型与模板格式不匹配，请检查模板列名并上传正确的模板！"),
 
   TEMPLATE_CELLNULL(-1, "资产属性值不能为空"),
 
