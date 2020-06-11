@@ -738,7 +738,7 @@ public class OrderDelivemiddleServiceImpl
     Row row1 = sheet.getRow(0);
     boolean isExcel = true;
     // 比较表头大小是否一致
-    if (titleNameM.size() != row1.getLastCellNum()) {
+    if (row1 == null || titleNameM.size() != row1.getLastCellNum()) {
       // 解析有误，删除无用文件
       excelFile.delete();
       return ResultVOUtil.returnFail(
