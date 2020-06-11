@@ -333,52 +333,55 @@ public class OrderDelivemiddleServiceImpl
     List<Long> middleIds = new ArrayList<>();
     middleIds.add(id);
     List<Long> assetIds = orderDelivedetailMapper.getAssetIdsByDId(middleIds);
-    Long[] strArray = new Long[assetIds.size()];
-    assetIds.toArray(strArray);
-    orderDelivedetailMapper.updateDetailsDel(assetIds, id);
-    // 这里需要区分明细的资产类型，量管的更新资产表中量管资产数量就行了
-    OrderDelivemiddle orderDelivemiddle = orderDelivemiddleMapper.selectById(id);
-    AssetTmplInfoVO assetTmplInfoVO = new AssetTmplInfoVO();
-    if (redisTemplate.hasKey(Constants.TMPL_KEY + orderDelivemiddle.getModuleId())) {
-      assetTmplInfoVO =
-          JSON.parseObject(
-              redisUtils.get(Constants.TMPL_KEY + orderDelivemiddle.getModuleId()),
-              AssetTmplInfoVO.class);
-    } else {
-      assetTmplInfoVO =
-          assetServiceFeign
-              .selectPrptValByTmplId(orderDelivemiddle.getModuleId(), TokenUtil.getToken())
-              .getData();
-    }
-    // 量管的资产类型需要去更新对应资产实体表中资产实体的数量，物管的删除不需要进行资产实体的相关删除
-    if (assetTmplInfoVO != null && "1".equals(assetTmplInfoVO.getWmType())) {
-      // 调用fegin更新量管资产数量
-      EntityUpVo entityUpVo = new EntityUpVo();
-      entityUpVo.setAssetTemplId(orderDelivemiddle.getModuleId());
-      entityUpVo.setAmount(0 - orderDelivemiddle.getAssetNumber());
-      entityUpVo.setAssetStatus(0);
-      entityUpVo.setOriginalStatus(0);
-      try {
-        assetServiceFeign.updateEntityInfoStatus(entityUpVo, TokenUtil.getToken());
-      } catch (Exception e) {
-        throw new RuntimeException(
-            "远程调用fegin更新量管资产数量失败！资产明细id为：" + id + ",资产模板id为：" + entityUpVo.getAssetTemplId());
+    if (assetIds.size() > 0) {
+      Long[] strArray = new Long[assetIds.size()];
+      assetIds.toArray(strArray);
+      orderDelivedetailMapper.updateDetailsDel(assetIds, id);
+      // 这里需要区分明细的资产类型，量管的更新资产表中量管资产数量就行了
+      OrderDelivemiddle orderDelivemiddle = orderDelivemiddleMapper.selectById(id);
+      AssetTmplInfoVO assetTmplInfoVO = new AssetTmplInfoVO();
+      if (redisTemplate.hasKey(Constants.TMPL_KEY + orderDelivemiddle.getModuleId())) {
+        assetTmplInfoVO =
+            JSON.parseObject(
+                redisUtils.get(Constants.TMPL_KEY + orderDelivemiddle.getModuleId()),
+                AssetTmplInfoVO.class);
+      } else {
+        assetTmplInfoVO =
+            assetServiceFeign
+                .selectPrptValByTmplId(orderDelivemiddle.getModuleId(), TokenUtil.getToken())
+                .getData();
       }
-    } else {
-      // 物管同步更新数据状态
-      // 同步更新状态为0的资产实体信息和资产实体属性值信息
-      // 2.逻辑删除资产信息实体类
-      Integer rownum = assetServiceFeign.deleteEntitys(strArray, 0, TokenUtil.getToken()).getData();
-      // 3.逻辑删除资产属性值信息
-      if (rownum > 0) {
-        assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
-        // 这里同步对Redis的PK值进行删除
-        TmplPrptsFilter tmplPrptsFilter = new TmplPrptsFilter();
-        tmplPrptsFilter.setTmplId(orderDelivemiddle.getModuleId());
-        Set<String> valSet =
-            assetServiceFeign.searchPKValByTmpId(tmplPrptsFilter, TokenUtil.getToken()).getData();
-        for (String str : valSet) {
-          redisUtils.delete(str);
+      // 量管的资产类型需要去更新对应资产实体表中资产实体的数量，物管的删除不需要进行资产实体的相关删除
+      if (assetTmplInfoVO != null && "1".equals(assetTmplInfoVO.getWmType())) {
+        // 调用fegin更新量管资产数量
+        EntityUpVo entityUpVo = new EntityUpVo();
+        entityUpVo.setAssetTemplId(orderDelivemiddle.getModuleId());
+        entityUpVo.setAmount(0 - orderDelivemiddle.getAssetNumber());
+        entityUpVo.setAssetStatus(0);
+        entityUpVo.setOriginalStatus(0);
+        try {
+          assetServiceFeign.updateEntityInfoStatus(entityUpVo, TokenUtil.getToken());
+        } catch (Exception e) {
+          throw new RuntimeException(
+              "远程调用fegin更新量管资产数量失败！资产明细id为：" + id + ",资产模板id为：" + entityUpVo.getAssetTemplId());
+        }
+      } else {
+        // 物管同步更新数据状态
+        // 同步更新状态为0的资产实体信息和资产实体属性值信息
+        // 2.逻辑删除资产信息实体类
+        Integer rownum =
+            assetServiceFeign.deleteEntitys(strArray, 0, TokenUtil.getToken()).getData();
+        // 3.逻辑删除资产属性值信息
+        if (rownum > 0) {
+          assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
+          // 这里同步对Redis的PK值进行删除
+          TmplPrptsFilter tmplPrptsFilter = new TmplPrptsFilter();
+          tmplPrptsFilter.setTmplId(orderDelivemiddle.getModuleId());
+          Set<String> valSet =
+              assetServiceFeign.searchPKValByTmpId(tmplPrptsFilter, TokenUtil.getToken()).getData();
+          for (String str : valSet) {
+            redisUtils.delete(str);
+          }
         }
       }
     }
@@ -416,7 +419,7 @@ public class OrderDelivemiddleServiceImpl
     // 状态为待签收的数据进行逻辑删除；然后重新走物管的新增逻辑；若是量管的则同步更新资产数量即可
 
     // 判断是否切换了模板
-    if (model.getModuleId() == entity.getModuleId()) {
+    if (model.getModuleId().equals(entity.getModuleId())) {
       // 通过明细中间表找到明细表，通过明细表，去到资产实体表中进行之前的数据删除，然后删除明细中间表的数据
       updateDetailAndAsset(model.getId(), model.getWmType(), model.getModuleId());
       if ("2".equals(model.getWmType())) {
@@ -444,19 +447,17 @@ public class OrderDelivemiddleServiceImpl
           }
         }
         // 更新附件表
-        for (OrderAttachmentDTO mo : model.getAttachmentList()) {
-          OrderAttachmentDTO orderAttachment = new OrderAttachmentDTO();
-          orderAttachment.setParentId(model.getId());
-          orderAttachment.setAtttype(3);
-          orderAttachment.setFileurl(mo.getFileurl());
-          orderAttachment.setOrgfilename(mo.getOrgfilename());
-          if (StringUtils.isEmpty(mo.getId())) {
-            OrderAttachment entityA = new OrderAttachment();
-            BeanCopyUtil.copyPropertiesIgnoreNull(orderAttachment, entityA);
-            orderAttachmentMapper.insert(entityA);
-          } else {
-            orderAttachmentMapper.updateByParentIdAndType(orderAttachment);
+        // 逻辑删除送货明细附件表
+        if (model.getAttachmentList().size() > 0) {
+          OrderAttachmentDTO dto1 = new OrderAttachmentDTO();
+          dto1.setAtttype(3);
+          dto1.setParentId(model.getId());
+          assetServiceFeign.deleteAttachmentByParentId(dto1, TokenUtil.getToken());
+          for (OrderAttachmentDTO model2 : model.getAttachmentList()) {
+            model2.setParentId(model.getId());
+            model2.setAtttype(3);
           }
+          assetServiceFeign.addBeatchAtta(model.getAttachmentList(), TokenUtil.getToken());
         }
       } else {
         // 量管的资产，更新明细表和资产实体表中的数量
@@ -490,6 +491,13 @@ public class OrderDelivemiddleServiceImpl
                 .selectPrptValByTmplId(entity.getModuleId(), TokenUtil.getToken())
                 .getData();
       }
+      if ("2".equals(assetTmplInfoVO.getWmType())) {
+        OrderAttachmentDTO dto1 = new OrderAttachmentDTO();
+        dto1.setAtttype(3);
+        dto1.setParentId(entity.getId());
+        assetServiceFeign.deleteAttachmentByParentId(dto1, TokenUtil.getToken());
+      }
+
       updateDetailAndAsset(
           entity.getId(), assetTmplInfoVO.getWmType().toString(), entity.getModuleId());
       // 判断切换后的模板类型是物管还是量管，物管更新Redis数据入库，量管新增一条数据
@@ -501,6 +509,11 @@ public class OrderDelivemiddleServiceImpl
         } catch (Exception e) {
           throw new RuntimeException("切换模板物管资产redis同步资产信息失败！" + e.getMessage());
         }
+        for (OrderAttachmentDTO model2 : model.getAttachmentList()) {
+          model2.setParentId(model.getId());
+          model2.setAtttype(3);
+        }
+        assetServiceFeign.addBeatchAtta(model.getAttachmentList(), TokenUtil.getToken());
       } else {
         // 执行量管的数据记录
         try {
@@ -566,11 +579,6 @@ public class OrderDelivemiddleServiceImpl
           "物管资产明细记录附件变更，同步删除明细资产信息失败！要删除的资产id为：" + detailAssetIds.toString());
     }
     // 同步更新状态为0的资产实体信息和资产实体属性值信息,物管数据进行资产实体的信息删除，量管不需要做操作
-    // 逻辑删除送货明细附件表
-    OrderAttachmentDTO dto = new OrderAttachmentDTO();
-    dto.setAtttype(3);
-    dto.setParentId(middleId);
-    assetServiceFeign.deleteAttachmentByParentId(dto, TokenUtil.getToken());
     if ("2".equals(wmType)) {
       // 2.逻辑删除资产信息实体类
       Long[] strArray = new Long[detailAssetIds.size()];
@@ -686,9 +694,12 @@ public class OrderDelivemiddleServiceImpl
       if (excelFile.getName().endsWith("xlsx") || excelFile.getName().endsWith("xlsm")) {
         workbook = new XSSFWorkbook(is);
         formulaEvaluator = new XSSFFormulaEvaluator((XSSFWorkbook) workbook);
-      } else {
+      } else if (excelFile.getName().endsWith("xls")) {
         workbook = new HSSFWorkbook(is);
         formulaEvaluator = new HSSFFormulaEvaluator((HSSFWorkbook) workbook);
+      } else {
+        return ResultVOUtil.returnFail(
+            ResultEnum.FILE_NOTNULL.getCode(), "只允许上传附件格式为xlsx、xlsm、xls的明细附件，请检查后再上传！");
       }
       // 判断excel文件打开是否正确
       if (workbook == null) {
@@ -704,27 +715,27 @@ public class OrderDelivemiddleServiceImpl
     }
     // 获取资产模板对应的个性表头信息
     List<Map<String, Object>> titleMap = new ArrayList<>();
-    try {
-      titleMap = getTitleMap(moduleId);
-    } catch (Exception e) {
-      // 解析有误，删除无用文件
-      excelFile.delete();
-      throw new RuntimeException("模板参数配置有误，请联系管理员！");
-    }
     // 获取资产模板所有的属性信息
     Map<Integer, Integer> titleIdM = new HashMap<>();
     Map<Integer, String> titleNameM = new HashMap<>();
     Map<String, Integer> titleNameM2 = new HashMap<>();
     // 获取表头的下标
     List<Integer> collList = new ArrayList<>();
-    for (int conum = 0; conum < titleMap.size(); conum++) {
-      titleIdM.put(Integer.valueOf(titleMap.get(conum).get("PRPT_ORDER").toString()), conum);
-      titleNameM2.put(titleMap.get(conum).get("NAME").toString(), conum);
-      titleNameM.put(conum, titleMap.get(conum).get("NAME").toString());
-      if (titleMap.get(conum).get("PK_FLAG") != null
-          && Integer.valueOf(titleMap.get(conum).get("PK_FLAG").toString()) == 1) {
-        collList.add(conum);
+    try {
+      titleMap = getTitleMap(moduleId);
+      for (int conum = 0; conum < titleMap.size(); conum++) {
+        titleIdM.put(Integer.valueOf(titleMap.get(conum).get("PRPT_ORDER").toString()), conum);
+        titleNameM2.put(titleMap.get(conum).get("NAME").toString(), conum);
+        titleNameM.put(conum, titleMap.get(conum).get("NAME").toString());
+        if (titleMap.get(conum).get("PK_FLAG") != null
+            && Integer.valueOf(titleMap.get(conum).get("PK_FLAG").toString()) == 1) {
+          collList.add(conum);
+        }
       }
+    } catch (Exception e) {
+      // 解析有误，删除无用文件
+      excelFile.delete();
+      throw new RuntimeException("获取模板参数配置有误，请联系管理员！");
     }
     Sheet sheet = workbook.getSheetAt(0);
     // 当前sheet页面为空,继续遍历
@@ -737,6 +748,7 @@ public class OrderDelivemiddleServiceImpl
     // 1.读取Excel的表头数据,比较模板是否一致
     Row row1 = sheet.getRow(0);
     boolean isExcel = true;
+    String titleMsg = "";
     // 比较表头大小是否一致
     if (row1 == null || titleNameM.size() != row1.getLastCellNum()) {
       // 解析有误，删除无用文件
@@ -746,10 +758,18 @@ public class OrderDelivemiddleServiceImpl
     }
     // 比较表头内容是否一致
     for (int columnNum = 0; columnNum < row1.getLastCellNum(); columnNum++) {
-      if (!titleNameM
-          .get(columnNum)
-          .equals(ExcleUtils.getValue(row1.getCell(columnNum), formulaEvaluator))) {
+      String titleDb = titleNameM.get(columnNum);
+      String titleUp = ExcleUtils.getValue(row1.getCell(columnNum), formulaEvaluator);
+      if (!titleDb.equals(titleUp)) {
         isExcel = false;
+        titleMsg =
+            "您维护的第"
+                + (columnNum + 1)
+                + "列表头字段的标题列名称不正确，应是"
+                + titleDb
+                + "，实际维护成了"
+                + titleUp
+                + ",请调整上传的文件。";
         break;
       }
     }

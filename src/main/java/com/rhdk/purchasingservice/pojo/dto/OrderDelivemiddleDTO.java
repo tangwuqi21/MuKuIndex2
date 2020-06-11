@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.List;
 
@@ -71,6 +72,7 @@ public class OrderDelivemiddleDTO implements Serializable {
   private String token;
 
   @ApiModelProperty(value = "送货明细备注")
+  @Size(max = 100, message = "备注过长，只能输入100个字符以内的备注")
   private String remark;
 
   @ApiModelProperty(value = "资产id集合", hidden = true)
