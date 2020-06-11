@@ -683,7 +683,7 @@ public class OrderDelivemiddleServiceImpl
       excelFile = FileUtil.multipartFileToFile(file);
       InputStream is = new FileInputStream(excelFile);
       // 判断文件是xlsx还是xls
-      if (excelFile.getName().endsWith("xlsx")) {
+      if (excelFile.getName().endsWith("xlsx") || excelFile.getName().endsWith("xlsm")) {
         workbook = new XSSFWorkbook(is);
         formulaEvaluator = new XSSFFormulaEvaluator((XSSFWorkbook) workbook);
       } else {
