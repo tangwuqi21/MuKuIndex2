@@ -724,6 +724,10 @@ public class OrderDelivemiddleServiceImpl
     List<Integer> collList = new ArrayList<>();
     try {
       titleMap = getTitleMap(moduleId);
+      if (titleMap == null || titleMap.size() == 0) {
+        return ResultVOUtil.returnFail(
+            ResultEnum.FILE_NOTNULL.getCode(), "该模板未进行参数配置，请联系管理员进行配置后上传！模板id为:" + moduleId);
+      }
       for (int conum = 0; conum < titleMap.size(); conum++) {
         titleIdM.put(Integer.valueOf(titleMap.get(conum).get("PRPT_ORDER").toString()), conum);
         titleNameM2.put(titleMap.get(conum).get("NAME").toString(), conum);
