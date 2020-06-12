@@ -46,7 +46,7 @@ public class OrderContractDTO implements Serializable {
 
   @ApiModelProperty(value = "合同金额")
   @NotNull(message = "合同金额不能为空")
-  private Long contractMoney;
+  private String contractMoney;
 
   @ApiModelProperty(value = "附件")
   private List<OrderAttachmentDTO> attachmentList;

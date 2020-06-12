@@ -55,7 +55,7 @@ public class OrderContractVO implements Serializable {
   private String contractTypeName;
 
   @ApiModelProperty(value = "合同金额")
-  private Long contractMoney;
+  private String contractMoney;
 
   @ApiModelProperty(value = "附件集合")
   private List<Map<String, Object>> attachmentList;
