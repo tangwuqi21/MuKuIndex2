@@ -6,7 +6,7 @@ spring:
     active: test
   http:
     multipart:
-      maxFileSize: 500MB
+      maxFileSize: 50MB
       maxRequestSize: 500MB
 
   application:
@@ -49,7 +49,7 @@ spring:
     #    host: 192.168.30.97
     #    port: 6379
     #    password: ronghe2020
-    database: 10
+    database: 2
     host: 192.168.11.25
     port: 6379
     password: ronghe2020
