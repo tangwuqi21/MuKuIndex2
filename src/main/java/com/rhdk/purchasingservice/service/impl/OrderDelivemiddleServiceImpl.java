@@ -126,6 +126,7 @@ public class OrderDelivemiddleServiceImpl
                 if (purcasingContract != null) {
                   orderContract = orderContractMapper.selectById(purcasingContract.getContractId());
                 }
+                a.setOrderId(orderDeliverecord.getOrderId());
                 // 4.查询模板名称
                 AssetTmplInfoVO assetTmplInfo = new AssetTmplInfoVO();
                 if (redisTemplate.hasKey(Constants.TMPL_KEY + a.getModuleId())) {

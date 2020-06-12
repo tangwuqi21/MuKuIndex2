@@ -33,6 +33,9 @@ public class OrderDelivemiddleVO implements Serializable {
   @ApiModelProperty(value = "送货记录id")
   private Long deliveryId;
 
+  @ApiModelProperty(value = "合同id")
+  private Long orderId;
+
   @ApiModelProperty(value = "单据号")
   private String deliverydetailCode;
 
