@@ -110,6 +110,10 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     type-aliases-package: com.rhdk.purchasingservice.pojo.entity
 
+igen-rpc:
+  server-name:
+    auth: IGEN-MCRSRV-AUTH_THRIFT
+    account: IGEN-MCRSRV-ACC_THRIFT
 
 feign:
   hystrix:
