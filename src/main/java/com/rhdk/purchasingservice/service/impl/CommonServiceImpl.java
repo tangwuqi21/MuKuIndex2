@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +46,7 @@ public class CommonServiceImpl implements CommonService {
     page.setCurrent(dto.getCurrentPage());
     IPage<OrderContractVO> recordsList = orderContractMapper.selectContractList(page, dto, orgId);
     List<OrderContractVO> orderContractVOList = recordsList.getRecords();
+    List<OrderContractVO> dataresultList = new ArrayList<>();
     orderContractVOList.stream()
         .forEach(
             a -> {
@@ -55,10 +57,11 @@ public class CommonServiceImpl implements CommonService {
               entity = purcasingContractMapper.selectOne(queryWrapper);
               if (entity != null) {
                 a.setContractCompany(entity.getContractCompany());
+                a.setId(entity.getId());
+                dataresultList.add(a);
               }
-              a.setId(entity.getId());
             });
-    recordsList.setRecords(orderContractVOList);
+    recordsList.setRecords(dataresultList);
     return ResultVOUtil.returnSuccess(recordsList);
   }
 
