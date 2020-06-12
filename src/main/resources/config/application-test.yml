@@ -116,5 +116,5 @@ feign:
     enabled: false
 
 feignName:
-  assetService: ASSETSERVICE-DEV
-  inventoryService: INVENTORY-SERVICE-DEV
+  assetService: ASSETSERVICE-TEST
+  inventoryService: INVENTORY-SERVICE-TEST
