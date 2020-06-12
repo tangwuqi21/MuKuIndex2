@@ -26,11 +26,7 @@ import com.rhdk.purchasingservice.pojo.vo.AssetTmplInfoVO;
 import com.rhdk.purchasingservice.pojo.vo.OrderDelivemiddleVO;
 import com.rhdk.purchasingservice.service.IOrderDelivemiddleService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -42,7 +38,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -690,18 +685,8 @@ public class OrderDelivemiddleServiceImpl
     FormulaEvaluator formulaEvaluator = null;
     try {
       excelFile = FileUtil.multipartFileToFile(file);
-      InputStream is = new FileInputStream(excelFile);
-      // 判断文件是xlsx还是xls
-      if (excelFile.getName().endsWith("xlsx") || excelFile.getName().endsWith("xlsm")) {
-        workbook = new XSSFWorkbook(is);
-        formulaEvaluator = new XSSFFormulaEvaluator((XSSFWorkbook) workbook);
-      } else if (excelFile.getName().endsWith("xls")) {
-        workbook = new HSSFWorkbook(is);
-        formulaEvaluator = new HSSFFormulaEvaluator((HSSFWorkbook) workbook);
-      } else {
-        return ResultVOUtil.returnFail(
-            ResultEnum.FILE_NOTNULL.getCode(), "只允许上传附件格式为xlsx、xlsm、xls的明细附件，请检查后再上传！");
-      }
+      InputStream is = file.getInputStream();
+      workbook = WorkbookFactory.create(is);
       // 判断excel文件打开是否正确
       if (workbook == null) {
         // 解析有误，删除无用文件
@@ -712,7 +697,7 @@ public class OrderDelivemiddleServiceImpl
     } catch (Exception e) {
       // 解析有误，删除无用文件
       excelFile.delete();
-      throw new RuntimeException("文件上传模板解析出错！");
+      throw new RuntimeException("文件上传模板解析出错！只允许上传附件格式为xlsx、xlsm、xls的明细附件，请检查后再上传！");
     }
     // 获取资产模板对应的个性表头信息
     List<Map<String, Object>> titleMap = new ArrayList<>();
@@ -798,6 +783,7 @@ public class OrderDelivemiddleServiceImpl
     List<AssetEntityPrpt> assetEntityPrptList = new ArrayList<>();
     List<OrderDelivedetail> orderDelivedetailList = new ArrayList<>();
     List<String> pkStrList = new ArrayList<>();
+    Set<String> collSet = new HashSet<String>();
     for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
       Row row = sheet.getRow(rowNum);
       if (row == null) {
@@ -806,8 +792,8 @@ public class OrderDelivemiddleServiceImpl
         break;
       }
       // 入库每条资产实体对应的属性值（个性化的，不是共有的,从第二列开始）
-      Set<String> collSet = new HashSet<String>();
       String collStr = moduleId + "_";
+      String colVal = "";
       for (int columnNum = 0; columnNum < row.getLastCellNum(); columnNum++) {
         String cellValue = ExcleUtils.getValue(row.getCell(columnNum), formulaEvaluator);
         if (org.springframework.util.StringUtils.isEmpty(cellValue)) {
@@ -818,10 +804,11 @@ public class OrderDelivemiddleServiceImpl
         // 3.检查Excel中是否存在重复行，根据数据库中模板属性pk_flag取值
         if (collList.contains(columnNum)) {
           collStr += cellValue;
+          colVal += cellValue;
         }
       }
 
-      if (!collSet.add(collStr)) {
+      if (!collSet.add(colVal)) {
         isDataT = false;
         rowNo = rowNum + 1;
         break;
