@@ -567,29 +567,32 @@ public class OrderDelivemiddleServiceImpl
     List<Long> midList = new ArrayList<>();
     midList.add(middleId);
     List<Long> detailAssetIds = orderDelivedetailMapper.getAssetIdsByDId(midList);
-    try {
-      // 逻辑删除明细表的数据
-      orderDelivedetailMapper.updateDetailsDel(detailAssetIds, middleId);
-    } catch (Exception e) {
-      throw new RuntimeException(
-          "物管资产明细记录附件变更，同步删除明细资产信息失败！要删除的资产id为：" + detailAssetIds.toString());
-    }
-    // 同步更新状态为0的资产实体信息和资产实体属性值信息,物管数据进行资产实体的信息删除，量管不需要做操作
-    if ("2".equals(wmType)) {
-      // 2.逻辑删除资产信息实体类
-      Long[] strArray = new Long[detailAssetIds.size()];
-      detailAssetIds.toArray(strArray);
-      Integer rownum = assetServiceFeign.deleteEntitys(strArray, 0, TokenUtil.getToken()).getData();
-      // 3.逻辑删除资产属性值信息
-      if (rownum > 0) {
-        assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
-        // 这里同步对Redis的PK值进行删除
-        TmplPrptsFilter tmplPrptsFilter = new TmplPrptsFilter();
-        tmplPrptsFilter.setTmplId(moduleId);
-        Set<String> valSet =
-            assetServiceFeign.searchPKValByTmpId(tmplPrptsFilter, TokenUtil.getToken()).getData();
-        for (String str : valSet) {
-          redisUtils.delete(str);
+    if (detailAssetIds.size() > 0) {
+      try {
+        // 逻辑删除明细表的数据
+        orderDelivedetailMapper.updateDetailsDel(detailAssetIds, middleId);
+      } catch (Exception e) {
+        throw new RuntimeException(
+            "物管资产明细记录附件变更，同步删除明细资产信息失败！要删除的资产id为：" + detailAssetIds.toString());
+      }
+      // 同步更新状态为0的资产实体信息和资产实体属性值信息,物管数据进行资产实体的信息删除，量管不需要做操作
+      if ("2".equals(wmType)) {
+        // 2.逻辑删除资产信息实体类
+        Long[] strArray = new Long[detailAssetIds.size()];
+        detailAssetIds.toArray(strArray);
+        Integer rownum =
+            assetServiceFeign.deleteEntitys(strArray, 0, TokenUtil.getToken()).getData();
+        // 3.逻辑删除资产属性值信息
+        if (rownum > 0) {
+          assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
+          // 这里同步对Redis的PK值进行删除
+          TmplPrptsFilter tmplPrptsFilter = new TmplPrptsFilter();
+          tmplPrptsFilter.setTmplId(moduleId);
+          Set<String> valSet =
+              assetServiceFeign.searchPKValByTmpId(tmplPrptsFilter, TokenUtil.getToken()).getData();
+          for (String str : valSet) {
+            redisUtils.delete(str);
+          }
         }
       }
     }
