@@ -416,9 +416,11 @@ public class OrderDelivemiddleServiceImpl
 
     // 判断是否切换了模板
     if (model.getModuleId().equals(entity.getModuleId())) {
+      logger.info("updateOrderMiddle--进入未切换模板环节");
       // 未切换模板
       if ("2".equals(model.getWmType())) {
         // 物管状态的需要进行附件内容是否变化判断
+        logger.info("updateOrderMiddle--物管状态变更");
         OrderAttachmentDTO dto = new OrderAttachmentDTO();
         dto.setAtttype(3);
         dto.setParentId(model.getId());
@@ -432,6 +434,9 @@ public class OrderDelivemiddleServiceImpl
             fileUrl = model.getAttachmentList().get(0).getFileurl();
           }
           if (!fileUrl.equals(attachmentInfo.get("fileurl"))) {
+            logger.info("updateOrderMiddle--明细附件发生变化");
+            // 通过明细中间表找到明细表，通过明细表，去到资产实体表中进行之前的数据删除，然后删除明细中间表的数据
+            updateDetailAndAsset(model.getId(), model.getWmType(), model.getModuleId());
             // 校验资产PK值，同步Redis数据入库
             try {
               insertAllEntityInfo(
@@ -439,23 +444,32 @@ public class OrderDelivemiddleServiceImpl
             } catch (Exception e) {
               throw new RuntimeException("物管资产明细记录附件变更，同步Redis资产信息入库失败！" + e.getMessage());
             }
+            // 更新附件表
+            // 逻辑删除送货明细附件表
+            if (model.getAttachmentList().size() > 0) {
+              OrderAttachmentDTO dto1 = new OrderAttachmentDTO();
+              dto1.setAtttype(3);
+              dto1.setParentId(model.getId());
+              assetServiceFeign.deleteAttachmentByParentId(dto1, TokenUtil.getToken());
+              for (OrderAttachmentDTO model2 : model.getAttachmentList()) {
+                model2.setParentId(model.getId());
+                model2.setAtttype(3);
+              }
+              assetServiceFeign.addBeatchAtta(model.getAttachmentList(), TokenUtil.getToken());
+            }
+          } else {
+            logger.info("updateOrderMiddle--明细附件未发生变化，不做任何操作");
           }
-        }
-        // 更新附件表
-        // 逻辑删除送货明细附件表
-        if (model.getAttachmentList().size() > 0) {
-          OrderAttachmentDTO dto1 = new OrderAttachmentDTO();
-          dto1.setAtttype(3);
-          dto1.setParentId(model.getId());
-          assetServiceFeign.deleteAttachmentByParentId(dto1, TokenUtil.getToken());
-          for (OrderAttachmentDTO model2 : model.getAttachmentList()) {
-            model2.setParentId(model.getId());
-            model2.setAtttype(3);
-          }
-          assetServiceFeign.addBeatchAtta(model.getAttachmentList(), TokenUtil.getToken());
         }
       } else {
+        logger.info("updateOrderMiddle--量管状态变更");
         // 量管的资产，更新明细表和资产实体表中的数量
+        List<Long> midList = new ArrayList<>();
+        midList.add(model.getId());
+        List<Long> detailAssetIds = orderDelivedetailMapper.getAssetIdsByDId(midList);
+        if (detailAssetIds.size() > 0) {
+          orderDelivedetailMapper.updateDetails(detailAssetIds, model);
+        }
         // 这里需要根据明细表中的数据同步更新资产表中量管资产的数量
         Long assetNum = numT - numT2;
         EntityUpVo entityUpVo = new EntityUpVo();
@@ -474,6 +488,7 @@ public class OrderDelivemiddleServiceImpl
         }
       }
     } else {
+      logger.info("updateOrderMiddle--进入切换模板环节");
       // 切换模板判断是否有明细id存在，如果有则进行之前的明细id删除，否则不进行操作
       AssetTmplInfoVO assetTmplInfoVO = new AssetTmplInfoVO();
       if (redisTemplate.hasKey(Constants.TMPL_KEY + entity.getModuleId())) {
@@ -486,17 +501,27 @@ public class OrderDelivemiddleServiceImpl
                 .selectPrptValByTmplId(entity.getModuleId(), TokenUtil.getToken())
                 .getData();
       }
+      // 判断之前模板是否是物管需要进行数据清除
       if ("2".equals(assetTmplInfoVO.getWmType())) {
+        logger.info("updateOrderMiddle--切换模板，清除之前物管数据");
         OrderAttachmentDTO dto1 = new OrderAttachmentDTO();
         dto1.setAtttype(3);
         dto1.setParentId(entity.getId());
         assetServiceFeign.deleteAttachmentByParentId(dto1, TokenUtil.getToken());
+        updateDetailAndAsset(
+            entity.getId(), assetTmplInfoVO.getWmType().toString(), entity.getModuleId());
+      } else {
+        logger.info("updateOrderMiddle--切换模板，清除之前量管数据");
+        List<Long> midList = new ArrayList<>();
+        midList.add(model.getId());
+        List<Long> detailAssetIds = orderDelivedetailMapper.getAssetIdsByDId(midList);
+        if (detailAssetIds.size() > 0) {
+          orderDelivedetailMapper.updateDetails(detailAssetIds, model);
+        }
       }
-
-      updateDetailAndAsset(
-          entity.getId(), assetTmplInfoVO.getWmType().toString(), entity.getModuleId());
       // 判断切换后的模板类型是物管还是量管，物管更新Redis数据入库，量管新增一条数据
       if ("2".equals(model.getWmType())) {
+        logger.info("updateOrderMiddle--切换模板，当前物管数据新增");
         // 校验PK值，同步Redis数据入库
         try {
           insertAllEntityInfo(
@@ -510,6 +535,7 @@ public class OrderDelivemiddleServiceImpl
         }
         assetServiceFeign.addBeatchAtta(model.getAttachmentList(), TokenUtil.getToken());
       } else {
+        logger.info("updateOrderMiddle--切换模板，当前量管数据新增");
         // 执行量管的数据记录
         try {
           addOrUpdateNumberAsset(model);
