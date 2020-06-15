@@ -23,7 +23,10 @@ public interface OrderDelivedetailMapper extends BaseMapper<OrderDelivedetail> {
 
   List<Long> getAssetIdsByDId(@Param("middleIds") List<Long> middleIds);
 
-  Integer updateDetailsDel(@Param("assetIds") List<Long> assetIds, @Param("id") Long id);
+  Integer updateDetailsDel(
+      @Param("assetIds") List<Long> assetIds,
+      @Param("updateBy") Long updateBy,
+      @Param("id") Long id);
 
   List<Map<String, Object>> getEntityIdsByMid(@Param("middleIds") List<Long> middleIds);
 }

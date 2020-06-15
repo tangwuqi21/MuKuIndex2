@@ -332,7 +332,7 @@ public class OrderDelivemiddleServiceImpl
     if (assetIds.size() > 0) {
       Long[] strArray = new Long[assetIds.size()];
       assetIds.toArray(strArray);
-      orderDelivedetailMapper.updateDetailsDel(assetIds, id);
+      orderDelivedetailMapper.updateDetailsDel(assetIds, TokenUtil.getUserInfo().getUserId(), id);
       // 这里需要区分明细的资产类型，量管的更新资产表中量管资产数量就行了
       OrderDelivemiddle orderDelivemiddle = orderDelivemiddleMapper.selectById(id);
       AssetTmplInfoVO assetTmplInfoVO = new AssetTmplInfoVO();
@@ -416,8 +416,7 @@ public class OrderDelivemiddleServiceImpl
 
     // 判断是否切换了模板
     if (model.getModuleId().equals(entity.getModuleId())) {
-      // 通过明细中间表找到明细表，通过明细表，去到资产实体表中进行之前的数据删除，然后删除明细中间表的数据
-      updateDetailAndAsset(model.getId(), model.getWmType(), model.getModuleId());
+      // 未切换模板
       if ("2".equals(model.getWmType())) {
         // 物管状态的需要进行附件内容是否变化判断
         OrderAttachmentDTO dto = new OrderAttachmentDTO();
@@ -570,7 +569,8 @@ public class OrderDelivemiddleServiceImpl
     if (detailAssetIds.size() > 0) {
       try {
         // 逻辑删除明细表的数据
-        orderDelivedetailMapper.updateDetailsDel(detailAssetIds, middleId);
+        orderDelivedetailMapper.updateDetailsDel(
+            detailAssetIds, TokenUtil.getUserInfo().getUserId(), middleId);
       } catch (Exception e) {
         throw new RuntimeException(
             "物管资产明细记录附件变更，同步删除明细资产信息失败！要删除的资产id为：" + detailAssetIds.toString());
