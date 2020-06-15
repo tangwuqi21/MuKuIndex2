@@ -3,48 +3,25 @@ server:
 
 spring:
   profiles:
-    active: test
+    active: uat
   http:
     multipart:
       maxFileSize: 50MB
       maxRequestSize: 500MB
 
   application:
-    name: purchasingService-test
+    name: assetService-uat
   datasource:
-    url: jdbc:oracle:thin:@192.168.30.97:1521:helowin
-    username: RHDK_SSO_TEST
-    password: RHDK_SSO_TEST
-    driver-class-name: oracle.jdbc.OracleDriver
+    url: jdbc:oracle:thin:@192.168.11.13:1521:RHDKOLDB
+    username: dk_uat
+    password: dk_uat
+    driver-class-name: oracle.jdbc.driver.OracleDriver
     type: com.alibaba.druid.pool.DruidDataSource
 
-    filters: stat
-    maxActive: 20
-    initialSize: 1
-    maxWait: 60000
-    minIdle: 1
-    timeBetweenEvictionRunsMillis: 60000
-    minEvictableIdleTimeMillis: 300000
-    validationQuery: select 'x'
-    testWhileIdle: true
-    testOnBorrow: false
-    testOnReturn: false
-    poolPreparedStatements: true
-    maxOpenPreparedStatements: 20
-    thymeleaf:
-      mode: HTML5
-      #出现错误时, 直接抛出异常
-    mvc:
-      throw-exception-if-no-handler-found: true
-      #不要为我们工程中的资源文件建立映射
-    resources:
-      add-mappings: false
-
-  #redis 连接信息
   redis:
     database: 2
-    host: 192.168.30.96
-    port: 36379
+    host: 192.168.11.25
+    port: 6379
     password: ronghe2020
     pool:
       # 连接池最大连接数（使用负值表示没有限制）test
@@ -60,17 +37,17 @@ spring:
 logging:
   config: classpath:logback-boot.xml  # 默认logback.xml配置文件目录
   level:
-    com.rhdk.purchasingservice.dao: info  #打印sql
+    com.rhdk.assetservice.dao: info  #打印sql
 
 eureka:
   client:
     #    register-with-eureka: false #把自己当成客户端
     #    fetch-registry: false
     healthcheck:
-      enabled: false   #关闭健康检查，不然无法注册到eureka 注册中心
+      enabled: false   #关闭健康检查，不然无法注册到eureka注册中心
     #普通安全级别设置访问Eureka的访问密码
     serviceUrl:
-      defaultZone: http://192.168.30.94:8761/eureka
+      defaultZone: http://192.168.21.142:8761/eureka
   instance:
     prefer-ip-address: true
     #自定义 eureka 监控服务的ip服务名等
@@ -91,26 +68,11 @@ jwt:
       IQIDAQAB
       -----END PUBLIC KEY-----
 
-mybatis-plus:
-  global-config:
-    id-type: 1
-    logic-delete-field: delFlag
-    logic-delete-value: 1
-    logic-not-delete-value: 0
-  mapper-locations: classpath:/mapping/*.xml
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-    type-aliases-package: com.rhdk.purchasingservice.pojo.entity
-
 igen-rpc:
   server-name:
     auth: IGEN-MCRSRV-AUTH_THRIFT
     account: IGEN-MCRSRV-ACC_THRIFT
 
-feign:
-  hystrix:
-    enabled: false
-
 feignName:
-  assetService: assetService-test
-  inventoryService: INVENTORY-SERVICE-TEST
+  asset: ASSETSERVICE-UAT
+  inventory: INVENTORY-SERVICE-UAT
