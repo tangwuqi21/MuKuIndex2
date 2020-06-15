@@ -816,9 +816,7 @@ public class OrderDelivemiddleServiceImpl
     for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
       Row row = sheet.getRow(rowNum);
       if (row == null) {
-        rowNo = rowNum + 1;
-        isRowNull = false;
-        break;
+        continue;
       }
       // 入库每条资产实体对应的属性值（个性化的，不是共有的,从第二列开始）
       String collStr = moduleId + "_";
