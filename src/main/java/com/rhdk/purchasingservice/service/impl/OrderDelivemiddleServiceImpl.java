@@ -815,7 +815,7 @@ public class OrderDelivemiddleServiceImpl
     Set<String> collSet = new HashSet<String>();
     for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
       Row row = sheet.getRow(rowNum);
-      if (row == null) {
+      if (row == null || isRowEmpty(row)) {
         continue;
       }
       // 入库每条资产实体对应的属性值（个性化的，不是共有的,从第二列开始）
@@ -825,7 +825,7 @@ public class OrderDelivemiddleServiceImpl
         String cellValue = ExcleUtils.getValue(row.getCell(columnNum), formulaEvaluator);
         if (org.springframework.util.StringUtils.isEmpty(cellValue)) {
           isCellNull = false;
-          cellMsg = "第" + (rowNum + 1) + "行，第" + (columnNum + 1) + "列";
+          cellMsg = "第" + (rowNum) + "行，第" + (columnNum + 1) + "列";
           break;
         }
         // 3.检查Excel中是否存在重复行，根据数据库中模板属性pk_flag取值
@@ -910,6 +910,16 @@ public class OrderDelivemiddleServiceImpl
     // 上传成功，删除无用文件
     excelFile.delete();
     return ResultVOUtil.returnSuccess(resultMap);
+  }
+
+  public static boolean isRowEmpty(Row row) {
+    for (int i = row.getFirstCellNum(); i < row.getLastCellNum(); i++) {
+      Cell cell = row.getCell(i);
+      if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
