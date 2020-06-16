@@ -363,6 +363,16 @@ public class OrderDelivemiddleServiceImpl
         }
       } else {
         // 物管同步更新数据状态
+        // 这里同步对Redis的PK值进行删除
+        TmplPrptsFilter tmplPrptsFilter = new TmplPrptsFilter();
+        tmplPrptsFilter.setTmplId(orderDelivemiddle.getModuleId());
+        Set<String> valSet =
+            assetServiceFeign.searchPKValByTmpId(tmplPrptsFilter, TokenUtil.getToken()).getData();
+        if (valSet.size() > 0) {
+          for (String str : valSet) {
+            redisUtils.delete(str);
+          }
+        }
         // 同步更新状态为0的资产实体信息和资产实体属性值信息
         // 2.逻辑删除资产信息实体类
         Integer rownum =
@@ -370,14 +380,6 @@ public class OrderDelivemiddleServiceImpl
         // 3.逻辑删除资产属性值信息
         if (rownum > 0) {
           assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
-          // 这里同步对Redis的PK值进行删除
-          TmplPrptsFilter tmplPrptsFilter = new TmplPrptsFilter();
-          tmplPrptsFilter.setTmplId(orderDelivemiddle.getModuleId());
-          Set<String> valSet =
-              assetServiceFeign.searchPKValByTmpId(tmplPrptsFilter, TokenUtil.getToken()).getData();
-          for (String str : valSet) {
-            redisUtils.delete(str);
-          }
         }
       }
     }
@@ -606,19 +608,21 @@ public class OrderDelivemiddleServiceImpl
         // 2.逻辑删除资产信息实体类
         Long[] strArray = new Long[detailAssetIds.size()];
         detailAssetIds.toArray(strArray);
+        // 这里同步对Redis的PK值进行删除
+        TmplPrptsFilter tmplPrptsFilter = new TmplPrptsFilter();
+        tmplPrptsFilter.setTmplId(moduleId);
+        Set<String> valSet =
+            assetServiceFeign.searchPKValByTmpId(tmplPrptsFilter, TokenUtil.getToken()).getData();
+        if (valSet.size() > 0) {
+          for (String str : valSet) {
+            redisUtils.delete(str);
+          }
+        }
         Integer rownum =
             assetServiceFeign.deleteEntitys(strArray, 0, TokenUtil.getToken()).getData();
         // 3.逻辑删除资产属性值信息
         if (rownum > 0) {
           assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
-          // 这里同步对Redis的PK值进行删除
-          TmplPrptsFilter tmplPrptsFilter = new TmplPrptsFilter();
-          tmplPrptsFilter.setTmplId(moduleId);
-          Set<String> valSet =
-              assetServiceFeign.searchPKValByTmpId(tmplPrptsFilter, TokenUtil.getToken()).getData();
-          for (String str : valSet) {
-            redisUtils.delete(str);
-          }
         }
       }
     }
