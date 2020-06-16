@@ -899,7 +899,7 @@ public class OrderDelivemiddleServiceImpl
           ResultEnum.TEMPLATE_CELLNULL.getCode(), "附件第" + rowNo + "行数据内容为空");
     }
     // 调用附件上传接口
-    // fileUrl = assetServiceFeign.uploadSingleFile(file, TokenUtil.getToken());
+    fileUrl = assetServiceFeign.uploadSingleFile(file, TokenUtil.getToken());
     resultMap.put("fileUrl", fileUrl);
     if (org.springframework.util.StringUtils.isEmpty(resultMap.get("fileUrl"))) {
       // 上传失败，删除无用文件
