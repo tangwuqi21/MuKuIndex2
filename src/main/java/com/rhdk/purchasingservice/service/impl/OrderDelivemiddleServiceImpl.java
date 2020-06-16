@@ -1204,7 +1204,7 @@ public class OrderDelivemiddleServiceImpl
   }
 
   @Override
-  public ResponseEnvelope deleteRedisKey(List<String> keyList) {
+  public ResponseEnvelope deleteRedisKey(Set<String> keyList) {
     if (keyList.size() > 0) {
       keyList.forEach(
           a -> {
