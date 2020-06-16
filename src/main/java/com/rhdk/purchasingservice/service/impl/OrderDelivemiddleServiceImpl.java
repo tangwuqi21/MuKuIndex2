@@ -1204,10 +1204,9 @@ public class OrderDelivemiddleServiceImpl
   }
 
   @Override
-  public ResponseEnvelope deleteRedisKey(String keyList) {
-    if (!StringUtils.isEmpty(keyList)) {
-      String[] arr = keyList.split(";");
-      for (String mo : arr) {
+  public ResponseEnvelope deleteRedisKey(Set<String> keyList) {
+    if (keyList.size() > 0) {
+      for (String mo : keyList) {
         logger.info("删除Redis_key:" + mo);
         redisUtils.delete(mo);
       }
