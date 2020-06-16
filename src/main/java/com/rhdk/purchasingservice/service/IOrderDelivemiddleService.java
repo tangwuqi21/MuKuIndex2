@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * 送货记录明细中间表 服务类
@@ -111,5 +110,5 @@ public interface IOrderDelivemiddleService extends IService<OrderDelivemiddle> {
 
   Map<String, Object> checkReceiveIsExist(List<Long> middleList);
 
-  ResponseEnvelope deleteRedisKey(Set<String> keyList);
+  ResponseEnvelope deleteRedisKey(String keyList);
 }

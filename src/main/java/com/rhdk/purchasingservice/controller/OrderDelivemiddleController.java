@@ -26,7 +26,6 @@ import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * 送货记录明细中间表 前端控制器
@@ -224,7 +223,7 @@ public class OrderDelivemiddleController {
    */
   @ApiOperation(value = "RedisPK值删除", notes = "送货记录明细中间表API")
   @RequestMapping(value = "/deleteRedisKey", method = RequestMethod.POST)
-  public ResponseEnvelope deleteRedisKey(Set<String> keyList) {
+  public ResponseEnvelope deleteRedisKey(String keyList) {
     try {
       return iOrderDelivemiddleService.deleteRedisKey(keyList);
     } catch (Exception e) {

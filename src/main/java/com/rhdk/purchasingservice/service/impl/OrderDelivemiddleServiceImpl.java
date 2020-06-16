@@ -899,7 +899,7 @@ public class OrderDelivemiddleServiceImpl
           ResultEnum.TEMPLATE_CELLNULL.getCode(), "附件第" + rowNo + "行数据内容为空");
     }
     // 调用附件上传接口
-    fileUrl = assetServiceFeign.uploadSingleFile(file, TokenUtil.getToken());
+    // fileUrl = assetServiceFeign.uploadSingleFile(file, TokenUtil.getToken());
     resultMap.put("fileUrl", fileUrl);
     if (org.springframework.util.StringUtils.isEmpty(resultMap.get("fileUrl"))) {
       // 上传失败，删除无用文件
@@ -1204,13 +1204,13 @@ public class OrderDelivemiddleServiceImpl
   }
 
   @Override
-  public ResponseEnvelope deleteRedisKey(Set<String> keyList) {
-    if (keyList.size() > 0) {
-      keyList.forEach(
-          a -> {
-            logger.info("删除Redis_key:" + a);
-            redisUtils.delete(a);
-          });
+  public ResponseEnvelope deleteRedisKey(String keyList) {
+    if (!StringUtils.isEmpty(keyList)) {
+      String[] arr = keyList.split(";");
+      for (String mo : arr) {
+        logger.info("删除Redis_key:" + mo);
+        redisUtils.delete(mo);
+      }
     }
     return ResultVOUtil.returnSuccess();
   }
