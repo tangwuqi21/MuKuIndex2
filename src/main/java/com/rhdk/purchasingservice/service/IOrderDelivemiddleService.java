@@ -109,4 +109,6 @@ public interface IOrderDelivemiddleService extends IService<OrderDelivemiddle> {
   ResponseEnvelope searchAssetListByMid(Long id);
 
   Map<String, Object> checkReceiveIsExist(List<Long> middleList);
+
+  ResponseEnvelope deleteRedisKey(List<String> keyList);
 }

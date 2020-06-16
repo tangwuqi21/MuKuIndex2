@@ -229,6 +229,7 @@ public class OrderDelivemiddleServiceImpl
 
     return resutl;
   }
+
   /**
    * 获取单个的送货中间表明细信息 需要获取送货单信息 获取模板信息 获取供应商信息
    *
@@ -1200,5 +1201,17 @@ public class OrderDelivemiddleServiceImpl
       resList = orderDelivedetailMapper.getAssetIdsByDId(middleIds);
     }
     return ResultVOUtil.returnSuccess(resList);
+  }
+
+  @Override
+  public ResponseEnvelope deleteRedisKey(List<String> keyList) {
+    if (keyList.size() > 0) {
+      keyList.forEach(
+          a -> {
+            logger.info("删除Redis_key:" + a);
+            redisUtils.delete(a);
+          });
+    }
+    return ResultVOUtil.returnSuccess();
   }
 }

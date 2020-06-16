@@ -213,4 +213,21 @@ public class OrderDelivemiddleController {
       e.printStackTrace();
     }
   }
+
+  /**
+   * 根据Key值删除Rediskey
+   *
+   * @param keyList
+   * @return
+   * @throws Exception
+   */
+  @ApiOperation(value = "RedisPK值删除", notes = "送货记录明细中间表API")
+  @RequestMapping(value = "/deleteRedisKey", method = RequestMethod.POST)
+  public ResponseEnvelope deleteRedisKey(List<String> keyList) {
+    try {
+      return iOrderDelivemiddleService.deleteRedisKey(keyList);
+    } catch (Exception e) {
+      return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
+    }
+  }
 }
