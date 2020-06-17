@@ -22,11 +22,11 @@ public class ExceptionView {
     this.code = code;
   }
 
-  public String getErrorMessage() {
+  public String getMsg() {
     return msg;
   }
 
-  public void setErrorMessage(String errorMessage) {
-    this.msg = errorMessage;
+  public void setMsg(String msg) {
+    this.msg = msg;
   }
 }
