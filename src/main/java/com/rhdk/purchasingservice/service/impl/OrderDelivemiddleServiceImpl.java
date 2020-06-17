@@ -124,17 +124,17 @@ public class OrderDelivemiddleServiceImpl
                 a.setOrderId(orderDeliverecord.getOrderId());
                 // 4.查询模板名称
                 AssetTmplInfoVO assetTmplInfo = new AssetTmplInfoVO();
-                if (redisTemplate.hasKey(Constants.TMPL_KEY + a.getModuleId())) {
-                  assetTmplInfo =
-                      JSON.parseObject(
-                          redisUtils.get(Constants.TMPL_KEY + a.getModuleId()),
-                          AssetTmplInfoVO.class);
-                } else {
-                  assetTmplInfo =
-                      assetServiceFeign
-                          .selectPrptValByTmplId(a.getModuleId(), dto.getToken())
-                          .getData();
-                }
+                //                if (redisTemplate.hasKey(Constants.TMPL_KEY + a.getModuleId())) {
+                //                  assetTmplInfo =
+                //                      JSON.parseObject(
+                //                          redisUtils.get(Constants.TMPL_KEY + a.getModuleId()),
+                //                          AssetTmplInfoVO.class);
+                //                } else {
+                assetTmplInfo =
+                    assetServiceFeign
+                        .selectPrptValByTmplId(a.getModuleId(), dto.getToken())
+                        .getData();
+                //   }
                 // 5.查询供应商名称,这里的客户信息从Redis中获取，若Redis中不存在则从库中取，同时更新到Redis中
                 Customer customer = new Customer();
                 if (redisTemplate.hasKey(Constants.CUST_KEY + orderDeliverecord.getSupplierId())) {
@@ -337,17 +337,17 @@ public class OrderDelivemiddleServiceImpl
       // 这里需要区分明细的资产类型，量管的更新资产表中量管资产数量就行了
       OrderDelivemiddle orderDelivemiddle = orderDelivemiddleMapper.selectById(id);
       AssetTmplInfoVO assetTmplInfoVO = new AssetTmplInfoVO();
-      if (redisTemplate.hasKey(Constants.TMPL_KEY + orderDelivemiddle.getModuleId())) {
-        assetTmplInfoVO =
-            JSON.parseObject(
-                redisUtils.get(Constants.TMPL_KEY + orderDelivemiddle.getModuleId()),
-                AssetTmplInfoVO.class);
-      } else {
-        assetTmplInfoVO =
-            assetServiceFeign
-                .selectPrptValByTmplId(orderDelivemiddle.getModuleId(), TokenUtil.getToken())
-                .getData();
-      }
+      //      if (redisTemplate.hasKey(Constants.TMPL_KEY + orderDelivemiddle.getModuleId())) {
+      //        assetTmplInfoVO =
+      //            JSON.parseObject(
+      //                redisUtils.get(Constants.TMPL_KEY + orderDelivemiddle.getModuleId()),
+      //                AssetTmplInfoVO.class);
+      //      } else {
+      assetTmplInfoVO =
+          assetServiceFeign
+              .selectPrptValByTmplId(orderDelivemiddle.getModuleId(), TokenUtil.getToken())
+              .getData();
+      // }
       // 量管的资产类型需要去更新对应资产实体表中资产实体的数量，物管的删除不需要进行资产实体的相关删除
       if (assetTmplInfoVO != null && "1".equals(assetTmplInfoVO.getWmType())) {
         // 调用fegin更新量管资产数量
@@ -494,16 +494,17 @@ public class OrderDelivemiddleServiceImpl
       logger.info("updateOrderMiddle--进入切换模板环节");
       // 切换模板判断是否有明细id存在，如果有则进行之前的明细id删除，否则不进行操作
       AssetTmplInfoVO assetTmplInfoVO = new AssetTmplInfoVO();
-      if (redisTemplate.hasKey(Constants.TMPL_KEY + entity.getModuleId())) {
-        assetTmplInfoVO =
-            JSON.parseObject(
-                redisUtils.get(Constants.TMPL_KEY + entity.getModuleId()), AssetTmplInfoVO.class);
-      } else {
-        assetTmplInfoVO =
-            assetServiceFeign
-                .selectPrptValByTmplId(entity.getModuleId(), TokenUtil.getToken())
-                .getData();
-      }
+      //      if (redisTemplate.hasKey(Constants.TMPL_KEY + entity.getModuleId())) {
+      //        assetTmplInfoVO =
+      //            JSON.parseObject(
+      //                redisUtils.get(Constants.TMPL_KEY + entity.getModuleId()),
+      // AssetTmplInfoVO.class);
+      //      } else {
+      assetTmplInfoVO =
+          assetServiceFeign
+              .selectPrptValByTmplId(entity.getModuleId(), TokenUtil.getToken())
+              .getData();
+      //  }
       // 判断之前模板是否是物管需要进行数据清除
       if ("2".equals(assetTmplInfoVO.getWmType())) {
         logger.info("updateOrderMiddle--切换模板，清除之前物管数据");
@@ -1144,17 +1145,17 @@ public class OrderDelivemiddleServiceImpl
                   orderDeliverecordsMapper.getDeliverecordInfo(a.getDeliveryId());
               // 4.查询模板名称
               AssetTmplInfoVO assetTmplInfo = new AssetTmplInfoVO();
-              if (redisTemplate.hasKey(Constants.TMPL_KEY + a.getModuleId())) {
-                assetTmplInfo =
-                    JSON.parseObject(
-                        redisUtils.get(Constants.TMPL_KEY + a.getModuleId()),
-                        AssetTmplInfoVO.class);
-              } else {
-                assetTmplInfo =
-                    assetServiceFeign
-                        .selectPrptValByTmplId(a.getModuleId(), dto.getToken())
-                        .getData();
-              }
+              //              if (redisTemplate.hasKey(Constants.TMPL_KEY + a.getModuleId())) {
+              //                assetTmplInfo =
+              //                    JSON.parseObject(
+              //                        redisUtils.get(Constants.TMPL_KEY + a.getModuleId()),
+              //                        AssetTmplInfoVO.class);
+              //              } else {
+              assetTmplInfo =
+                  assetServiceFeign
+                      .selectPrptValByTmplId(a.getModuleId(), dto.getToken())
+                      .getData();
+              //  }
               OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
               attachmentDTO.setAtttype(3);
               attachmentDTO.setParentId(a.getId());

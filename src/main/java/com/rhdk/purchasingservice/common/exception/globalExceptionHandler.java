@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.servlet.http.HttpServletRequest;
+import java.sql.SQLException;
 import java.util.List;
 
 @ControllerAdvice
@@ -43,6 +44,21 @@ public class globalExceptionHandler {
   public ExceptionView applicationException(Exception e, HttpServletRequest request) {
     log.error("【运行时异常】：[{}],接口出现错误", request.getRequestURI(), e);
     return new ExceptionView(ResultEnum.FAIL.getCode(), e.getMessage());
+  }
+
+  /**
+   * sql异常处理
+   *
+   * @param e
+   * @param request
+   * @return
+   */
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  @ExceptionHandler(SQLException.class)
+  @ResponseBody
+  public ExceptionView applicationException(SQLException e, HttpServletRequest request) {
+    log.error("【运行时异常】：[{}],接口出现错误", request.getRequestURI(), e);
+    return new ExceptionView(ResultEnum.FAIL.getCode(), "系统更新，请联系管理员！");
   }
 
   /**
