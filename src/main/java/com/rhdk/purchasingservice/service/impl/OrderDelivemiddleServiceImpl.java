@@ -287,7 +287,7 @@ public class OrderDelivemiddleServiceImpl
         insertAllEntityInfo(
             dto.getPkValKey(), dto.getAssetKey(), dto.getModuleId(), entity.getId());
       } catch (Exception e) {
-        throw new RuntimeException("资产信息Redis同步入库失败!" + e.getMessage());
+        throw new RuntimeException("资产信息系统缓存同步入库失败!" + e.getMessage());
       }
       // 5.最后进行明细附件的入库
       for (OrderAttachmentDTO mo : dto.getAttachmentList()) {
@@ -881,15 +881,23 @@ public class OrderDelivemiddleServiceImpl
       // 获取待暂存的数据
       // 这里统一设置Redis的过期时间为40分钟，40分钟不提交，则该条数据作废
       String key = moduleId + "_" + NumberUtils.createCode("SC");
-      redisUtils.setWithTime(
-          key,
-          JSON.toJSON(assetEntityInfoVOList).toString(),
-          Constants.TMPLINFO_TIMEOUT,
-          TimeUnit.MINUTES);
+      try {
+        redisUtils.setWithTime(
+            key,
+            JSON.toJSON(assetEntityInfoVOList).toString(),
+            Constants.TMPLINFO_TIMEOUT,
+            TimeUnit.MINUTES);
+      } catch (Exception e) {
+        throw new RuntimeException("系统缓存服务异常，请检查！");
+      }
       // 将Excel中的PK值暂存到Redis中
       String key2 = moduleId + "_" + NumberUtils.createCode("PK");
-      redisUtils.setWithTime(
-          key2, JSON.toJSON(pkStrList).toString(), Constants.TMPLINFO_TIMEOUT, TimeUnit.MINUTES);
+      try {
+        redisUtils.setWithTime(
+            key2, JSON.toJSON(pkStrList).toString(), Constants.TMPLINFO_TIMEOUT, TimeUnit.MINUTES);
+      } catch (Exception e) {
+        throw new RuntimeException("系统缓存服务异常，请检查！");
+      }
       resultMap.put("pkValKey", key2);
       resultMap.put("assetKey", key);
     } else {
@@ -1027,12 +1035,15 @@ public class OrderDelivemiddleServiceImpl
    */
   public void insertAllEntityInfo(String pkvalKey, String assetKey, Long moudleId, Long middleId) {
     // 1.校验Excel中的资产实体是否与库中已经存在的资产实体重复
-    String pkvalJsonArray = redisUtils.get(pkvalKey);
+    String pkvalJsonArray = "";
+    try {
+      pkvalJsonArray = redisUtils.get(pkvalKey);
+    } catch (Exception e) {
+      throw new RuntimeException("系统缓存服务异常，获取系统缓存值数据失败！取值PKkey为：" + pkvalKey);
+    }
     List<String> pkStrList = new ArrayList<>();
     if (!StringUtils.isEmpty(pkvalJsonArray)) {
       pkStrList = JSONObject.parseArray(pkvalJsonArray, String.class);
-    } else {
-      throw new RuntimeException("Redis获取Pk值数据失败！取值PKkey为：" + pkvalKey);
     }
     for (String pkstr : pkStrList) {
       if (redisTemplate.hasKey(pkstr)) {
@@ -1042,12 +1053,17 @@ public class OrderDelivemiddleServiceImpl
       }
     }
     // 2.进行资产数据Redis同步入库
-    String businessJsonArray = redisUtils.get(assetKey);
+    String businessJsonArray = "";
+    try {
+      businessJsonArray = redisUtils.get(assetKey);
+    } catch (Exception e) {
+      throw new RuntimeException("系统缓存服务异常，获取系统缓存值数据失败！取值资产key为：" + assetKey);
+    }
     List<AssetEntityInfoVO> businessIdList = new ArrayList<>();
     if (!StringUtils.isEmpty(businessJsonArray)) {
       businessIdList = JSONObject.parseArray(businessJsonArray, AssetEntityInfoVO.class);
     } else {
-      throw new RuntimeException("Redis获取资产数据失败！取值资产key为：" + assetKey);
+      throw new RuntimeException("系统缓存获取资产数据失败！取值资产key为：" + assetKey);
     }
     // 封装入库
     List<AssetEntityPrpt> assetEntityPrptList = new ArrayList<>();
