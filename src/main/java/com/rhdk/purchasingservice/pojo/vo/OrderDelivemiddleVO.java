@@ -130,7 +130,7 @@ public class OrderDelivemiddleVO implements Serializable {
   private String unitVal;
 
   @ApiModelProperty(value = "单价值", hidden = true)
-  private Long priceVal;
+  private String priceVal;
 
   @ApiModelProperty(value = "单位id", hidden = true)
   private Long unitId;
