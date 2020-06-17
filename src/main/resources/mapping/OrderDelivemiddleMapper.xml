@@ -193,7 +193,7 @@
         <if test="dto.moduleId!=null and dto.moduleId!=''">
             and MODULE_ID=#{dto.moduleId}
         </if>
-        <if test="dto.signStatus!=null and dto.signStatus!=''">
+        <if test="dto.signStatus!=null">
             and SIGN_STATUS=#{dto.signStatus}
         </if>
         <if test="dto.id!=null and dto.id!=''">
