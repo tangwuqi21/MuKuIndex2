@@ -7,11 +7,11 @@ public class ExceptionView {
 
   private Integer code;
 
-  private String errorMessage;
+  private String msg;
 
   public ExceptionView(Integer code, String errorMessage) {
     this.code = code;
-    this.errorMessage = errorMessage;
+    this.msg = errorMessage;
   }
 
   public Integer getCode() {
@@ -23,10 +23,10 @@ public class ExceptionView {
   }
 
   public String getErrorMessage() {
-    return errorMessage;
+    return msg;
   }
 
   public void setErrorMessage(String errorMessage) {
-    this.errorMessage = errorMessage;
+    this.msg = errorMessage;
   }
 }
