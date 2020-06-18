@@ -2,6 +2,8 @@ package com.rhdk.purchasingservice.pojo.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.rhdk.purchasingservice.common.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -58,6 +60,7 @@ public class OrderDelivemiddleVO implements Serializable {
   private Long assetNumber;
 
   @ApiModelProperty(value = "累计金额")
+  @JsonSerialize(using = Decimal2Serializer.class)
   private Long totalMoney;
 
   @ApiModelProperty(value = "删除标识，0-正常，1-已删除")
@@ -130,6 +133,7 @@ public class OrderDelivemiddleVO implements Serializable {
   private String unitVal;
 
   @ApiModelProperty(value = "单价值", hidden = true)
+  @JsonSerialize(using = Decimal2Serializer.class)
   private String priceVal;
 
   @ApiModelProperty(value = "单位id", hidden = true)
