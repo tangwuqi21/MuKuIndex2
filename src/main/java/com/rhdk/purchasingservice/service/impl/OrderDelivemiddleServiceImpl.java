@@ -284,9 +284,6 @@ public class OrderDelivemiddleServiceImpl
     if (dto.getUnitId() != null && dto.getPriceId() != null) {
       entity.setPrptIds(dto.getUnitId() + "," + dto.getPriceId());
     }
-    if (!StringUtils.isEmpty(dto.getTotalMoney())) {
-      entity.setTotalMoney(Long.valueOf(dto.getTotalMoney().trim()));
-    }
     orderDelivemiddleMapper.insert(entity);
     if (StringUtils.isEmpty(entity.getId())) {
       throw new RuntimeException("送货明细记录插入失败！插入实体信息为：" + dto.toString());
@@ -565,9 +562,6 @@ public class OrderDelivemiddleServiceImpl
     }
     // 最后更新明细中间表
     BeanCopyUtil.copyPropertiesIgnoreNull(model, entity);
-    if (!StringUtils.isEmpty(model.getTotalMoney())) {
-      entity.setTotalMoney(Long.valueOf(model.getTotalMoney().trim()));
-    }
     int num = orderDelivemiddleMapper.updateById(entity);
     if (num <= 0) {
       throw new RuntimeException("更新送货明细记录失败！明细信息id为：" + entity.getId());
@@ -1197,9 +1191,6 @@ public class OrderDelivemiddleServiceImpl
     if (dto.getId() != null) {
       OrderDelivemiddle entity = new OrderDelivemiddle();
       BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
-      if (!StringUtils.isEmpty(dto.getTotalMoney())) {
-        entity.setTotalMoney(Long.valueOf(dto.getTotalMoney().trim()));
-      }
       orderDelivemiddleMapper.updateById(entity);
     } else {
       throw new RuntimeException("更新资产明细记录，id不能为空！");

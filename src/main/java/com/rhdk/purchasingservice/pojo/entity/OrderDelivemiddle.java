@@ -47,7 +47,7 @@ public class OrderDelivemiddle extends Model<OrderDelivemiddle> {
   private Long assetNumber;
   /** 累计金额 */
   @TableField("TOTAL_MONEY")
-  private Long totalMoney;
+  private String totalMoney;
   /** 删除标识，0-正常，1-已删除 */
   @TableField("DEL_FLAG")
   @TableLogic
