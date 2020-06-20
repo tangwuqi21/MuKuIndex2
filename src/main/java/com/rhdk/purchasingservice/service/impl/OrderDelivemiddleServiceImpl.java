@@ -1246,4 +1246,39 @@ public class OrderDelivemiddleServiceImpl
     }
     return ResultVOUtil.returnSuccess();
   }
+
+  @Override
+  public List<DeliverecordInfoVO> getDeliveRecordInfo(List<Long> ids) {
+    List<DeliverecordInfoVO> dataList = new ArrayList<>();
+    // 一次性查出所有的送货记录
+    OrderDeliverecordsQuery dto = new OrderDeliverecordsQuery();
+    dto.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
+    List<OrderDeliverecordsVO> orderDeliverecordsVOList =
+        orderDeliverecordsMapper.selectRecordsList2(dto);
+    Map<Long, OrderDeliverecordsVO> contractVOMap = listToMap3(orderDeliverecordsVOList);
+    // 一次性查询出所有的明细
+    List<OrderDelivemiddle> midList = orderDelivemiddleMapper.selectListByIds(ids);
+    midList.forEach(
+        mid -> {
+          DeliverecordInfoVO deliverecordInfoVO = new DeliverecordInfoVO();
+          if (contractVOMap.get(mid.getDeliveryId()) != null) {
+            OrderDeliverecordsVO deliverecords = contractVOMap.get(mid.getDeliveryId());
+            deliverecordInfoVO.setDeliveryCode(deliverecords.getDeliveryCode());
+            deliverecordInfoVO.setDeliveryName(deliverecords.getDeliveryName());
+            deliverecordInfoVO.setId(mid.getId());
+            dataList.add(deliverecordInfoVO);
+          }
+        });
+    return dataList;
+  }
+
+  public Map<Long, OrderDeliverecordsVO> listToMap3(
+      List<OrderDeliverecordsVO> orderDeliverecordsVOList) {
+    Map<Long, OrderDeliverecordsVO> dataRes = new HashMap<>();
+    orderDeliverecordsVOList.forEach(
+        mo -> {
+          dataRes.put(mo.getId(), mo);
+        });
+    return dataRes;
+  }
 }

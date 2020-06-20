@@ -6,6 +6,7 @@ import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.pojo.dto.OrderDelivemiddleDTO;
 import com.rhdk.purchasingservice.pojo.entity.OrderDelivemiddle;
 import com.rhdk.purchasingservice.pojo.query.OrderDelivemiddleQuery;
+import com.rhdk.purchasingservice.pojo.vo.DeliverecordInfoVO;
 import com.rhdk.purchasingservice.pojo.vo.OrderDelivemiddleVO;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -112,4 +113,6 @@ public interface IOrderDelivemiddleService extends IService<OrderDelivemiddle> {
   Map<String, Object> checkReceiveIsExist(List<Long> middleList);
 
   ResponseEnvelope deleteRedisKey(Set<String> keyList);
+
+  List<DeliverecordInfoVO> getDeliveRecordInfo(List<Long> ids);
 }

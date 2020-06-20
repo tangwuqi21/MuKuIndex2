@@ -45,4 +45,6 @@ public interface OrderDelivemiddleMapper extends BaseMapper<OrderDelivemiddle> {
       Page page, @Param("dto") OrderDelivemiddleQuery dto, @Param("orgId") Long orgId);
 
   List<OrderDelivemiddleVO> selectMiddleList2(@Param("dto") OrderDelivemiddleQuery dto);
+
+  List<OrderDelivemiddle> selectListByIds(@Param("ids") List<Long> ids);
 }

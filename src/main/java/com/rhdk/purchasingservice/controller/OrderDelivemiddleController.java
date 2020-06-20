@@ -169,6 +169,23 @@ public class OrderDelivemiddleController {
   }
 
   /**
+   * 根据明细id来查询送货单信息
+   *
+   * @param ids
+   * @return
+   * @throws Exception
+   */
+  @ApiOperation(value = "根据明细id来查询送货单信息", notes = "送货记录明细中间表API")
+  @RequestMapping(value = "/getDeliveRecordInfo", method = RequestMethod.POST)
+  public ResponseEnvelope getDeliveRecordInfo(@RequestBody List<Long> ids) {
+    try {
+      return ResultVOUtil.returnSuccess(iOrderDelivemiddleService.getDeliveRecordInfo(ids));
+    } catch (Exception e) {
+      return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
+    }
+  }
+
+  /**
    * 根据送货记录下明细资产id集合来删除送货记录下单一明细的附件信息
    *
    * @param assetIds

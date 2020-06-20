@@ -218,4 +218,14 @@ from tb GROUP BY DELIVERY_ID
         from T_ORDER_DELIVEMIDDLE where del_flag=0
         order by CREATE_DATE desc
     </select>
+
+    <select id="selectListByIds" resultType="com.rhdk.purchasingservice.pojo.entity.OrderDelivemiddle">
+        select
+        <include refid="Base_Column_List"/>
+        from T_ORDER_DELIVEMIDDLE where del_flag=0
+        and id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
 </mapper>
