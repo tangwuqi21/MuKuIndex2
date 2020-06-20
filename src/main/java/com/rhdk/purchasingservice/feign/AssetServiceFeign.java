@@ -186,9 +186,9 @@ public interface AssetServiceFeign {
    * @return
    */
   @RequestMapping(
-      value = "/assetservice/assetEntityInfo/deleteEntitys",
+      value = "/assetservice/assetEntityInfo/deleteEntitysByIds",
       method = RequestMethod.POST)
-  ResponseEnvelope<Integer> deleteEntitys(
+  ResponseEnvelope<Integer> deleteEntitysByIds(
       @RequestBody AssetIdsStatus model, @RequestHeader(value = "Authorization") String token);
 
   @RequestMapping(

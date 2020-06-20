@@ -397,7 +397,7 @@ public class OrderDelivemiddleServiceImpl
           idsStatus.setAssetIds(assetIds);
           idsStatus.setStatus(0);
           Integer rownum =
-              assetServiceFeign.deleteEntitys(idsStatus, TokenUtil.getToken()).getData();
+              assetServiceFeign.deleteEntitysByIds(idsStatus, TokenUtil.getToken()).getData();
           // 3.逻辑删除资产属性值信息
           if (rownum > 0) {
             assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
@@ -640,7 +640,7 @@ public class OrderDelivemiddleServiceImpl
           idsStatus.setAssetIds(detailAssetIds);
           idsStatus.setStatus(0);
           Integer rownum =
-              assetServiceFeign.deleteEntitys(idsStatus, TokenUtil.getToken()).getData();
+              assetServiceFeign.deleteEntitysByIds(idsStatus, TokenUtil.getToken()).getData();
           // 3.逻辑删除资产属性值信息
           if (rownum > 0) {
             assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
