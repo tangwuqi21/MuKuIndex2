@@ -116,11 +116,7 @@ public class OrderDelivedetailServiceImpl
             ResultEnum.FEGIN_DETAILLISTNULL.getCode(),
             ResultEnum.FEGIN_DETAILLISTNULL.getMessage());
       }
-      Page pageResult = new Page<>();
       page.setRecords(map.get("content"));
-      pageResult.setSize(page.getSize());
-      pageResult.setTotal(page.getTotal());
-      pageResult.setPages(page.getPages());
       resultMap.put("content", page);
       resultMap.put("title", map.get("title"));
       resultMap.put("detailCode", orderDelivemiddle.getDeliverydetailCode());
