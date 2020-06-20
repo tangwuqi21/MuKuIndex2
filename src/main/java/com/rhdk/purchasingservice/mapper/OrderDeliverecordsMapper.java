@@ -22,4 +22,6 @@ public interface OrderDeliverecordsMapper extends BaseMapper<OrderDeliverecords>
       IPage page, @Param("dto") OrderDeliverecordsQuery dto, @Param("orgId") Long orgId);
 
   List<OrderDeliverecords> getDeliverecordList();
+
+  List<OrderDeliverecordsVO> selectRecordsList2(@Param("dto") OrderDeliverecordsQuery dto);
 }

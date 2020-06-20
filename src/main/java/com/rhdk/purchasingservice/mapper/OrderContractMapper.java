@@ -33,4 +33,6 @@ public interface OrderContractMapper extends BaseMapper<OrderContract> {
       Page page, @Param("dto") OrderContractQuery dto, @Param("orgId") Long orgId);
 
   List<Long> getTemplIds();
+
+  List<OrderContractVO> selectContractList2(@Param("dto") OrderContractQuery dto);
 }

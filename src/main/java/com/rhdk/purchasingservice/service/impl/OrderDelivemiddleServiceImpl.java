@@ -1119,12 +1119,8 @@ public class OrderDelivemiddleServiceImpl
     for (HashMap<String, Object> model : resultMap) {
       supplierMap.put(Long.valueOf(model.get("id").toString()), model.get("custName").toString());
     }
-    Page page = new Page();
-    page.setSize(dto.getPageSize());
-    page.setCurrent(dto.getCurrentPage());
-    IPage<OrderDelivemiddleVO> recordsList =
-        orderDelivemiddleMapper.selectMiddleList(page, dto, orgId);
-    List<OrderDelivemiddleVO> resultList = recordsList.getRecords();
+    List<OrderDelivemiddleVO> resultList = new ArrayList<>();
+    resultList = orderDelivemiddleMapper.selectMiddleList2(dto);
     // 6.查询所属附件资产清单id集合
     List<Long> arr = new ArrayList<>();
     Map<String, String> assetIdMap = new HashMap<>();

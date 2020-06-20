@@ -214,10 +214,6 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
   @Override
   public List<OrderContractVO> getContractInforList(OrderContractQuery dto, Long orgId) {
     List<OrderContractVO> contractVOList = new ArrayList<>();
-    Page page = new Page();
-    page.setSize(dto.getPageSize());
-    page.setCurrent(dto.getCurrentPage());
-    IPage<OrderContractVO> recordsList = null;
     List<Long> paramStr = orderContractMapper.getContractIdList(dto);
     logger.info("getContractInforList-获取合同id列表结束，获取了" + paramStr.size() + "条");
     if (paramStr.size() > 0) {
@@ -225,8 +221,8 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     } else {
       return contractVOList;
     }
-    recordsList = orderContractMapper.selectContractList(page, dto, orgId);
-    contractVOList = recordsList.getRecords();
+    dto.setOrgId(orgId);
+    contractVOList = orderContractMapper.selectContractList2(dto);
     // 一次取出所有合同信息
     List<OrderContractVO> contractVOList2 = orderContractMapper.selectContractById(null, null);
     Map<Long, OrderContractVO> contractVOMap = listToMap(contractVOList2);

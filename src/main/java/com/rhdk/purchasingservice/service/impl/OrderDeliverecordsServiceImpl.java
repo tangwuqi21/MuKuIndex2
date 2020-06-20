@@ -116,6 +116,13 @@ public class OrderDeliverecordsServiceImpl
           OrderContractVO orderContract = new OrderContractVO();
           if (contractVOMap.get(temp.getOrderId()) != null) {
             orderContract = contractVOMap.get(temp.getOrderId());
+            temp.setContractType(orderContract.getContractType());
+            temp.setContractCode(orderContract.getContractCode());
+            temp.setContractName(orderContract.getContractName());
+          } else {
+            temp.setContractCode("--");
+            temp.setContractName("--");
+            temp.setContractType(0);
           }
           OrgUserDto userDto = commonService.getOrgUserById(temp.getOrgId(), temp.getCreateBy());
           // 获取送货单的签收状态，一个送货单下面关联多个明细单状态
@@ -131,15 +138,6 @@ public class OrderDeliverecordsServiceImpl
               assetServiceFeign.selectListByParentId(dto1, dto.getToken()).getData());
           temp.setCreateName(userDto.getUserInfo().getName());
           temp.setDeptName(userDto.getGroupName());
-          if (orderContract != null) {
-            temp.setContractType(orderContract.getContractType());
-            temp.setContractCode(orderContract.getContractCode());
-            temp.setContractName(orderContract.getContractName());
-          } else {
-            temp.setContractCode("--");
-            temp.setContractName("--");
-            temp.setContractType(0);
-          }
           temp.setSignStatus(status);
           temp.setSupplierName(supplierMap.get(temp.getSupplierId()));
         });
@@ -384,11 +382,8 @@ public class OrderDeliverecordsServiceImpl
   @Override
   public List<OrderDeliverecordsVO> getDeliverInforList(OrderDeliverecordsQuery dto, Long orgId) {
     List<OrderDeliverecordsVO> orderDeliverecordsVOList = new ArrayList<>();
-    Page page = new Page();
-    page.setSize(dto.getPageSize());
-    page.setCurrent(dto.getCurrentPage());
-    IPage<OrderDeliverecordsVO> recordsList =
-        orderDeliverecordsMapper.selectRecordsList(page, dto, orgId);
+    dto.setOrgId(orgId);
+    orderDeliverecordsVOList = orderDeliverecordsMapper.selectRecordsList2(dto);
     Map<Long, String> supplierMap = new HashMap<>();
     logger.info("searchOrderDeliverecordsListPage--fegin远程获取供应商列表信息开始");
     List<HashMap<String, Object>> resultMap =
@@ -398,8 +393,6 @@ public class OrderDeliverecordsServiceImpl
     for (HashMap<String, Object> model : resultMap) {
       supplierMap.put(Long.valueOf(model.get("id").toString()), model.get("custName").toString());
     }
-    // 获取源单信息，获取附件列表信息
-    orderDeliverecordsVOList = recordsList.getRecords();
     // 一次取出所有合同信息
     List<OrderContractVO> contractVOList = orderContractMapper.selectContractById(null, null);
     Map<Long, OrderContractVO> contractVOMap = listToMap(contractVOList);
@@ -412,6 +405,13 @@ public class OrderDeliverecordsServiceImpl
           OrderContractVO orderContract = new OrderContractVO();
           if (contractVOMap.get(a.getOrderId()) != null) {
             orderContract = contractVOMap.get(a.getOrderId());
+            a.setContractTypeName(orderContract.getContractType() == 1 ? "采购合同" : "其他");
+            a.setContractCode(orderContract.getContractCode());
+            a.setContractName(orderContract.getContractName());
+          } else {
+            a.setContractCode("--");
+            a.setContractName("--");
+            a.setContractTypeName("--");
           }
           OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
           Integer status = 0;
@@ -426,15 +426,6 @@ public class OrderDeliverecordsServiceImpl
               assetServiceFeign.selectAttachNum(dto1, dto.getToken()).getData() > 0 ? "是" : "否");
           a.setCreateName(userDto.getUserInfo().getName());
           a.setDeptName(userDto.getGroupName());
-          if (orderContract != null) {
-            a.setContractTypeName(orderContract.getContractType() == 1 ? "采购合同" : "其他");
-            a.setContractCode(orderContract.getContractCode());
-            a.setContractName(orderContract.getContractName());
-          } else {
-            a.setContractCode("--");
-            a.setContractName("--");
-            a.setContractTypeName("--");
-          }
           a.setSignStatusName(status == 2 ? "已签收" : status == 1 ? "部分签收" : "未签收");
           a.setSupplierName(supplierMap.get(a.getSupplierId()));
         });

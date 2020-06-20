@@ -58,7 +58,13 @@
     <select id="getDeliverecordList" resultType="com.rhdk.purchasingservice.pojo.entity.OrderDeliverecords">
         select
         <include refid="Base_Column_List"/>
-        from T_ORDER_DELIVERECORDS where DEL_FLAG=0
+        from T_ORDER_DELIVERECORDS where DEL_FLAG=0 order by CREATE_DATE desc
     </select>
 
+
+    <select id="selectRecordsList2" resultType="com.rhdk.purchasingservice.pojo.vo.OrderDeliverecordsVO">
+        select
+        <include refid="Base_Column_List"/>
+        from T_ORDER_DELIVERECORDS where DEL_FLAG=0 order by CREATE_DATE desc
+    </select>
 </mapper>
