@@ -61,7 +61,7 @@ public class OrderDelivemiddleVO implements Serializable {
 
   @ApiModelProperty(value = "累计金额")
   @JsonSerialize(using = Decimal2Serializer.class)
-  private Long totalMoney;
+  private String totalMoney;
 
   @ApiModelProperty(value = "删除标识，0-正常，1-已删除")
   private Integer delFlag;
