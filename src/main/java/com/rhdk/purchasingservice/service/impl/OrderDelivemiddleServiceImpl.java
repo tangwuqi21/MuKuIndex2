@@ -20,10 +20,7 @@ import com.rhdk.purchasingservice.pojo.query.AssetQuery;
 import com.rhdk.purchasingservice.pojo.query.EntityUpVo;
 import com.rhdk.purchasingservice.pojo.query.OrderDelivemiddleQuery;
 import com.rhdk.purchasingservice.pojo.query.TmplPrptsFilter;
-import com.rhdk.purchasingservice.pojo.vo.AssetCatVO;
-import com.rhdk.purchasingservice.pojo.vo.AssetEntityInfoVO;
-import com.rhdk.purchasingservice.pojo.vo.AssetTmplInfoVO;
-import com.rhdk.purchasingservice.pojo.vo.OrderDelivemiddleVO;
+import com.rhdk.purchasingservice.pojo.vo.*;
 import com.rhdk.purchasingservice.service.IOrderDelivemiddleService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
@@ -107,53 +104,65 @@ public class OrderDelivemiddleServiceImpl
       for (Map<String, Object> mo : resMap) {
         assetIdMap.put(mo.get("MIDDLEID").toString(), mo.get("IDS").toString());
       }
+      // 一次取出所有送货信息
+      List<OrderDeliverecords> deliverecordsList = orderDeliverecordsMapper.getDeliverecordList();
+      Map<Long, OrderDeliverecords> deliverecordsMap = listToMap(deliverecordsList);
+      // 一次取出合同信息
+      List<OrderContractVO> contractVOList = orderContractMapper.selectContractById(null, null);
+      Map<Long, OrderContractVO> contractVOMap = listToMap2(contractVOList);
       resultList.stream()
           .forEach(
               a -> {
-                // 改造
-                // 1.查询送货信息
-                OrderDeliverecords orderDeliverecord =
-                    orderDeliverecordsMapper.getDeliverecordInfo(a.getDeliveryId());
-                // 3.查询合同信息
-                OrderContract orderContract = new OrderContract();
-                PurcasingContract purcasingContract =
-                    purcasingContractMapper.selectById(orderDeliverecord.getOrderId());
-                if (purcasingContract != null) {
-                  orderContract = orderContractMapper.selectById(purcasingContract.getContractId());
+                // 1.送货信息
+                OrderDeliverecords orderDeliverecord = new OrderDeliverecords();
+                if (deliverecordsMap.get(a.getDeliveryId()) != null) {
+                  orderDeliverecord = deliverecordsMap.get(a.getDeliveryId());
+                  // 3.合同信息
+                  OrderContractVO orderContract = new OrderContractVO();
+                  if (contractVOMap.get(orderDeliverecord.getOrderId()) != null) {
+                    orderContract = contractVOMap.get(orderDeliverecord.getOrderId());
+                  }
+                  a.setOrderId(orderDeliverecord.getOrderId());
+                  // 5.供应商名称,这里的客户信息从Redis中获取，若Redis中不存在则从库中取，同时更新到Redis中
+                  Customer customer = new Customer();
+                  if (redisTemplate.hasKey(
+                      Constants.CUST_KEY + orderDeliverecord.getSupplierId())) {
+                    customer =
+                        JSON.parseObject(
+                            redisUtils.get(Constants.CUST_KEY + orderDeliverecord.getSupplierId()),
+                            Customer.class);
+                  } else {
+                    customer =
+                        assetServiceFeign
+                            .searchCustomerOne(orderDeliverecord.getSupplierId(), dto.getToken())
+                            .getData();
+                    redisUtils.set(
+                        "CUST_" + orderDeliverecord.getSupplierId(),
+                        JSON.toJSON(customer).toString());
+                  }
+                  if (customer != null) {
+                    a.setSupplierName(customer.getCusName());
+                  }
+                  a.setDeliveryCode(orderDeliverecord.getDeliveryCode());
+                  a.setDeliveryName(orderDeliverecord.getDeliveryName());
+                  a.setSupplierId(orderDeliverecord.getSupplierId());
+                  a.setSignAddress(orderDeliverecord.getSignAddress());
+                  if (orderContract != null) {
+                    a.setContractCode(orderContract.getContractCode());
+                    a.setContractName(orderContract.getContractName());
+                    a.setContractType(orderContract.getContractType());
+                  } else {
+                    a.setContractCode("--");
+                    a.setContractName("--");
+                    a.setContractType(0);
+                  }
                 }
-                a.setOrderId(orderDeliverecord.getOrderId());
                 // 4.查询模板名称
                 AssetTmplInfoVO assetTmplInfo = new AssetTmplInfoVO();
-                //                if (redisTemplate.hasKey(Constants.TMPL_KEY + a.getModuleId())) {
-                //                  assetTmplInfo =
-                //                      JSON.parseObject(
-                //                          redisUtils.get(Constants.TMPL_KEY + a.getModuleId()),
-                //                          AssetTmplInfoVO.class);
-                //                } else {
                 assetTmplInfo =
                     assetServiceFeign
                         .selectPrptValByTmplId(a.getModuleId(), dto.getToken())
                         .getData();
-                //   }
-                // 5.查询供应商名称,这里的客户信息从Redis中获取，若Redis中不存在则从库中取，同时更新到Redis中
-                Customer customer = new Customer();
-                if (redisTemplate.hasKey(Constants.CUST_KEY + orderDeliverecord.getSupplierId())) {
-                  customer =
-                      JSON.parseObject(
-                          redisUtils.get(Constants.CUST_KEY + orderDeliverecord.getSupplierId()),
-                          Customer.class);
-                } else {
-                  customer =
-                      assetServiceFeign
-                          .searchCustomerOne(orderDeliverecord.getSupplierId(), dto.getToken())
-                          .getData();
-                  redisUtils.set(
-                      "CUST_" + orderDeliverecord.getSupplierId(),
-                      JSON.toJSON(customer).toString());
-                }
-                AssetQuery assetQuery = new AssetQuery();
-                assetQuery.setAssetTempId(a.getModuleId());
-                assetQuery.setPrptIds(a.getPrptIds());
                 OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
                 attachmentDTO.setAtttype(3);
                 attachmentDTO.setParentId(a.getId());
@@ -161,19 +170,6 @@ public class OrderDelivemiddleServiceImpl
                     assetServiceFeign
                         .selectListByParentId(attachmentDTO, dto.getToken())
                         .getData());
-                a.setDeliveryCode(orderDeliverecord.getDeliveryCode());
-                a.setDeliveryName(orderDeliverecord.getDeliveryName());
-                a.setSupplierId(orderDeliverecord.getSupplierId());
-                a.setSignAddress(orderDeliverecord.getSignAddress());
-                if (purcasingContract != null && orderContract != null) {
-                  a.setContractCode(orderContract.getContractCode());
-                  a.setContractName(orderContract.getContractName());
-                  a.setContractType(orderContract.getContractType());
-                } else {
-                  a.setContractCode("--");
-                  a.setContractName("--");
-                  a.setContractType(0);
-                }
                 if (assetTmplInfo != null) {
                   a.setPrptValues(assetTmplInfo.getUnit() + "," + assetTmplInfo.getPrice());
                   if (assetTmplInfo.getUnit() != null) {
@@ -186,9 +182,6 @@ public class OrderDelivemiddleServiceImpl
                   }
                   a.setModuleName(assetTmplInfo.getName());
                   a.setWmType(assetTmplInfo.getWmType());
-                }
-                if (customer != null) {
-                  a.setSupplierName(customer.getCusName());
                 }
                 if (assetIdMap.size() > 0) {
                   String ass =
@@ -210,6 +203,23 @@ public class OrderDelivemiddleServiceImpl
     return recordsList;
   }
 
+  public Map<Long, OrderDeliverecords> listToMap(List<OrderDeliverecords> deliverecordsList) {
+    Map<Long, OrderDeliverecords> result = new HashMap<>();
+    deliverecordsList.forEach(
+        model -> {
+          result.put(model.getId(), model);
+        });
+    return result;
+  }
+
+  public Map<Long, OrderContractVO> listToMap2(List<OrderContractVO> contractVOList) {
+    Map<Long, OrderContractVO> result = new HashMap<>();
+    contractVOList.forEach(
+        temp -> {
+          result.put(temp.getOrderId(), temp);
+        });
+    return result;
+  }
   /**
    * 获取明细签收状态Map值
    *
@@ -337,17 +347,10 @@ public class OrderDelivemiddleServiceImpl
       // 这里需要区分明细的资产类型，量管的更新资产表中量管资产数量就行了
       OrderDelivemiddle orderDelivemiddle = orderDelivemiddleMapper.selectById(id);
       AssetTmplInfoVO assetTmplInfoVO = new AssetTmplInfoVO();
-      //      if (redisTemplate.hasKey(Constants.TMPL_KEY + orderDelivemiddle.getModuleId())) {
-      //        assetTmplInfoVO =
-      //            JSON.parseObject(
-      //                redisUtils.get(Constants.TMPL_KEY + orderDelivemiddle.getModuleId()),
-      //                AssetTmplInfoVO.class);
-      //      } else {
       assetTmplInfoVO =
           assetServiceFeign
               .selectPrptValByTmplId(orderDelivemiddle.getModuleId(), TokenUtil.getToken())
               .getData();
-      // }
       // 量管的资产类型需要去更新对应资产实体表中资产实体的数量，物管的删除不需要进行资产实体的相关删除
       if (assetTmplInfoVO != null && "1".equals(assetTmplInfoVO.getWmType())) {
         // 调用fegin更新量管资产数量
@@ -1135,25 +1138,29 @@ public class OrderDelivemiddleServiceImpl
     for (Map<String, Object> mo : resMap) {
       assetIdMap.put(mo.get("MIDDLEID").toString(), mo.get("IDS").toString());
     }
+    // 一次取出所有送货信息
+    List<OrderDeliverecords> deliverecordsList = orderDeliverecordsMapper.getDeliverecordList();
+    Map<Long, OrderDeliverecords> deliverecordsMap = listToMap(deliverecordsList);
     resultList.stream()
         .forEach(
             a -> {
-              // 1.查询送货信息
-              OrderDeliverecords orderDeliverecord =
-                  orderDeliverecordsMapper.getDeliverecordInfo(a.getDeliveryId());
+              // 1.送货信息
+              OrderDeliverecords orderDeliverecord = new OrderDeliverecords();
+              if (deliverecordsMap.get(a.getDeliveryId()) != null) {
+                orderDeliverecord = deliverecordsMap.get(a.getDeliveryId());
+                a.setDeliveryCode(orderDeliverecord.getDeliveryCode());
+                a.setDeliveryName(orderDeliverecord.getDeliveryName());
+                a.setSignAddress(orderDeliverecord.getSignAddress());
+                if (supplierMap != null) {
+                  a.setSupplierName(supplierMap.get(orderDeliverecord.getSupplierId()));
+                }
+              }
               // 4.查询模板名称
               AssetTmplInfoVO assetTmplInfo = new AssetTmplInfoVO();
-              //              if (redisTemplate.hasKey(Constants.TMPL_KEY + a.getModuleId())) {
-              //                assetTmplInfo =
-              //                    JSON.parseObject(
-              //                        redisUtils.get(Constants.TMPL_KEY + a.getModuleId()),
-              //                        AssetTmplInfoVO.class);
-              //              } else {
               assetTmplInfo =
                   assetServiceFeign
                       .selectPrptValByTmplId(a.getModuleId(), dto.getToken())
                       .getData();
-              //  }
               OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
               attachmentDTO.setAtttype(3);
               attachmentDTO.setParentId(a.getId());
@@ -1161,16 +1168,10 @@ public class OrderDelivemiddleServiceImpl
                   assetServiceFeign.selectAttachNum(attachmentDTO, dto.getToken()).getData() > 0
                       ? "是"
                       : "否");
-              a.setDeliveryCode(orderDeliverecord.getDeliveryCode());
-              a.setDeliveryName(orderDeliverecord.getDeliveryName());
-              a.setSignAddress(orderDeliverecord.getSignAddress());
               if (assetTmplInfo != null) {
                 a.setUnitVal(assetTmplInfo.getUnit());
                 a.setPriceVal(assetTmplInfo.getPrice());
                 a.setModuleName(assetTmplInfo.getName());
-              }
-              if (supplierMap != null) {
-                a.setSupplierName(supplierMap.get(orderDeliverecord.getSupplierId()));
               }
               a.setSignStatusName(
                   a.getSignStatus() == 2 ? "已签收" : a.getSignStatus() == 1 ? "部分签收" : "未签收");
