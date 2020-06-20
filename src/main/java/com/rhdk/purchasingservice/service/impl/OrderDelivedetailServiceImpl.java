@@ -55,7 +55,7 @@ public class OrderDelivedetailServiceImpl
 
   @Override
   public ResponseEnvelope searchOrderDelivedetailListPage(OrderDelivedetailQuery dto) {
-    Page<OrderDelivedetail> page = new Page<OrderDelivedetail>();
+    Page page = new Page<OrderDelivedetail>();
     page.setSize(dto.getPageSize());
     page.setCurrent(dto.getCurrentPage());
     QueryWrapper<OrderDelivedetail> queryWrapper = new QueryWrapper<OrderDelivedetail>();
@@ -117,11 +117,11 @@ public class OrderDelivedetailServiceImpl
             ResultEnum.FEGIN_DETAILLISTNULL.getMessage());
       }
       Page pageResult = new Page<>();
-      pageResult.setRecords(map.get("content"));
+      page.setRecords(map.get("content"));
       pageResult.setSize(page.getSize());
       pageResult.setTotal(page.getTotal());
       pageResult.setPages(page.getPages());
-      resultMap.put("content", pageResult);
+      resultMap.put("content", page);
       resultMap.put("title", map.get("title"));
       resultMap.put("detailCode", orderDelivemiddle.getDeliverydetailCode());
       resultMap.put("deliverName", orderDeliverecord.getDeliveryName());
