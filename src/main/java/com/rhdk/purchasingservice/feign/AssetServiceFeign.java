@@ -8,6 +8,7 @@ import com.rhdk.purchasingservice.pojo.entity.AssetEntityInfo;
 import com.rhdk.purchasingservice.pojo.entity.AssetEntityPrpt;
 import com.rhdk.purchasingservice.pojo.entity.AssetTmplInfo;
 import com.rhdk.purchasingservice.pojo.entity.Customer;
+import com.rhdk.purchasingservice.pojo.query.AssetIdsStatus;
 import com.rhdk.purchasingservice.pojo.query.AssetQuery;
 import com.rhdk.purchasingservice.pojo.query.EntityUpVo;
 import com.rhdk.purchasingservice.pojo.query.TmplPrptsFilter;
@@ -180,7 +181,7 @@ public interface AssetServiceFeign {
   /**
    * 资产实体实际删除
    *
-   * @param assetIds
+   * @param model
    * @param token
    * @return
    */
@@ -188,9 +189,7 @@ public interface AssetServiceFeign {
       value = "/assetservice/assetEntityInfo/deleteEntitys",
       method = RequestMethod.POST)
   ResponseEnvelope<Integer> deleteEntitys(
-      @RequestParam("assetIds") Long[] assetIds,
-      @RequestParam("status") Integer status,
-      @RequestHeader(value = "Authorization") String token);
+      @RequestBody AssetIdsStatus model, @RequestHeader(value = "Authorization") String token);
 
   @RequestMapping(
       value = "/assetservice/assetEntityInfo/updateEntityInfoStatus",
