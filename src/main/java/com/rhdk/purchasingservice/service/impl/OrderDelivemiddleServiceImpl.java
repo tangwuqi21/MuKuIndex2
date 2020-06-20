@@ -448,7 +448,7 @@ public class OrderDelivemiddleServiceImpl
               insertAllEntityInfo(
                   model.getPkValKey(), model.getAssetKey(), model.getModuleId(), model.getId());
             } catch (Exception e) {
-              throw new RuntimeException("物管资产明细记录附件变更，同步Redis资产信息入库失败！" + e.getMessage());
+              throw new RuntimeException("物管资产明细记录附件变更，同步资产缓存信息入库失败！" + e.getMessage());
             }
             // 更新附件表
             // 逻辑删除送货明细附件表
@@ -497,12 +497,6 @@ public class OrderDelivemiddleServiceImpl
       logger.info("updateOrderMiddle--进入切换模板环节");
       // 切换模板判断是否有明细id存在，如果有则进行之前的明细id删除，否则不进行操作
       AssetTmplInfoVO assetTmplInfoVO = new AssetTmplInfoVO();
-      //      if (redisTemplate.hasKey(Constants.TMPL_KEY + entity.getModuleId())) {
-      //        assetTmplInfoVO =
-      //            JSON.parseObject(
-      //                redisUtils.get(Constants.TMPL_KEY + entity.getModuleId()),
-      // AssetTmplInfoVO.class);
-      //      } else {
       assetTmplInfoVO =
           assetServiceFeign
               .selectPrptValByTmplId(entity.getModuleId(), TokenUtil.getToken())
@@ -534,7 +528,7 @@ public class OrderDelivemiddleServiceImpl
           insertAllEntityInfo(
               model.getPkValKey(), model.getAssetKey(), model.getModuleId(), model.getId());
         } catch (Exception e) {
-          throw new RuntimeException("切换模板物管资产redis同步资产信息失败！" + e.getMessage());
+          throw new RuntimeException("切换模板物管资产同步资产缓存信息失败！" + e.getMessage());
         }
         for (OrderAttachmentDTO model2 : model.getAttachmentList()) {
           model2.setParentId(model.getId());
