@@ -331,6 +331,22 @@ public class OrderDelivemiddleServiceImpl
   @Override
   @Transactional
   public ResponseEnvelope deleteOrderDetailrecords(Long id) {
+    // 这里需要去判断是否存在暂存的签收记录，如有则需要进行删除
+    // 获取明细对应的签收状态
+    Map<String, Object> signStatMap = null;
+    List<Long> detailIds = new ArrayList<>();
+    detailIds.add(id);
+    signStatMap = checkReceiveIsExist(detailIds);
+    try {
+      // 通知签收模块进行数据删除操作
+      if (signStatMap != null && !StringUtils.isEmpty(signStatMap.get(id.toString()))) {
+        Integer dataId = Integer.valueOf(signStatMap.get(id.toString()).toString());
+        inventoryServiceFeign.deleteReceiveOne(dataId, TokenUtil.getToken());
+      }
+    } catch (Exception e) {
+      throw new RuntimeException("删除签收暂存状态信息失败！送货单明细id为：" + id);
+    }
+
     // 逻辑删除送货明细附件表
     OrderAttachmentDTO dto = new OrderAttachmentDTO();
     dto.setAtttype(3);

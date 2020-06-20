@@ -355,25 +355,11 @@ public class OrderDeliverecordsServiceImpl
     }
     // 这里根据送货单id来获取送货单下的所有明细id集合，然后循环删除明细清单列表
     List<Long> detailIds = iOrderDelivemiddleService.getMIdsByDeliveryId(id);
-    // 获取明细对应的签收状态
-    Map<String, Object> signStatMap = null;
-    if (detailIds.size() > 0) {
-      signStatMap = iOrderDelivemiddleService.checkReceiveIsExist(detailIds);
-    }
     for (Long detailId : detailIds) {
       try {
         iOrderDelivemiddleService.deleteOrderDetailrecords(detailId);
       } catch (Exception e) {
         throw new RuntimeException("删除送货单明细信息失败！送货单明细id为：" + detailId);
-      }
-      try {
-        // 通知签收模块进行数据删除操作
-        if (signStatMap != null && !StringUtils.isEmpty(signStatMap.get(detailId.toString()))) {
-          Integer dataId = Integer.valueOf(signStatMap.get(detailId.toString()).toString());
-          inventoryServiceFeign.deleteReceiveOne(dataId, TokenUtil.getToken());
-        }
-      } catch (Exception e) {
-        throw new RuntimeException("删除签收暂存状态信息失败！送货单明细id为：" + detailId);
       }
     }
     return ResultVOUtil.returnSuccess();
