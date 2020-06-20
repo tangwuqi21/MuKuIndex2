@@ -285,7 +285,7 @@ public class OrderDelivemiddleServiceImpl
       entity.setPrptIds(dto.getUnitId() + "," + dto.getPriceId());
     }
     if (!StringUtils.isEmpty(dto.getTotalMoney())) {
-      entity.setTotalMoney(Long.valueOf(dto.getTotalMoney()));
+      entity.setTotalMoney(Long.valueOf(dto.getTotalMoney().trim()));
     }
     orderDelivemiddleMapper.insert(entity);
     if (StringUtils.isEmpty(entity.getId())) {
@@ -566,7 +566,7 @@ public class OrderDelivemiddleServiceImpl
     // 最后更新明细中间表
     BeanCopyUtil.copyPropertiesIgnoreNull(model, entity);
     if (!StringUtils.isEmpty(model.getTotalMoney())) {
-      entity.setTotalMoney(Long.valueOf(model.getTotalMoney()));
+      entity.setTotalMoney(Long.valueOf(model.getTotalMoney().trim()));
     }
     int num = orderDelivemiddleMapper.updateById(entity);
     if (num <= 0) {
@@ -1198,7 +1198,7 @@ public class OrderDelivemiddleServiceImpl
       OrderDelivemiddle entity = new OrderDelivemiddle();
       BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
       if (!StringUtils.isEmpty(dto.getTotalMoney())) {
-        entity.setTotalMoney(Long.valueOf(dto.getTotalMoney()));
+        entity.setTotalMoney(Long.valueOf(dto.getTotalMoney().trim()));
       }
       orderDelivemiddleMapper.updateById(entity);
     } else {
