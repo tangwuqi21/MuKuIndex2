@@ -392,13 +392,18 @@ public class OrderDelivemiddleServiceImpl
         }
         // 同步更新状态为0的资产实体信息和资产实体属性值信息
         // 2.逻辑删除资产信息实体类
-        AssetIdsStatus idsStatus = new AssetIdsStatus();
-        idsStatus.setAssetIds(assetIds);
-        idsStatus.setStatus(0);
-        Integer rownum = assetServiceFeign.deleteEntitys(idsStatus, TokenUtil.getToken()).getData();
-        // 3.逻辑删除资产属性值信息
-        if (rownum > 0) {
-          assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
+        try {
+          AssetIdsStatus idsStatus = new AssetIdsStatus();
+          idsStatus.setAssetIds(assetIds);
+          idsStatus.setStatus(0);
+          Integer rownum =
+              assetServiceFeign.deleteEntitys(idsStatus, TokenUtil.getToken()).getData();
+          // 3.逻辑删除资产属性值信息
+          if (rownum > 0) {
+            assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
+          }
+        } catch (Exception e) {
+          logger.error("所选资产目前状态不允许删除，请重新确认");
         }
       }
     }
@@ -630,13 +635,18 @@ public class OrderDelivemiddleServiceImpl
             redisUtils.delete(str);
           }
         }
-        AssetIdsStatus idsStatus = new AssetIdsStatus();
-        idsStatus.setAssetIds(detailAssetIds);
-        idsStatus.setStatus(0);
-        Integer rownum = assetServiceFeign.deleteEntitys(idsStatus, TokenUtil.getToken()).getData();
-        // 3.逻辑删除资产属性值信息
-        if (rownum > 0) {
-          assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
+        try {
+          AssetIdsStatus idsStatus = new AssetIdsStatus();
+          idsStatus.setAssetIds(detailAssetIds);
+          idsStatus.setStatus(0);
+          Integer rownum =
+              assetServiceFeign.deleteEntitys(idsStatus, TokenUtil.getToken()).getData();
+          // 3.逻辑删除资产属性值信息
+          if (rownum > 0) {
+            assetServiceFeign.deleteEntityPrpts(strArray, TokenUtil.getToken());
+          }
+        } catch (Exception e) {
+          logger.error("所选资产目前状态不允许删除，请重新确认");
         }
       }
     }
