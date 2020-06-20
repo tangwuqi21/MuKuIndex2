@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,11 +72,17 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     }
     recordsList = orderContractMapper.selectContractList(page, dto, orgId);
     List<OrderContractVO> resultList = recordsList.getRecords();
+    // 一次取出所有合同信息
+    List<OrderContractVO> contractVOList = orderContractMapper.selectContractById(null, null);
+    Map<Long, OrderContractVO> contractVOMap = listToMap(contractVOList);
     resultList.stream()
         .forEach(
             a -> {
               OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
-              OrderContractVO mo = orderContractMapper.selectContractById(null, a.getId());
+              OrderContractVO mo = new OrderContractVO();
+              if (contractVOMap.get(a.getId()) != null) {
+                mo = contractVOMap.get(a.getId());
+              }
               OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
               attachmentDTO.setParentId(mo.getOrderId());
               attachmentDTO.setAtttype(1);
@@ -89,6 +96,15 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     logger.info("getFileList-获取合同附件列表结束");
     recordsList.setRecords(resultList);
     return recordsList;
+  }
+
+  public Map<Long, OrderContractVO> listToMap(List<OrderContractVO> contractVOList) {
+    Map<Long, OrderContractVO> result = new HashMap<>();
+    contractVOList.forEach(
+        temp -> {
+          result.put(temp.getContractId(), temp);
+        });
+    return result;
   }
 
   @Override
@@ -211,11 +227,17 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     }
     recordsList = orderContractMapper.selectContractList(page, dto, orgId);
     contractVOList = recordsList.getRecords();
+    // 一次取出所有合同信息
+    List<OrderContractVO> contractVOList2 = orderContractMapper.selectContractById(null, null);
+    Map<Long, OrderContractVO> contractVOMap = listToMap(contractVOList2);
     contractVOList.forEach(
         a -> {
           // 根据合同id去附件表里获取每个合同对应的附件
           OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
-          OrderContractVO contractVO = orderContractMapper.selectContractById(null, a.getId());
+          OrderContractVO contractVO = new OrderContractVO();
+          if (contractVOMap.get(a.getId()) != null) {
+            contractVO = contractVOMap.get(a.getId());
+          }
           OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
           attachmentDTO.setParentId(a.getId());
           attachmentDTO.setAtttype(1);

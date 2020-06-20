@@ -570,14 +570,12 @@ public class OrderDelivemiddleServiceImpl
       throw new RuntimeException("更新送货明细记录失败！明细信息id为：" + entity.getId());
     }
     // 更新送货记录表中的签收状态
-    List<Integer> signStatList = orderDelivemiddleMapper.getSignStatus(entity.getDeliveryId());
+    List<Map<String, Object>> statusList = orderDelivemiddleMapper.getSignStatus();
+    Map<String, Object> statusMap =
+        ResultVOUtil.listToMap(statusList, "DELIVERY_ID", "SIGN_STATUS");
     Integer status = 0;
-    if (signStatList.size() == 1 && signStatList.contains(0)) {
-      status = 0;
-    } else if (signStatList.size() == 1 && signStatList.contains(2)) {
-      status = 2;
-    } else if (signStatList.size() >= 1) {
-      status = 1;
+    if (statusMap.get(entity.getDeliveryId().toString()) != null) {
+      status = Integer.valueOf(statusMap.get(entity.getDeliveryId().toString()).toString());
     }
     OrderDeliverecords orderDeliverecords =
         orderDeliverecordsMapper.selectById(entity.getDeliveryId());

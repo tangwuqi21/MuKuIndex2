@@ -33,6 +33,9 @@ public class OrderContractVO implements Serializable {
   @ApiModelProperty(value = "采购合同ID")
   private Long orderId;
 
+  @ApiModelProperty(value = "合同ID")
+  private Long contractId;
+
   @ApiModelProperty(value = "序号", hidden = true)
   private Integer no;
 

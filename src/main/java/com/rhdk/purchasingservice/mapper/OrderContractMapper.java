@@ -18,7 +18,7 @@ import java.util.List;
  */
 public interface OrderContractMapper extends BaseMapper<OrderContract> {
 
-  OrderContractVO selectContractById(
+  List<OrderContractVO> selectContractById(
       @Param("orderId") Long orderId, @Param("contractId") Long contractId);
 
   List<Long> getContractIdList(@Param("dto") OrderContractQuery dto);

@@ -1,8 +1,11 @@
 package com.rhdk.purchasingservice.common.utils;
 
-
 import com.rhdk.purchasingservice.common.enums.ResultEnum;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ResultVOUtil {
 
@@ -77,5 +80,18 @@ public class ResultVOUtil {
     responseEnvelope.setMsg(resultEnum.getMessage());
     responseEnvelope.setData(object);
     return responseEnvelope;
+  }
+
+  public static Map<String, Object> listToMap(
+      List<Map<String, Object>> dataMap, String keyName, String valueName) {
+    Map<String, Object> map = new HashMap<>();
+    if (dataMap != null && !dataMap.isEmpty()) {
+      for (Map<String, Object> map1 : dataMap) {
+        String key = map1.get(keyName).toString();
+        Object value = map1.get(valueName);
+        map.put(key, value);
+      }
+    }
+    return map;
   }
 }
