@@ -1,5 +1,7 @@
 package com.rhdk.purchasingservice.pojo.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.rhdk.purchasingservice.common.config.Decimal2Serializer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -56,7 +58,8 @@ public class OrderDelivemiddleDTO implements Serializable {
   private String prptIds;
 
   @ApiModelProperty(value = "累计金额")
-  private Long totalMoney;
+  @JsonSerialize(using = Decimal2Serializer.class)
+  private String totalMoney;
 
   @ApiModelProperty(value = "送货明细附件")
   private List<OrderAttachmentDTO> attachmentList;
