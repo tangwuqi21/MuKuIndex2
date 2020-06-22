@@ -828,7 +828,6 @@ public class OrderDelivemiddleServiceImpl
     }
     // 2.检查是否存在空列值
     // 对于每个sheet，读取其中的每一行,从第二行开始读取
-    resultMap.put("totalRow", sheet.getLastRowNum());
     boolean isRowNull = true;
     boolean isCellNull = true;
     boolean isDataT = true;
@@ -841,6 +840,7 @@ public class OrderDelivemiddleServiceImpl
     List<OrderDelivedetail> orderDelivedetailList = new ArrayList<>();
     List<String> pkStrList = new ArrayList<>();
     Set<String> collSet = new HashSet<String>();
+    int totalRowNum = 0;
     for (int rowNum = 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
       Row row = sheet.getRow(rowNum);
       if (row == null || isRowEmpty(row)) {
@@ -877,7 +877,9 @@ public class OrderDelivemiddleServiceImpl
       assetEntityInfoVOList.add(colutMap);
       orderDelivedetailList.add(colutMap.getOrderDelivedetail());
       assetEntityPrptList.addAll(colutMap.getAssetEntityPrptList());
+      totalRowNum += 1;
     }
+    resultMap.put("totalRow", totalRowNum);
     if (!isRowNull) {
       // 解析有误，删除无用文件
       excelFile.delete();
