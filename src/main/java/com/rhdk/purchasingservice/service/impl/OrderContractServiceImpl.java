@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -82,6 +83,9 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
               OrderContractVO mo = new OrderContractVO();
               if (contractVOMap.get(a.getId()) != null) {
                 mo = contractVOMap.get(a.getId());
+              }
+              if (!StringUtils.isEmpty(a.getContractMoney())) {
+                a.setContractMoney(NumberUtils.fmtMicrometer(a.getContractMoney()));
               }
               OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
               attachmentDTO.setParentId(mo.getOrderId());
@@ -249,6 +253,9 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
           if (userDto != null) {
             a.setCreateName(userDto.getUserInfo().getName());
             a.setDeptName(userDto.getGroupName());
+          }
+          if (!StringUtils.isEmpty(a.getContractMoney())) {
+            a.setContractMoney(NumberUtils.fmtMicrometer(a.getContractMoney()));
           }
         });
     return contractVOList;

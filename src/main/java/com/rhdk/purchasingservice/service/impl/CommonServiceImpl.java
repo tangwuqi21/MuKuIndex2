@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.igen.acc.domain.dto.OrgUserDto;
 import com.igen.acc.rpc.thrift.IUserService;
+import com.rhdk.purchasingservice.common.utils.NumberUtils;
 import com.rhdk.purchasingservice.common.utils.RedisUtils;
 import com.rhdk.purchasingservice.common.utils.ResultVOUtil;
 import com.rhdk.purchasingservice.common.utils.TokenUtil;
@@ -19,6 +20,7 @@ import com.rhdk.purchasingservice.pojo.vo.OrderContractVO;
 import com.rhdk.purchasingservice.service.CommonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -59,6 +61,9 @@ public class CommonServiceImpl implements CommonService {
                 a.setContractCompany(entity.getContractCompany());
                 a.setId(entity.getId());
                 dataresultList.add(a);
+              }
+              if (!StringUtils.isEmpty(a.getContractMoney())) {
+                a.setContractMoney(NumberUtils.fmtMicrometer(a.getContractMoney()));
               }
             });
     recordsList.setRecords(dataresultList);

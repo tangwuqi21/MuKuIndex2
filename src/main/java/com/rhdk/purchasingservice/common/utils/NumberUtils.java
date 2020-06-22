@@ -1,5 +1,7 @@
 package com.rhdk.purchasingservice.common.utils;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -31,5 +33,33 @@ public class NumberUtils {
     Date date = new Date();
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
     return type + sdf.format(date) + String.format("%03d", new Random().nextInt(999));
+  }
+
+  /**
+   * 千分位方法
+   *
+   * @param text
+   * @return
+   */
+  public static String fmtMicrometer(String text) {
+    DecimalFormat df = null;
+    if (!StringUtils.isEmpty(text) && text.indexOf(".") > 0) {
+      if (text.length() - text.indexOf(".") - 1 == 0) {
+        df = new DecimalFormat("###,##0.");
+      } else if (text.length() - text.indexOf(".") - 1 == 1) {
+        df = new DecimalFormat("###,##0.0");
+      } else {
+        df = new DecimalFormat("###,##0.00");
+      }
+    } else {
+      df = new DecimalFormat("###,##0.00");
+    }
+    double number = 0.0;
+    try {
+      number = Double.parseDouble(text);
+    } catch (Exception e) {
+      number = 0.0;
+    }
+    return df.format(number);
   }
 }
