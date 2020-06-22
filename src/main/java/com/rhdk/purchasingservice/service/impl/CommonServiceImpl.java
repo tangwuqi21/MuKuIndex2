@@ -63,7 +63,7 @@ public class CommonServiceImpl implements CommonService {
                 dataresultList.add(a);
               }
               if (!StringUtils.isEmpty(a.getContractMoney())) {
-                a.setContractMoney(NumberUtils.fmtMicrometer(a.getContractMoney()));
+                a.setContractMoney(NumberUtils.fmtTwo(a.getContractMoney()));
               }
             });
     recordsList.setRecords(dataresultList);

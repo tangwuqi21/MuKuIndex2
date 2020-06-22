@@ -62,4 +62,23 @@ public class NumberUtils {
     }
     return df.format(number);
   }
+
+  /**
+   * 保留两位小数方法
+   *
+   * @param text
+   * @return
+   */
+  public static String fmtTwo(String text) {
+    DecimalFormat df = new DecimalFormat("##0.00");
+    double number = 0.00;
+    try {
+      if (!StringUtils.isEmpty(text)) {
+        number = Double.parseDouble(text);
+      }
+    } catch (Exception e) {
+      number = 0.00;
+    }
+    return df.format(number);
+  }
 }

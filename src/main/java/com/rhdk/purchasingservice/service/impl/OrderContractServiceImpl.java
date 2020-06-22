@@ -85,7 +85,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
                 mo = contractVOMap.get(a.getId());
               }
               if (!StringUtils.isEmpty(a.getContractMoney())) {
-                a.setContractMoney(NumberUtils.fmtMicrometer(a.getContractMoney()));
+                a.setContractMoney(NumberUtils.fmtTwo(a.getContractMoney()));
               }
               OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
               attachmentDTO.setParentId(mo.getOrderId());
@@ -255,7 +255,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
             a.setDeptName(userDto.getGroupName());
           }
           if (!StringUtils.isEmpty(a.getContractMoney())) {
-            a.setContractMoney(NumberUtils.fmtMicrometer(a.getContractMoney()));
+            a.setContractMoney(NumberUtils.fmtTwo(a.getContractMoney()));
           }
         });
     return contractVOList;
