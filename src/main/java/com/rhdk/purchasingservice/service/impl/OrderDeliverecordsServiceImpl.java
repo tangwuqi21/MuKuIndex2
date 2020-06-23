@@ -308,7 +308,7 @@ public class OrderDeliverecordsServiceImpl
         try {
           iOrderDelivemiddleService.deleteOrderDetailrecords(mid);
         } catch (Exception e) {
-          throw new RuntimeException("修改送货单不存在的送货明细信息删除！送货单明细id为：" + mid);
+          throw new RuntimeException("修改送货单删除之前历史送货明细信息失败！送货单明细id为：" + mid);
         }
         // 通知签收模块进行数据删除操作
         try {
