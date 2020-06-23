@@ -218,46 +218,47 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
   @Override
   public List<OrderContractVO> getContractInforList(OrderContractQuery dto, Long orgId) {
     List<OrderContractVO> contractVOList = new ArrayList<>();
-    List<Long> paramStr = orderContractMapper.getContractIdList(dto);
-    logger.info("getContractInforList-获取合同id列表结束，获取了" + paramStr.size() + "条");
-    if (paramStr.size() > 0) {
-      dto.setContractIds(paramStr);
-    } else {
-      return contractVOList;
-    }
-    dto.setOrgId(orgId);
-    contractVOList = orderContractMapper.selectContractList2(dto);
-    // 一次取出所有合同信息
-    List<OrderContractVO> contractVOList2 = orderContractMapper.selectContractById(null, null);
-    Map<Long, OrderContractVO> contractVOMap = listToMap(contractVOList2);
-    contractVOList.forEach(
-        a -> {
-          // 根据合同id去附件表里获取每个合同对应的附件
-          OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
-          OrderContractVO contractVO = new OrderContractVO();
-          if (contractVOMap.get(a.getId()) != null) {
-            contractVO = contractVOMap.get(a.getId());
-          }
-          OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
-          attachmentDTO.setParentId(a.getId());
-          attachmentDTO.setAtttype(1);
-          List<Map<String, Object>> fileList =
-              assetServiceFeign.selectListByParentId(attachmentDTO, dto.getToken()).getData();
-          String haveFile = fileList.size() > 0 ? "是" : "否";
-          if (contractVO != null) {
-            a.setId(contractVO.getOrderId());
-            a.setContractCompany(contractVO.getContractCompany());
-          }
-          a.setHaveFile(haveFile);
-          a.setContractTypeName(a.getContractType() == 1 ? "采购合同" : "其他");
-          if (userDto != null) {
-            a.setCreateName(userDto.getUserInfo().getName());
-            a.setDeptName(userDto.getGroupName());
-          }
-          if (!StringUtils.isEmpty(a.getContractMoney())) {
-            a.setContractMoney(NumberUtils.fmtTwo(a.getContractMoney()));
-          }
-        });
+    //    List<Long> paramStr = orderContractMapper.getContractIdList(dto);
+    //    logger.info("getContractInforList-获取合同id列表结束，获取了" + paramStr.size() + "条");
+    //    if (paramStr.size() > 0) {
+    //      dto.setContractIds(paramStr);
+    //    } else {
+    //      return contractVOList;
+    //    }
+    //    dto.setOrgId(orgId);
+    //    contractVOList = orderContractMapper.selectContractList2(dto);
+    //    // 一次取出所有合同信息
+    //    List<OrderContractVO> contractVOList2 = orderContractMapper.selectContractById(null,
+    // null);
+    //    Map<Long, OrderContractVO> contractVOMap = listToMap(contractVOList2);
+    //    contractVOList.forEach(
+    //        a -> {
+    //          // 根据合同id去附件表里获取每个合同对应的附件
+    //          OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
+    //          OrderContractVO contractVO = new OrderContractVO();
+    //          if (contractVOMap.get(a.getId()) != null) {
+    //            contractVO = contractVOMap.get(a.getId());
+    //          }
+    //          OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
+    //          attachmentDTO.setParentId(a.getId());
+    //          attachmentDTO.setAtttype(1);
+    //          List<Map<String, Object>> fileList =
+    //              assetServiceFeign.selectListByParentId(attachmentDTO, dto.getToken()).getData();
+    //          String haveFile = fileList.size() > 0 ? "是" : "否";
+    //          if (contractVO != null) {
+    //            a.setId(contractVO.getOrderId());
+    //            a.setContractCompany(contractVO.getContractCompany());
+    //          }
+    //          a.setHaveFile(haveFile);
+    //          a.setContractTypeName(a.getContractType() == 1 ? "采购合同" : "其他");
+    //          if (userDto != null) {
+    //            a.setCreateName(userDto.getUserInfo().getName());
+    //            a.setDeptName(userDto.getGroupName());
+    //          }
+    //          if (!StringUtils.isEmpty(a.getContractMoney())) {
+    //            a.setContractMoney(NumberUtils.fmtTwo(a.getContractMoney()));
+    //          }
+    //        });
     return contractVOList;
   }
 
