@@ -290,16 +290,9 @@ public class OrderDeliverecordsServiceImpl
     // 更新中间表相关字段
     // 本次修改的id集合
     List<Long> middleList = new ArrayList<>();
-    // 本次新增的id集合
-    List<Long> insertIds = new ArrayList<>();
     for (OrderDelivemiddleDTO model : dto.getOrderDelivemiddleDTOList()) {
-      // 明细id如果为空则进行明细的新增操作
-      if (StringUtils.isEmpty(model.getId())) {
-        model.setDeliveryId(entity.getId());
-        OrderDelivemiddle entiy = iOrderDelivemiddleService.addOrderDelivemiddle(model);
-        insertIds.add(entiy.getId());
-      } else {
-        iOrderDelivemiddleService.updateOrderMiddle(model);
+      // 获取已存在的明细id集合
+      if (!StringUtils.isEmpty(model.getId())) {
         middleList.add(model.getId());
       }
     }
@@ -311,7 +304,7 @@ public class OrderDeliverecordsServiceImpl
     }
     for (Long mid : middleIds) {
       // 不包含的数据则进行删除,这里需要排除掉本次新增的记录
-      if (!middleList.contains(mid) && !insertIds.contains(mid)) {
+      if (!middleList.contains(mid)) {
         try {
           iOrderDelivemiddleService.deleteOrderDetailrecords(mid);
         } catch (Exception e) {
@@ -326,6 +319,16 @@ public class OrderDeliverecordsServiceImpl
         } catch (Exception e) {
           throw new RuntimeException("修改送货单删除签收暂存状态信息失败！送货单明细id为：" + mid);
         }
+      }
+    }
+    // 这里进行明细记录的新增或者修改操作
+    for (OrderDelivemiddleDTO model : dto.getOrderDelivemiddleDTOList()) {
+      // 明细id如果为空则进行明细的新增操作
+      if (StringUtils.isEmpty(model.getId())) {
+        model.setDeliveryId(entity.getId());
+        iOrderDelivemiddleService.addOrderDelivemiddle(model);
+      } else {
+        iOrderDelivemiddleService.updateOrderMiddle(model);
       }
     }
     return ResultVOUtil.returnSuccess();
