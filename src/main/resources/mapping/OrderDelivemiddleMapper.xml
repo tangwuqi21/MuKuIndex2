@@ -28,7 +28,7 @@
 
     <select id="getTitleMap" resultType="hashmap" parameterType="java.lang.Long">
     select p.PRPT_ID,pr.name,p.ASSET_TEMP_ID,p.PRPT_order,pr.code,p.PK_FLAG
-    from T_ASSET_TMPL_PRPTS p left join T_ASSET_PRPT_INFO pr on p.PRPT_ID=pr.id where p.ASSET_TEMP_ID=#{moduleId}  and p.PRPT_VALUE is null and p.del_flag=0
+    from T_ASSET_TMPL_PRPTS p left join T_ASSET_PRPT_INFO pr on p.PRPT_ID=pr.id where p.ASSET_TEMP_ID=#{moduleId}  and p.DEFAULT_FLAG=1 and p.del_flag=0
     ORDER BY p.PRPT_order asc
     </select>
 
