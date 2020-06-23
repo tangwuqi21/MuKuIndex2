@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.igen.acc.domain.dto.OrgUserDto;
-import com.rhdk.purchasingservice.common.enums.ResultEnum;
 import com.rhdk.purchasingservice.common.utils.BeanCopyUtil;
 import com.rhdk.purchasingservice.common.utils.NumberUtils;
 import com.rhdk.purchasingservice.common.utils.ResultVOUtil;
@@ -132,44 +131,41 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
   @Override
   @Transactional
   public ResponseEnvelope addOrderContract(OrderContractDTO dto) {
+    OrderContract entity = new OrderContract();
+    BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
+    logger.info("addContract-添加合同主体信息开始");
+    entity.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
+    // 这里自动生成合同业务编码，规则为：HT+时间戳
+    String code = NumberUtils.createCode("HT");
+    entity.setContractCode(code);
+    PurcasingContract purcasingContract = new PurcasingContract();
     try {
-      OrderContract entity = new OrderContract();
-      if (CollectionUtils.isEmpty(dto.getAttachmentList())) {
-        return ResultVOUtil.returnFail(
-            ResultEnum.FILE_NOTNULL.getCode(), ResultEnum.FILE_NOTNULL.getMessage());
-      }
-      BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
-      logger.info("addContract-添加合同主体信息开始");
-      entity.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
-      // 这里自动生成合同业务编码，规则为：HT+时间戳
-      String code = NumberUtils.createCode("HT");
-      entity.setContractCode(code);
       orderContractMapper.insert(entity);
       logger.info("addContract-添加合同主体信息结束");
       // 合同主体添加成功，进行上传文件的记录保存，并关联到对应合同主体
       // 添加到采购合同表中
-      PurcasingContract purcasingContract = new PurcasingContract();
       purcasingContract.setContractId(entity.getId());
       purcasingContract.setContractCompany(dto.getContractCompany());
       purcasingContract.setOrgId(entity.getOrgId());
       purcasingContractMapper.insert(purcasingContract);
-      logger.info("addAttachment-添加合同附件信息开始");
-      for (OrderAttachmentDTO model : dto.getAttachmentList()) {
-        model.setParentId(purcasingContract.getId());
-        model.setAtttype(1);
-      }
-      Integer num1 =
-          assetServiceFeign.addBeatchAtta(dto.getAttachmentList(), TokenUtil.getToken()).getCode();
-      logger.info("addAttachment-添加合同附件信息结束");
-      if (num1 == 0) {
-        return ResultVOUtil.returnSuccess();
-      } else {
-        return ResultVOUtil.returnFail();
-      }
     } catch (Exception e) {
       e.printStackTrace();
       return ResultVOUtil.returnFail();
     }
+    logger.info("addAttachment-添加合同附件信息开始");
+    if (!CollectionUtils.isEmpty(dto.getAttachmentList())) {
+      for (OrderAttachmentDTO model : dto.getAttachmentList()) {
+        model.setParentId(purcasingContract.getId());
+        model.setAtttype(1);
+      }
+      try {
+        assetServiceFeign.addBeatchAtta(dto.getAttachmentList(), TokenUtil.getToken()).getCode();
+      } catch (Exception e) {
+        throw new RuntimeException("保存附件出错，请稍后重试！");
+      }
+    }
+    logger.info("addAttachment-添加合同附件信息结束");
+    return ResultVOUtil.returnSuccess();
   }
 
   @Override
@@ -189,27 +185,25 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     logger.info("updateAttachment-修改关联合同主体信息结束");
 
     // 这里进行合同附件的批量新增操作
-    if (CollectionUtils.isEmpty(dto.getAttachmentList())) {
-      return ResultVOUtil.returnFail(
-          ResultEnum.FILE_NOTNULL.getCode(), ResultEnum.FILE_NOTNULL.getMessage());
-    }
-    logger.info("updateAttachment-修改合同附件信息开始");
-    // 1.先将之前的附件列表统一删除，
-    OrderAttachmentDTO orderAttachmentDTO = new OrderAttachmentDTO();
-    orderAttachmentDTO.setParentId(model.getId());
-    orderAttachmentDTO.setAtttype(1);
-    try {
-      assetServiceFeign.deleteAttachmentByParentId(orderAttachmentDTO, TokenUtil.getToken());
-    } catch (Exception e) {
-      throw new RuntimeException("删除采购合同附件失败，合同id为：" + model.getId());
-    }
-    // 2.重新上传附件
-    if (dto.getAttachmentList().size() > 0) {
-      for (OrderAttachmentDTO model2 : dto.getAttachmentList()) {
-        model2.setParentId(model.getId());
-        model2.setAtttype(1);
+    if (!CollectionUtils.isEmpty(dto.getAttachmentList())) {
+      logger.info("updateAttachment-修改合同附件信息开始");
+      // 1.先将之前的附件列表统一删除，
+      OrderAttachmentDTO orderAttachmentDTO = new OrderAttachmentDTO();
+      orderAttachmentDTO.setParentId(model.getId());
+      orderAttachmentDTO.setAtttype(1);
+      try {
+        assetServiceFeign.deleteAttachmentByParentId(orderAttachmentDTO, TokenUtil.getToken());
+      } catch (Exception e) {
+        throw new RuntimeException("删除采购合同附件失败，合同id为：" + model.getId());
       }
-      assetServiceFeign.addBeatchAtta(dto.getAttachmentList(), TokenUtil.getToken()).getCode();
+      // 2.重新上传附件
+      if (dto.getAttachmentList().size() > 0) {
+        for (OrderAttachmentDTO model2 : dto.getAttachmentList()) {
+          model2.setParentId(model.getId());
+          model2.setAtttype(1);
+        }
+        assetServiceFeign.addBeatchAtta(dto.getAttachmentList(), TokenUtil.getToken()).getCode();
+      }
     }
     logger.info("updateAttachment-修改合同附件信息结束");
     return ResultVOUtil.returnSuccess();
