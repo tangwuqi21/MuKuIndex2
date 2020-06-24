@@ -73,6 +73,10 @@ igen-rpc:
     auth: IGEN-MCRSRV-AUTH_THRIFT
     account: IGEN-MCRSRV-ACC_THRIFT
 
+feign:
+  hystrix:
+    enabled: false
+
 feignName:
   assetService: ASSETSERVICE-UAT
   inventoryService: INVENTORY-SERVICE-UAT
