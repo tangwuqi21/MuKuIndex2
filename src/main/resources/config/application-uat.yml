@@ -10,7 +10,7 @@ spring:
       maxRequestSize: 500MB
 
   application:
-    name: assetService-uat
+    name: purchasingService-uat
   datasource:
     url: jdbc:oracle:thin:@192.168.11.13:1521:RHDKOLDB
     username: dk_uat

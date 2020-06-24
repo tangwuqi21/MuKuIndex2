@@ -375,5 +375,12 @@
             </properties>
         </profile>
 
+        <profile>
+            <id>uat</id>
+            <properties>
+                <profiles.active>uat</profiles.active>
+            </properties>
+        </profile>
+
     </profiles>
 </project>
