@@ -74,5 +74,5 @@ igen-rpc:
     account: IGEN-MCRSRV-ACC_THRIFT
 
 feignName:
-  asset: ASSETSERVICE-UAT
-  inventory: INVENTORY-SERVICE-UAT
+  assetService: ASSETSERVICE-UAT
+  inventoryService: INVENTORY-SERVICE-UAT
