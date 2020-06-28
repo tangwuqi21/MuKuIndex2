@@ -771,7 +771,11 @@ public class OrderDelivemiddleServiceImpl
             ResultEnum.FILE_NOTNULL.getCode(), "该模板未进行参数配置，请联系管理员进行配置后上传！模板id为:" + moduleId);
       }
       for (int conum = 0; conum < titleMap.size(); conum++) {
-        titleIdM.put(Integer.valueOf(titleMap.get(conum).get("PRPT_ORDER").toString()), conum);
+        if (titleMap.get(conum) != null && titleMap.get(conum).get("PRPT_ORDER") != null) {
+          titleIdM.put(Integer.valueOf(titleMap.get(conum).get("PRPT_ORDER").toString()), conum);
+        } else {
+          titleIdM.put(conum, conum);
+        }
         titleNameM2.put(titleMap.get(conum).get("NAME").toString(), conum);
         titleNameM.put(conum, titleMap.get(conum).get("NAME").toString());
         if (titleMap.get(conum).get("PK_FLAG") != null
@@ -998,8 +1002,14 @@ public class OrderDelivemiddleServiceImpl
     // 1.入库资产实体表信息
     // 入库每条资产实体对应的属性值（每个属性都需要入到资产属性值表中）
     List<AssetEntityPrpt> assetEntityPrptList = new ArrayList<>();
-    for (Map<String, Object> model : titleMap2) {
-      int a = titleIdM.get(Integer.valueOf(model.get("PRPT_ORDER").toString()));
+    for (int i = 0; i < titleMap2.size(); i++) {
+      Map<String, Object> model = titleMap2.get(i);
+      int a;
+      if (model != null && model.get("PRPT_ORDER") != null) {
+        a = titleIdM.get(Integer.valueOf(model.get("PRPT_ORDER").toString()));
+      } else {
+        a = i;
+      }
       String val = ExcleUtils.getValue(row.getCell(a), formulaEvaluator);
       if (StringUtils.isEmpty(val)) {
         continue;
@@ -1011,7 +1021,9 @@ public class OrderDelivemiddleServiceImpl
       assetEntityPrpt.setPrptId(Long.valueOf(model.get("PRPT_ID").toString()));
       assetEntityPrpt.setCreateBy(entityInfo.getCreateBy());
       assetEntityPrpt.setVal(val);
-      assetEntityPrpt.setCode(model.get("CODE").toString());
+      if (model.get("CODE") != null) {
+        assetEntityPrpt.setCode(model.get("CODE").toString());
+      }
       assetEntityPrptList.add(assetEntityPrpt);
     }
     entityInfo.setAssetEntityPrptList(assetEntityPrptList);
