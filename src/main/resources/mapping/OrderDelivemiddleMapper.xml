@@ -27,9 +27,32 @@
          </sql>
 
     <select id="getTitleMap" resultType="hashmap" parameterType="java.lang.Long">
-    select p.PRPT_ID,pr.name,p.ASSET_TEMP_ID,p.PRPT_order,pr.code,p.PK_FLAG
-    from T_ASSET_TMPL_PRPTS p left join T_ASSET_PRPT_INFO pr on p.PRPT_ID=pr.id where p.ASSET_TEMP_ID=#{moduleId}  and p.DEFAULT_FLAG=1 and p.del_flag=0
-    ORDER BY p.PRPT_order asc
+    SELECT
+	c.PRPT_ID,
+	c.name,
+	c.ASSET_TEMP_ID,
+	nvl( c.PRPT_order, ROWNUM ) AS PRPT_order,
+	c.code,
+	c.PK_FLAG
+FROM
+	(
+	SELECT
+		p.PRPT_ID,
+		pr.name,
+		p.ASSET_TEMP_ID,
+		p.PRPT_order,
+		pr.code,
+		p.PK_FLAG
+	FROM
+		T_ASSET_TMPL_PRPTS p
+		LEFT JOIN T_ASSET_PRPT_INFO pr ON p.PRPT_ID = pr.id
+	WHERE
+		p.ASSET_TEMP_ID =#{ moduleId }
+		AND p.DEFAULT_FLAG = 1
+		AND p.del_flag = 0
+	ORDER BY
+	p.PRPT_order ASC
+	)c
     </select>
 
     <select id="getMIdsByDeliveryId" resultType="java.lang.Long" parameterType="java.lang.Long">
