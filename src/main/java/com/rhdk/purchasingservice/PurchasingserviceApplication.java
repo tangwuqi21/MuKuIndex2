@@ -1,6 +1,5 @@
 package com.rhdk.purchasingservice;
 
-import com.codingapi.txlcn.tc.config.EnableDistributedTransaction;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -19,7 +18,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @ServletComponentScan
 @EnableSwagger2
 @EnableFeignClients
-@EnableDistributedTransaction
+// @EnableDistributedTransaction
 public class PurchasingserviceApplication {
 
   public static void main(String[] args) {
