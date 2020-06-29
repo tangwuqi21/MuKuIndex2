@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.codingapi.txlcn.tc.annotation.LcnTransaction;
 import com.rhdk.purchasingservice.common.enums.Constants;
 import com.rhdk.purchasingservice.common.enums.ResultEnum;
 import com.rhdk.purchasingservice.common.utils.*;
@@ -327,6 +328,7 @@ public class OrderDelivemiddleServiceImpl
 
   @Override
   @Transactional
+  @LcnTransaction
   public ResponseEnvelope deleteOrderDetailrecords(Long id) {
     // 这里需要去判断是否存在暂存的签收记录，如有则需要进行删除
     // 获取明细对应的签收状态
@@ -421,6 +423,7 @@ public class OrderDelivemiddleServiceImpl
    */
   @Override
   @Transactional
+  @LcnTransaction
   public ResponseEnvelope updateOrderMiddle(OrderDelivemiddleDTO model) {
     OrderDelivemiddle entity = this.selectOne(model.getId());
     // 针对量管本次要更新的资产数量
@@ -1228,6 +1231,7 @@ public class OrderDelivemiddleServiceImpl
    * @return
    */
   @Override
+  @LcnTransaction
   public ResponseEnvelope updateMiddleById(OrderDelivemiddleDTO dto) {
     if (dto.getId() != null) {
       OrderDelivemiddle entity = new OrderDelivemiddle();

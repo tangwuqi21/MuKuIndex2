@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.codingapi.txlcn.tc.annotation.LcnTransaction;
 import com.igen.acc.domain.dto.OrgUserDto;
 import com.rhdk.purchasingservice.common.enums.ResultEnum;
 import com.rhdk.purchasingservice.common.utils.BeanCopyUtil;
@@ -257,6 +258,7 @@ public class OrderDeliverecordsServiceImpl
    */
   @Override
   @Transactional(rollbackFor = Exception.class)
+  @LcnTransaction
   public ResponseEnvelope updateOrderDeliverecords(OrderDeliverecordsDTO dto) {
     if (StringUtils.isEmpty(dto.getId())) {
       return ResultVOUtil.returnFail(
@@ -343,6 +345,7 @@ public class OrderDeliverecordsServiceImpl
    */
   @Override
   @Transactional(rollbackFor = Exception.class)
+  @LcnTransaction
   public ResponseEnvelope deleteOrderDeliverecords(Long id) {
     int num = orderDeliverecordsMapper.deleteById(id);
     if (num <= 0) {
