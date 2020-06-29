@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.codingapi.txlcn.tc.annotation.LcnTransaction;
 import com.igen.acc.domain.dto.OrgUserDto;
 import com.rhdk.purchasingservice.common.utils.BeanCopyUtil;
 import com.rhdk.purchasingservice.common.utils.NumberUtils;
@@ -170,6 +171,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
 
   @Override
   @Transactional
+  @LcnTransaction
   public ResponseEnvelope updateOrderContract(OrderContractDTO dto) {
     PurcasingContract model = purcasingContractMapper.selectById(dto.getId());
     model.setContractCompany(dto.getContractCompany());
@@ -185,17 +187,18 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     logger.info("updateAttachment-修改关联合同主体信息结束");
 
     // 这里进行合同附件的批量新增操作
+
+    logger.info("updateAttachment-修改合同附件信息开始");
+    // 1.先将之前的附件列表统一删除，
+    OrderAttachmentDTO orderAttachmentDTO = new OrderAttachmentDTO();
+    orderAttachmentDTO.setParentId(model.getId());
+    orderAttachmentDTO.setAtttype(1);
+    try {
+      assetServiceFeign.deleteAttachmentByParentId(orderAttachmentDTO, TokenUtil.getToken());
+    } catch (Exception e) {
+      throw new RuntimeException("删除采购合同附件失败，合同id为：" + model.getId());
+    }
     if (!CollectionUtils.isEmpty(dto.getAttachmentList())) {
-      logger.info("updateAttachment-修改合同附件信息开始");
-      // 1.先将之前的附件列表统一删除，
-      OrderAttachmentDTO orderAttachmentDTO = new OrderAttachmentDTO();
-      orderAttachmentDTO.setParentId(model.getId());
-      orderAttachmentDTO.setAtttype(1);
-      try {
-        assetServiceFeign.deleteAttachmentByParentId(orderAttachmentDTO, TokenUtil.getToken());
-      } catch (Exception e) {
-        throw new RuntimeException("删除采购合同附件失败，合同id为：" + model.getId());
-      }
       // 2.重新上传附件
       if (dto.getAttachmentList().size() > 0) {
         for (OrderAttachmentDTO model2 : dto.getAttachmentList()) {
@@ -256,6 +259,8 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
   }
 
   @Override
+  @Transactional
+  @LcnTransaction
   public ResponseEnvelope deleteOrderContract(Long id) {
     // 物理删除送货明细附件表
     logger.info("deleteOrderContract-删除附件表信息开始");
