@@ -28,14 +28,31 @@
         <swagger2.version>2.9.2</swagger2.version>
         <lombok.version>1.18.8</lombok.version>
         <aspectjrt.version>1.8.0</aspectjrt.version>
-        <spring-cloud.version>Dalston.SR3</spring-cloud.version>
-
+        <spring-cloud.version>Edgware.SR3</spring-cloud.version>
         <!--uaa鉴权-->
         <solarman-oauth2.version>1.0.0-rh</solarman-oauth2.version>
         <auth.client.version>2.0.0</auth.client.version>
     </properties>
 
     <dependencies>
+        <!--分布式事务依赖包-->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.17.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>com.codingapi.txlcn</groupId>
+            <artifactId>txlcn-tc</artifactId>
+            <version>5.0.2.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>com.codingapi.txlcn</groupId>
+            <artifactId>txlcn-txmsg-netty</artifactId>
+            <version>5.0.2.RELEASE</version>
+        </dependency>
+
+
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-eureka-server</artifactId>

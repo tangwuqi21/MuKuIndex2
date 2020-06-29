@@ -62,6 +62,9 @@ spring:
       # 连接超时时间（毫秒）
     timeout: 60000
 
+tx-lcn:
+  client:
+    manager-address: 192.168.30.97:8070
 
 eureka:
   client:
