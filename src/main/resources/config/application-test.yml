@@ -77,6 +77,9 @@ eureka:
     instance-id: ${spring.application.name}:${spring.cloud.client.ipAddress}:${server.port}
 #ribbon.eureka.enable: true
 
+tx-lcn:
+  client:
+    manager-address: 192.168.30.97:8070
 
 jwt:
   token:
