@@ -282,6 +282,7 @@ public class OrderDelivemiddleServiceImpl
     if (dto.getUnitId() != null && dto.getPriceId() != null) {
       entity.setPrptIds(dto.getUnitId() + "," + dto.getPriceId());
     }
+    entity.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
     orderDelivemiddleMapper.insert(entity);
     if (StringUtils.isEmpty(entity.getId())) {
       throw new RuntimeException("送货明细记录插入失败！插入实体信息为：" + dto.toString());
