@@ -19,6 +19,7 @@
         <result column="UPDATE_BY" property="updateBy"/>
         <result column="REMARK" property="remark"/>
         <result column="SIGN_STATUS" property="signStatus"/>
+        <result column="ORG_ID" property="orgId"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
@@ -233,12 +234,18 @@ from tb GROUP BY DELIVERY_ID
         <if test="dto.id!=null and dto.id!=''">
             and ID=#{dto.id}
         </if>
+        <if test="orgId!=null and orgId!=''">
+            and ORG_ID=#{orgId}
+        </if>
         order by CREATE_DATE desc
     </select>
     <select id="selectMiddleList2" resultType="com.rhdk.purchasingservice.pojo.vo.OrderDelivemiddleVO">
         select
         <include refid="Base_Column_List"/>
         from T_ORDER_DELIVEMIDDLE where del_flag=0
+        <if test="dto.orgId!=null and dto.orgId!=''">
+            and ORG_ID=#{dto.orgId}
+        </if>
         order by CREATE_DATE desc
     </select>
 

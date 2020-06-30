@@ -48,6 +48,9 @@
         <if test="dto.id!=null and dto.id!=''">
             and ID=#{dto.id}
         </if>
+        <if test="dto.orgId!=null and dto.orgId!=''">
+            and ORG_ID=#{dto.orgId}
+        </if>
         order by CREATE_DATE desc
     </select>
 

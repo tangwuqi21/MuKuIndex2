@@ -65,6 +65,10 @@
     <select id="selectRecordsList2" resultType="com.rhdk.purchasingservice.pojo.vo.OrderDeliverecordsVO">
         select
         <include refid="Base_Column_List"/>
-        from T_ORDER_DELIVERECORDS where DEL_FLAG=0 order by CREATE_DATE desc
+        from T_ORDER_DELIVERECORDS where DEL_FLAG=0
+        <if test="dto.orgId!=null and dto.orgId!=''">
+            and ORG_ID=#{dto.orgId}
+        </if>
+        order by CREATE_DATE desc
     </select>
 </mapper>

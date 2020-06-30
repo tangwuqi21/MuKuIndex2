@@ -64,6 +64,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     page.setSize(dto.getPageSize());
     page.setCurrent(dto.getCurrentPage());
     IPage<OrderContractVO> recordsList = null;
+    dto.setOrgId(orgId);
     List<Long> paramStr = orderContractMapper.getContractIdList(dto);
     logger.info("searchOrderContractListPage-获取合同id列表结束，获取了" + paramStr.size() + "条");
     if (paramStr.size() > 0) {

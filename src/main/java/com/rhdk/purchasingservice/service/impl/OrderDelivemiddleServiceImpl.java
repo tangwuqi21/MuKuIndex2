@@ -1164,6 +1164,7 @@ public class OrderDelivemiddleServiceImpl
       supplierMap.put(Long.valueOf(model.get("id").toString()), model.get("custName").toString());
     }
     List<OrderDelivemiddleVO> resultList = new ArrayList<>();
+    dto.setOrgId(orgId);
     resultList = orderDelivemiddleMapper.selectMiddleList2(dto);
     // 6.查询所属附件资产清单id集合
     List<Long> arr = new ArrayList<>();

@@ -71,6 +71,9 @@ public class OrderDelivemiddle extends Model<OrderDelivemiddle> {
   /** 签收状态（签收状态，0-未签收，1-部分签收，2-已签收） */
   @TableField("SIGN_STATUS")
   private Integer signStatus;
+  /** 所属公司id */
+  @TableField("ORG_ID")
+  private Long orgId;
 
   @Override
   protected Serializable pkVal() {
