@@ -22,4 +22,17 @@ mybatis-plus:
 
 feign:
   hystrix:
-    enabled: true
+    enabled: false
+  client:
+    config:
+      default:
+        connectTimeout: 6000 # feign 的超时设置
+        readTimeout: 6000
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 6000 # 设置hystrix的超时时间为3000ms, 之后才调用降级方法
