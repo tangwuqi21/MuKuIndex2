@@ -219,6 +219,11 @@ public class OrderDeliverecordsServiceImpl
       entity.setDeliveryCode(code);
     }
     logger.info("addOrderDeliverecords--新增送货单信息开始");
+    // 判断是否存在同名的送货单名称
+    OrderDeliverecords deliverecords = orderDeliverecordsMapper.selectOneByName(dto);
+    if (deliverecords != null) {
+      throw new RuntimeException("新增送货单失败，已存在同名送货单记录");
+    }
     orderDeliverecordsMapper.insert(entity);
     // 保存送货记录附件信息
     if (StringUtils.isEmpty(entity.getId())) {
@@ -265,6 +270,13 @@ public class OrderDeliverecordsServiceImpl
           ResultEnum.ID_NOTNULL.getCode(), ResultEnum.ID_NOTNULL.getMessage());
     }
     OrderDeliverecords entity = this.selectOne(dto.getId());
+    if (!dto.getDeliveryName().equals(entity.getDeliveryName())) {
+      // 判断是否存在同名的送货单名称
+      OrderDeliverecords deliverecords = orderDeliverecordsMapper.selectOneByName(dto);
+      if (deliverecords != null) {
+        throw new RuntimeException("修改送货单失败，已存在同名送货单记录");
+      }
+    }
     BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
     entity.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
     // 更新送货记录内容

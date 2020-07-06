@@ -2,6 +2,7 @@ package com.rhdk.purchasingservice.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.rhdk.purchasingservice.pojo.dto.OrderDeliverecordsDTO;
 import com.rhdk.purchasingservice.pojo.entity.OrderDeliverecords;
 import com.rhdk.purchasingservice.pojo.query.OrderDeliverecordsQuery;
 import com.rhdk.purchasingservice.pojo.vo.OrderDeliverecordsVO;
@@ -24,4 +25,6 @@ public interface OrderDeliverecordsMapper extends BaseMapper<OrderDeliverecords>
   List<OrderDeliverecords> getDeliverecordList();
 
   List<OrderDeliverecordsVO> selectRecordsList2(@Param("dto") OrderDeliverecordsQuery dto);
+
+  OrderDeliverecords selectOneByName(@Param("dto") OrderDeliverecordsDTO dto);
 }

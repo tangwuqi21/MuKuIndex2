@@ -71,4 +71,11 @@
         </if>
         order by CREATE_DATE desc
     </select>
+
+    <select id="selectOneByName" resultType="com.rhdk.purchasingservice.pojo.entity.OrderDeliverecords">
+        select
+        <include refid="Base_Column_List"/>
+        from T_ORDER_DELIVERECORDS where DEL_FLAG=0
+        and DELIVERY_NAME=#{dto.deliveryName} and rownum &lt;2
+    </select>
 </mapper>
