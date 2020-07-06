@@ -3,6 +3,8 @@ package com.rhdk.purchasingservice.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.rhdk.purchasingservice.pojo.dto.QueryContractCustDTO;
+import com.rhdk.purchasingservice.pojo.entity.ContractCust;
 import com.rhdk.purchasingservice.pojo.entity.OrderContract;
 import com.rhdk.purchasingservice.pojo.query.OrderContractQuery;
 import com.rhdk.purchasingservice.pojo.vo.OrderContractVO;
@@ -23,6 +25,8 @@ public interface OrderContractMapper extends BaseMapper<OrderContract> {
 
   List<Long> getContractIdList(@Param("dto") OrderContractQuery dto);
 
+  List<Long> getContractIdByCust(@Param("dto") OrderContractQuery dto);
+
   void updateContract(
       @Param("id") Long id,
       @Param("contractCompany") String contractCompany,
@@ -35,4 +39,9 @@ public interface OrderContractMapper extends BaseMapper<OrderContract> {
   List<Long> getTemplIds();
 
   List<OrderContractVO> selectContractList2(@Param("dto") OrderContractQuery dto);
+
+  String selectCustName(@Param("dto") List<ContractCust> contractCusts);
+
+  List<QueryContractCustDTO> selectParamByContractId(
+      @Param("contractId") Long contractId, @Param("orgId") Long orgId);
 }

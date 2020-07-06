@@ -17,6 +17,9 @@
         <result column="UPDATE_BY" property="updateBy"/>
         <result column="REMARK" property="remark"/>
         <result column="ORG_ID" property="orgId"/>
+        <result column="MOTION_ID" property="motionId"/>
+        <result column="PROJECT_ID" property="projectId"/>
+        <result column="PROJECT_MANAGER_ID" property="projectManagerId"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
@@ -52,6 +55,21 @@
             and ORG_ID=#{dto.orgId}
         </if>
         order by CREATE_DATE desc
+    </select>
+
+    <select id="getContractIdByCust" resultType="java.lang.Long">
+        SELECT
+        CONTRACT_ID
+        FROM
+        T_CONTRACT_CUST
+        WHERE
+        DEL_FLAG = 0
+        <if test="dto.orgId!=null and dto.orgId!=''">
+            and ORG_ID=#{dto.orgId}
+        </if>
+        <if test="dto.custId!=null and dto.custId!=''">
+            AND CUST_ID = #{dto.custId}
+        </if>
     </select>
 
     <update id="updateContract">
@@ -100,5 +118,27 @@
 
     <select id="getTemplIds" resultType="java.lang.Long">
          select id from T_ASSET_TMPL_INFO where del_flag=0 order by id asc
+    </select>
+
+    <select id="selectCustName" resultType="java.lang.String">
+        select replace(wm_concat(SHORTNAME),',',';') as name from T_CUSTOMER where del_flag=0
+        and ID in
+        <foreach collection="dto.custId" item="cid" index="index" open="(" close=")" separator=",">
+            #{cid}
+        </foreach>
+    </select>
+
+    <select id="selectParamByContractId"
+            resultType="com.rhdk.purchasingservice.pojo.dto.QueryContractCustDTO">
+        SELECT
+	    CUST_ID,
+	    CUST_TYPE,
+	    BANK_ACCOUNT_ID
+        FROM
+	    T_CONTRACT_CUST
+        WHERE
+    	DEL_FLAG = 0
+	    AND ORG_ID = #{orgId}
+	    AND CONTRACT_ID = #{contractId}
     </select>
 </mapper>

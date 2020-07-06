@@ -4,6 +4,7 @@ import com.rhdk.purchasingservice.common.config.FeignExecptionConfig;
 import com.rhdk.purchasingservice.common.config.MultipartSupportConfig;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.pojo.dto.OrderAttachmentDTO;
+import com.rhdk.purchasingservice.pojo.dto.QueryContractCustDTO;
 import com.rhdk.purchasingservice.pojo.entity.AssetEntityInfo;
 import com.rhdk.purchasingservice.pojo.entity.AssetEntityPrpt;
 import com.rhdk.purchasingservice.pojo.entity.AssetTmplInfo;
@@ -320,4 +321,11 @@ public interface AssetServiceFeign {
   @RequestMapping(value = "/assetservice/assetCat/searchAssetCatOne", method = RequestMethod.POST)
   ResponseEnvelope<AssetCatVO> searchAssetCatOne(
       @RequestParam("id") Long id, @RequestHeader(value = "Authorization") String token);
+
+  @RequestMapping(
+      value = "/assetservice/orderCustomer/getCustInfoByCIdAndBId",
+      method = RequestMethod.POST)
+  ResponseEnvelope getCustInfoByCIdAndBId(
+      @RequestHeader(value = "Authorization") String token,
+      @RequestBody List<QueryContractCustDTO> cusBankQuery);
 }

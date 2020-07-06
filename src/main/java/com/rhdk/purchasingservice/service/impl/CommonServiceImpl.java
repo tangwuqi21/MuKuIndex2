@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.igen.acc.domain.dto.OrgUserDto;
+import com.igen.acc.domain.dto.UserInfoDto;
 import com.igen.acc.rpc.thrift.IUserService;
 import com.rhdk.purchasingservice.common.utils.NumberUtils;
 import com.rhdk.purchasingservice.common.utils.RedisUtils;
@@ -99,5 +100,10 @@ public class CommonServiceImpl implements CommonService {
       }
     }
     return ResultVOUtil.returnSuccess();
+  }
+
+  @Override
+  public UserInfoDto getUserInfo(Long userId) {
+    return iUserService.getUserInfo(userId);
   }
 }

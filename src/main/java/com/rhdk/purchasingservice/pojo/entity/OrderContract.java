@@ -68,6 +68,16 @@ public class OrderContract extends Model<OrderContract> {
   @TableField("ORG_ID")
   private Long orgId;
 
+  /** 议案id */
+  @TableField("MOTION_ID")
+  private Long motionId;
+  /** 项目id */
+  @TableField("PROJECT_ID")
+  private Long projectId;
+  /** 项目经理id */
+  @TableField("PROJECT_MANAGER_ID")
+  private String projectManagerId;
+
   @Override
   protected Serializable pkVal() {
     return this.id;

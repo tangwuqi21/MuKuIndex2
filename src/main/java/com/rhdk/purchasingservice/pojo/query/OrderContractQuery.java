@@ -63,4 +63,7 @@ public class OrderContractQuery extends BaseDTO implements Serializable {
 
   @ApiModelProperty(value = "所属公司id", hidden = true)
   private Long orgId;
+
+  @ApiModelProperty(value = "商业伙伴id", hidden = true)
+  private Long custId;
 }

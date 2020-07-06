@@ -93,4 +93,26 @@ public class OrderContractVO implements Serializable {
 
   @ApiModelProperty(value = "机构id")
   private Long orgId;
+
+  @ApiModelProperty(value = "流程会签日期")
+  @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+  private Date motionDate;
+
+  @ApiModelProperty(value = "议案id")
+  private Long motionId;
+
+  @ApiModelProperty(value = "议案名称")
+  private String motionName;
+
+  @ApiModelProperty(value = "议案审批编号")
+  private String motionNo;
+
+  @ApiModelProperty(value = "项目经理名称")
+  private String projectManagerName;
+
+  @ApiModelProperty(value = "项目经理id")
+  private String projectManagerId;
+
+  @ApiModelProperty(value = "商业伙伴列表")
+  private List<CustomerInfoVO> customerInfoVO;
 }
