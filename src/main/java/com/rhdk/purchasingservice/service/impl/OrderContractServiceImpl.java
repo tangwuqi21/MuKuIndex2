@@ -104,16 +104,16 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
               if (!StringUtils.isEmpty(a.getContractMoney())) {
                 a.setContractMoney(NumberUtils.fmtTwo(a.getContractMoney()));
               }
-              OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
-              attachmentDTO.setParentId(a.getOrderId());
-              attachmentDTO.setAtttype(1);
-              a.setAttachmentList(
-                  assetServiceFeign.selectListByParentId(attachmentDTO, dto.getToken()).getData());
               a.setContractCompany(company);
               a.setId(contractVOMap.get(a.getId()));
               a.setContractTypeName(a.getContractType() == 1 ? "采购合同" : "其他");
               a.setCreateName(userDto.getUserInfo().getName());
               a.setDeptName(userDto.getGroupName());
+              OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
+              attachmentDTO.setParentId(a.getId());
+              attachmentDTO.setAtttype(1);
+              a.setAttachmentList(
+                  assetServiceFeign.selectListByParentId(attachmentDTO, dto.getToken()).getData());
               // 获取议案信息
               if (!StringUtils.isEmpty(a.getMotionId())) {
                 Motion entity2 = new Motion();
@@ -130,7 +130,6 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     recordsList.setRecords(resultList);
     return recordsList;
   }
-
 
   public Map<Long, Long> listToMap2(List<PurcasingContract> contractVOList) {
     Map<Long, Long> result = new HashMap<>();
