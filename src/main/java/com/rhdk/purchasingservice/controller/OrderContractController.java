@@ -1,13 +1,16 @@
 package com.rhdk.purchasingservice.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.rhdk.purchasingservice.common.enums.ResultEnum;
 import com.rhdk.purchasingservice.common.utils.ResultVOUtil;
 import com.rhdk.purchasingservice.common.utils.TokenUtil;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.feign.AssetServiceFeign;
 import com.rhdk.purchasingservice.pojo.dto.OrderContractDTO;
+import com.rhdk.purchasingservice.pojo.query.ContractCustQuery;
 import com.rhdk.purchasingservice.pojo.query.OrderContractQuery;
+import com.rhdk.purchasingservice.pojo.vo.CustomerInfoVO;
 import com.rhdk.purchasingservice.pojo.vo.OrderContractVO;
 import com.rhdk.purchasingservice.service.IOrderContractService;
 import io.swagger.annotations.Api;
@@ -161,5 +164,13 @@ public class OrderContractController {
     } catch (Exception e) {
       return ResultVOUtil.returnFail(ResultEnum.FAIL.getCode(), e.getMessage());
     }
+  }
+
+  @ApiOperation(value = "采购合同商业伙伴列表分页查询", notes = "合同客户API")
+  @RequestMapping(value = "/searchContractCustListPage", method = RequestMethod.POST)
+  public ResponseEnvelope<Page<CustomerInfoVO>> searchContractCustListPage(
+      @RequestBody ContractCustQuery dto) {
+
+    return ResultVOUtil.returnSuccess(iOrderContractService.searchContractCustListPage(dto));
   }
 }

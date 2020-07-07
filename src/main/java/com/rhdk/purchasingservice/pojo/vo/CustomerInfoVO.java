@@ -14,12 +14,16 @@ import java.io.Serializable;
 @Data
 public class CustomerInfoVO implements Serializable {
   private static final long serialVersionUID = 1L;
+
+  @ApiModelProperty(value = "自增id", hidden = true)
+  private Long id;
+
   /** 客户id */
   @ApiModelProperty(value = "客户id")
   private Long custId;
   /** 客户名称 */
   @ApiModelProperty(value = "客户名称")
-  private String custName;
+  private String cusName;
 
   /** 统一社会信用证代码 */
   @ApiModelProperty(value = "统一社会信用证代码")

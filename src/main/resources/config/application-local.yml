@@ -10,7 +10,7 @@ spring:
       maxRequestSize: 500MB
 
   application:
-    name: purchasingService-local
+    name: purchasingService-local-ylm
   datasource:
     url: jdbc:oracle:thin:@192.168.30.97:1521:helowin
     username: RHDK_SSO

@@ -15,6 +15,7 @@ import com.rhdk.purchasingservice.common.utils.ResultVOUtil;
 import com.rhdk.purchasingservice.common.utils.TokenUtil;
 import com.rhdk.purchasingservice.common.utils.response.ResponseEnvelope;
 import com.rhdk.purchasingservice.feign.AssetServiceFeign;
+import com.rhdk.purchasingservice.mapper.ContractCustMapper;
 import com.rhdk.purchasingservice.mapper.MotionMapper;
 import com.rhdk.purchasingservice.mapper.OrderContractMapper;
 import com.rhdk.purchasingservice.mapper.PurcasingContractMapper;
@@ -26,6 +27,7 @@ import com.rhdk.purchasingservice.pojo.entity.ContractCust;
 import com.rhdk.purchasingservice.pojo.entity.Motion;
 import com.rhdk.purchasingservice.pojo.entity.OrderContract;
 import com.rhdk.purchasingservice.pojo.entity.PurcasingContract;
+import com.rhdk.purchasingservice.pojo.query.ContractCustQuery;
 import com.rhdk.purchasingservice.pojo.query.OrderContractQuery;
 import com.rhdk.purchasingservice.pojo.vo.CustomerInfoVO;
 import com.rhdk.purchasingservice.pojo.vo.OrderContractVO;
@@ -62,6 +64,8 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
   @Autowired private AssetServiceFeign assetServiceFeign;
 
   @Autowired private MotionMapper motionMapper;
+
+  @Autowired private ContractCustMapper contractCustMapper;
 
   private static org.slf4j.Logger logger = LoggerFactory.getLogger(OrderContractServiceImpl.class);
 
@@ -188,7 +192,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
           CustomerInfoVO customerInfoVO =
               JSON.parseObject(JSON.toJSONString(tem), CustomerInfoVO.class);
           customerInfoVO.setCustId(Long.valueOf(tem.get("id").toString()));
-          customerInfoVO.setCustName(tem.get("cusName").toString());
+          customerInfoVO.setCusName(tem.get("cusName").toString());
           customerInfoVOList.add(customerInfoVO);
         });
     orderContractVO.setCustomerInfoVO(customerInfoVOList);
@@ -469,5 +473,61 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
       throw new RuntimeException("批量删除采购合同失败，报错信息为：" + e.getMessage());
     }
     return ResultVOUtil.returnSuccess();
+  }
+
+  @Override
+  public Page<CustomerInfoVO> searchContractCustListPage(ContractCustQuery dto) {
+    PurcasingContract model = purcasingContractMapper.selectById(dto.getContractId());
+    // 分页查询商业伙伴合同
+    Page<ContractCust> page = new Page<ContractCust>();
+    page.setSize(dto.getPageSize());
+    page.setCurrent(dto.getCurrentPage());
+    QueryWrapper<ContractCust> queryWrapper = new QueryWrapper<ContractCust>();
+    ContractCust entity = new ContractCust();
+    entity.setContractId(model.getContractId());
+    queryWrapper.setEntity(entity);
+    Page<ContractCust> contractCustPage = contractCustMapper.selectPage(page, queryWrapper);
+
+    // 重新定义分页对象
+    Page<CustomerInfoVO> customerInfoPages = new Page<>();
+    customerInfoPages.setCurrent(page.getCurrent());
+    customerInfoPages.setSize(page.getSize());
+    customerInfoPages.setTotal(page.getTotal());
+    List<CustomerInfoVO> customerinfoList = new ArrayList<>();
+
+    // 遍历分页结果，构建feign参数
+    List<ContractCust> records = contractCustPage.getRecords();
+    List<QueryContractCustDTO> qContracusts = new ArrayList<>();
+    records.stream()
+        .forEach(
+            temp -> {
+              QueryContractCustDTO queryContractCustDTO = new QueryContractCustDTO();
+              BeanCopyUtil.copyPropertiesIgnoreNull(temp, queryContractCustDTO);
+              qContracusts.add(queryContractCustDTO);
+            });
+
+    // feign调用资产服务查询合作伙伴信息
+    String token = TokenUtil.getToken();
+    ResponseEnvelope custInfoByCIdAndBId =
+        assetServiceFeign.getCustInfoByCIdAndBId(token, qContracusts);
+    List<Map> data = (List<Map>) custInfoByCIdAndBId.getData();
+    // 遍历合作伙伴信息，添加到新分页对象中
+    data.forEach(
+        tem -> {
+          CustomerInfoVO customerInfoVO =
+              JSON.parseObject(JSON.toJSONString(tem), CustomerInfoVO.class);
+          customerInfoVO.setCustId(customerInfoVO.getId());
+          // 将主键id赋给feign查询对象
+          records.stream()
+              .forEach(
+                  dbtemp -> {
+                    if (customerInfoVO.getId() == dbtemp.getCustId()) {
+                      customerInfoVO.setId(dbtemp.getId());
+                    }
+                  });
+          customerinfoList.add(customerInfoVO);
+        });
+    customerInfoPages.setRecords(customerinfoList);
+    return customerInfoPages;
   }
 }
