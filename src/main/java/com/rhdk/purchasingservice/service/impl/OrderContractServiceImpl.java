@@ -110,14 +110,16 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
               a.setCreateName(userDto.getUserInfo().getName());
               a.setDeptName(userDto.getGroupName());
               // 获取议案信息
-              Motion entity2 = new Motion();
-              entity2.setId(a.getMotionId());
-              QueryWrapper<Motion> queryWrapper2 = new QueryWrapper<>();
-              queryWrapper2.setEntity(entity2);
-              Motion motion = motionMapper.selectOne(queryWrapper2);
-              a.setMotionDate(motion.getMotionDate());
-              a.setMotionName(motion.getMotionName());
-              a.setMotionNo(motion.getMotionNo());
+              if (!StringUtils.isEmpty(a.getMotionId())) {
+                Motion entity2 = new Motion();
+                entity2.setId(a.getMotionId());
+                QueryWrapper<Motion> queryWrapper2 = new QueryWrapper<>();
+                queryWrapper2.setEntity(entity2);
+                Motion motion = motionMapper.selectOne(queryWrapper2);
+                a.setMotionDate(motion.getMotionDate());
+                a.setMotionName(motion.getMotionName());
+                a.setMotionNo(motion.getMotionNo());
+              }
             });
     logger.info("getFileList-获取合同附件列表结束");
     recordsList.setRecords(resultList);

@@ -67,7 +67,7 @@
         <if test="dto.orgId!=null and dto.orgId!=''">
             and ORG_ID=#{dto.orgId}
         </if>
-        <if test="dto.custId!=null and dto.custId!=''">
+        <if test="dto.custId !=null and dto.custId !=''">
             AND CUST_ID = #{dto.custId}
         </if>
     </select>
@@ -123,8 +123,8 @@
     <select id="selectCustName" resultType="java.lang.String">
         select replace(wm_concat(SHORTNAME),',',';') as name from T_CUSTOMER where del_flag=0
         and ID in
-        <foreach collection="dto.custId" item="cid" index="index" open="(" close=")" separator=",">
-            #{cid}
+        <foreach collection="dto" item="cid" index="index" open="(" close=")" separator=",">
+            #{cid.custId}
         </foreach>
     </select>
 
