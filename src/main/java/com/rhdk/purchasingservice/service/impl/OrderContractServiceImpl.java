@@ -324,6 +324,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
                 ContractCust contractCustSave = new ContractCust();
                 BeanCopyUtil.copyPropertiesIgnoreNull(insert, contractCustSave);
                 contractCustSave.setContractId(dto.getContractId());
+                contractCustSave.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
                 contractCustSave.insert();
               }
             });
@@ -343,6 +344,8 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
                             BeanCopyUtil.copyPropertiesIgnoreNull(update, contractCustUpdate);
                             contractCustUpdate.setId(old.getId());
                             contractCustUpdate.setContractId(dto.getContractId());
+                            contractCustUpdate.setOrgId(
+                                TokenUtil.getUserInfo().getOrganizationId());
                             contractCustUpdate.updateById();
                           }
                         });
