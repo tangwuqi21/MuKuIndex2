@@ -41,7 +41,7 @@ public class OrderContractDTO implements Serializable {
   @Size(max = 50, message = "合同名称过长，只能输入50个字符以内的名称")
   private String contractName;
 
-  @ApiModelProperty(value = "往来单位")
+  @ApiModelProperty(value = "往来单位", hidden = true)
   @NotNull(message = "往来单位不能为空")
   private String contractCompany;
 
