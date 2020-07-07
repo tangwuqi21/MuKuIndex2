@@ -152,6 +152,11 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     orderContractVO.setCreateName(userDto.getUserInfo().getName());
     orderContractVO.setDeptName(userDto.getGroupName());
     orderContractVO.setId(id);
+    OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
+    attachmentDTO.setParentId(id);
+    attachmentDTO.setAtttype(1);
+    orderContractVO.setAttachmentList(
+        assetServiceFeign.selectListByParentId(attachmentDTO, TokenUtil.getToken()).getData());
     // 获取议案基本信息
     if (!StringUtils.isEmpty(orderContract.getMotionId())) {
       Motion entity2 = new Motion();
