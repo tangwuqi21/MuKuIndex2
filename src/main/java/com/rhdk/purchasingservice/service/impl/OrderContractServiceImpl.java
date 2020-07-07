@@ -73,15 +73,19 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     page.setCurrent(dto.getCurrentPage());
     IPage<OrderContractVO> recordsList = null;
     dto.setOrgId(orgId);
-    List<Long> paramStr = orderContractMapper.getContractIdByCust(dto);
+    List<Long> paramStr = new ArrayList<>();
+    if (dto.getCustId() != null) {
+      paramStr = orderContractMapper.getContractIdByCust(dto);
+    }
     logger.info("searchOrderContractListPage-获取合同id列表结束，获取了" + paramStr.size() + "条");
     if (paramStr.size() > 0) {
       dto.setContractIds(paramStr);
-    } else {
-      return recordsList;
     }
     recordsList = orderContractMapper.selectContractList(page, dto, orgId);
     List<OrderContractVO> resultList = recordsList.getRecords();
+    // 获取采购合同id
+    List<PurcasingContract> contractVOList = purcasingContractMapper.getOrderIds(resultList);
+    Map<Long, Long> contractVOMap = listToMap2(contractVOList);
     // 一次取出该合同下的所有商业伙伴信息
     resultList.stream()
         .forEach(
@@ -106,7 +110,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
               a.setAttachmentList(
                   assetServiceFeign.selectListByParentId(attachmentDTO, dto.getToken()).getData());
               a.setContractCompany(company);
-              a.setId(a.getOrderId());
+              a.setId(contractVOMap.get(a.getId()));
               a.setCreateName(userDto.getUserInfo().getName());
               a.setDeptName(userDto.getGroupName());
               // 获取议案信息
@@ -135,6 +139,15 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     return result;
   }
 
+  public Map<Long, Long> listToMap2(List<PurcasingContract> contractVOList) {
+    Map<Long, Long> result = new HashMap<>();
+    contractVOList.forEach(
+        temp -> {
+          result.put(temp.getContractId(), temp.getId());
+        });
+    return result;
+  }
+
   @Override
   public ResponseEnvelope searchOrderContractOne(Long id) {
     OrderContractVO orderContractVO = new OrderContractVO();
@@ -142,15 +155,22 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     // 获取合同基本信息
     OrderContract orderContract = orderContractMapper.selectById(purcasingContract.getContractId());
     BeanCopyUtil.copyPropertiesIgnoreNull(orderContract, orderContractVO);
+    OrgUserDto userDto =
+        commonService.getOrgUserById(orderContract.getOrgId(), orderContract.getCreateBy());
+    orderContractVO.setCreateName(userDto.getUserInfo().getName());
+    orderContractVO.setDeptName(userDto.getGroupName());
+    orderContractVO.setId(id);
     // 获取议案基本信息
-    Motion entity2 = new Motion();
-    entity2.setId(orderContract.getMotionId());
-    QueryWrapper<Motion> queryWrapper2 = new QueryWrapper<>();
-    queryWrapper2.setEntity(entity2);
-    Motion motion = motionMapper.selectOne(queryWrapper2);
-    orderContractVO.setMotionDate(motion.getMotionDate());
-    orderContractVO.setMotionName(motion.getMotionName());
-    orderContractVO.setMotionNo(motion.getMotionNo());
+    if (!StringUtils.isEmpty(orderContract.getMotionId())) {
+      Motion entity2 = new Motion();
+      entity2.setId(orderContract.getMotionId());
+      QueryWrapper<Motion> queryWrapper2 = new QueryWrapper<>();
+      queryWrapper2.setEntity(entity2);
+      Motion motion = motionMapper.selectOne(queryWrapper2);
+      orderContractVO.setMotionDate(motion.getMotionDate());
+      orderContractVO.setMotionName(motion.getMotionName());
+      orderContractVO.setMotionNo(motion.getMotionNo());
+    }
     // 查询项目经理名称
     UserInfoDto userInfo =
         commonService.getUserInfo(Long.valueOf(orderContract.getProjectManagerId()));
@@ -170,7 +190,6 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
         tem -> {
           CustomerInfoVO customerInfoVO =
               JSON.parseObject(JSON.toJSONString(tem), CustomerInfoVO.class);
-          customerInfoVO.setId(null);
           customerInfoVO.setCustId(Long.valueOf(tem.get("id").toString()));
           customerInfoVO.setCustName(tem.get("cusName").toString());
           customerInfoVOList.add(customerInfoVO);
@@ -222,6 +241,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
       ContractCust contractCust1 = new ContractCust();
       BeanCopyUtil.copyPropertiesIgnoreNull(contractCust, contractCust1);
       contractCust1.setContractId(entity.getId());
+      contractCust1.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
       contractCust1.insert();
     }
     logger.info("addAttachment-添加合同附件信息结束");
@@ -233,11 +253,11 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
   @LcnTransaction
   public ResponseEnvelope updateOrderContract(OrderContractDTO dto) {
     PurcasingContract model = purcasingContractMapper.selectById(dto.getId());
-    model.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
-    logger.info("updateAttachment-修改采购合同信息开始");
-    purcasingContractMapper.updateById(model);
-    logger.info("updateAttachment-修改采购合同信息结束");
-    logger.info("updateAttachment-修改关联合同主体信息开始");
+    // model.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
+    // logger.info("updateAttachment-修改采购合同信息开始");
+    // purcasingContractMapper.updateById(model);
+    // logger.info("updateAttachment-修改采购合同信息结束");
+    // logger.info("updateAttachment-修改关联合同主体信息开始");
     OrderContract orderContract = new OrderContract();
     BeanCopyUtil.copyPropertiesIgnoreNull(dto, orderContract);
     orderContract.setId(model.getContractId());
@@ -349,36 +369,40 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
   @Override
   public List<OrderContractVO> getContractInforList(OrderContractQuery dto, Long orgId) {
     List<OrderContractVO> contractVOList = new ArrayList<>();
-    List<Long> paramStr = orderContractMapper.getContractIdList(dto);
-    logger.info("getContractInforList-获取合同id列表结束，获取了" + paramStr.size() + "条");
+    List<Long> paramStr = new ArrayList<>();
+    if (dto.getCustId() != null) {
+      paramStr = orderContractMapper.getContractIdByCust(dto);
+    }
     if (paramStr.size() > 0) {
       dto.setContractIds(paramStr);
-    } else {
-      return contractVOList;
     }
     dto.setOrgId(orgId);
     contractVOList = orderContractMapper.selectContractList2(dto);
-    // 一次取出所有合同信息
-    List<OrderContractVO> contractVOList2 = orderContractMapper.selectContractById(null, null);
-    Map<Long, OrderContractVO> contractVOMap = listToMap(contractVOList2);
+    List<PurcasingContract> purcasingContracts =
+        purcasingContractMapper.getOrderIds(contractVOList);
+    Map<Long, Long> contractVOMap = listToMap2(purcasingContracts);
     contractVOList.forEach(
         a -> {
+          // 封装参数调用资产服务查询合同伙伴姓名拼接
+          ContractCust contractCust = new ContractCust();
+          contractCust.setContractId(a.getId());
+          QueryWrapper<ContractCust> queryWrapper = new QueryWrapper<>();
+          queryWrapper.setEntity(contractCust);
+          List<ContractCust> contractCusts = contractCust.selectList(queryWrapper);
+          String company = "";
+          if (!CollectionUtils.isEmpty(contractCusts)) {
+            company = orderContractMapper.selectCustName(contractCusts);
+            a.setContractCompany(company);
+          }
           // 根据合同id去附件表里获取每个合同对应的附件
           OrgUserDto userDto = commonService.getOrgUserById(a.getOrgId(), a.getCreateBy());
-          OrderContractVO contractVO = new OrderContractVO();
-          if (contractVOMap.get(a.getId()) != null) {
-            contractVO = contractVOMap.get(a.getId());
-          }
+          a.setId(contractVOMap.get(a.getId()));
           OrderAttachmentDTO attachmentDTO = new OrderAttachmentDTO();
           attachmentDTO.setParentId(a.getId());
           attachmentDTO.setAtttype(1);
           List<Map<String, Object>> fileList =
               assetServiceFeign.selectListByParentId(attachmentDTO, dto.getToken()).getData();
           String haveFile = fileList.size() > 0 ? "是" : "否";
-          if (contractVO != null) {
-            a.setId(contractVO.getOrderId());
-            a.setContractCompany(contractVO.getContractCompany());
-          }
           a.setHaveFile(haveFile);
           a.setContractTypeName(a.getContractType() == 1 ? "采购合同" : "其他");
           if (userDto != null) {
@@ -387,6 +411,16 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
           }
           if (!StringUtils.isEmpty(a.getContractMoney())) {
             a.setContractMoney(NumberUtils.fmtTwo(a.getContractMoney()));
+          }
+          // 获取议案信息
+          if (!StringUtils.isEmpty(a.getMotionId())) {
+            Motion entity2 = new Motion();
+            entity2.setId(a.getMotionId());
+            QueryWrapper<Motion> queryWrapper2 = new QueryWrapper<>();
+            queryWrapper2.setEntity(entity2);
+            Motion motion = motionMapper.selectOne(queryWrapper2);
+            a.setMotionName(motion.getMotionName());
+            a.setMotionNo(motion.getMotionNo());
           }
         });
     return contractVOList;

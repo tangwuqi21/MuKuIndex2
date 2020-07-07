@@ -79,7 +79,7 @@
     <select id="selectContractList" resultType="com.rhdk.purchasingservice.pojo.vo.OrderContractVO">
         select
         <include refid="Base_Column_List"/>
-        from T_CONTRACT where DEL_FLAG=0
+        from T_CONTRACT where DEL_FLAG=0 and CONTRACT_TYPE=1
         <if test="dto.contractCode !=null and dto.contractCode !=''">
             and CONTRACT_CODE like
             ('%'||#{dto.contractCode}||'%')
@@ -103,7 +103,7 @@
     <select id="selectContractList2" resultType="com.rhdk.purchasingservice.pojo.vo.OrderContractVO">
         select
         <include refid="Base_Column_List"/>
-        from T_CONTRACT where DEL_FLAG=0
+        from T_CONTRACT where DEL_FLAG=0 and CONTRACT_TYPE=1
         <if test="dto.orgId !=null and dto.orgId !=''">
             and ORG_ID =#{dto.orgId}
         </if>

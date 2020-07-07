@@ -22,5 +22,11 @@
         ID, CONTRACT_ID, CONTRACT_COMPANY, STATUS, DSCP, CREATE_BY, CREATE_DATE, UPDATE_BY, UPDATE_DATE, ORG_ID, DEL_FLAG
          </sql>
 
-
+    <select id="getOrderIds" resultType="com.rhdk.purchasingservice.pojo.entity.PurcasingContract">
+        select ID,CONTRACT_ID from T_ORDER_CONTRACT WHERE DEL_FLAG=0
+        and CONTRACT_ID in
+        <foreach collection="dto" item="cid" index="index" open="(" close=")" separator=",">
+            #{cid.id}
+        </foreach>
+    </select>
 </mapper>

@@ -14,9 +14,6 @@ import java.io.Serializable;
 @Data
 public class CustomerInfoVO implements Serializable {
   private static final long serialVersionUID = 1L;
-  /** 主键id */
-  @ApiModelProperty(value = "自增id")
-  private Long id;
   /** 客户id */
   @ApiModelProperty(value = "客户id")
   private Long custId;
