@@ -111,6 +111,7 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
                   assetServiceFeign.selectListByParentId(attachmentDTO, dto.getToken()).getData());
               a.setContractCompany(company);
               a.setId(contractVOMap.get(a.getId()));
+              a.setContractTypeName(a.getContractType() == 1 ? "采购合同" : "其他");
               a.setCreateName(userDto.getUserInfo().getName());
               a.setDeptName(userDto.getGroupName());
               // 获取议案信息

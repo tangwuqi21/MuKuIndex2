@@ -28,15 +28,15 @@ public class OrderContractQuery extends BaseDTO implements Serializable {
   @NotNull(message = "单据日期不能为空")
   private Date contractDate;
 
-  @ApiModelProperty(value = "单据编码")
+  @ApiModelProperty(value = "单据编码", hidden = true)
   @NotNull(message = "单据编码不能为空")
   private String contractCode;
 
-  @ApiModelProperty(value = "合同名称")
+  @ApiModelProperty(value = "合同名称", hidden = true)
   @NotNull(message = "合同名称不能为空")
   private String contractName;
 
-  @ApiModelProperty(value = "往来单位")
+  @ApiModelProperty(value = "往来单位", hidden = true)
   @NotNull(message = "往来单位不能为空")
   private String contractCompany;
 
@@ -64,6 +64,6 @@ public class OrderContractQuery extends BaseDTO implements Serializable {
   @ApiModelProperty(value = "所属公司id", hidden = true)
   private Long orgId;
 
-  @ApiModelProperty(value = "商业伙伴id", hidden = true)
+  @ApiModelProperty(value = "商业伙伴id")
   private Long custId;
 }

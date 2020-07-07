@@ -55,6 +55,7 @@ public class OrderContractVO implements Serializable {
   @ApiModelProperty(value = "合同类型,1-采购合同")
   private Integer contractType;
 
+  @ApiModelProperty(value = "合同类型名称")
   private String contractTypeName;
 
   @ApiModelProperty(value = "合同金额")
@@ -63,9 +64,10 @@ public class OrderContractVO implements Serializable {
   @ApiModelProperty(value = "附件集合")
   private List<Map<String, Object>> attachmentList;
 
+  @ApiModelProperty(value = "是否含有附件，是/否")
   private String haveFile;
 
-  @ApiModelProperty(value = "删除标识，0-正常，1-已删除")
+  @ApiModelProperty(value = "删除标识，0-正常，1-已删除", hidden = true)
   private Integer delFlag;
 
   @ApiModelProperty(value = "创建时间")
@@ -75,11 +77,11 @@ public class OrderContractVO implements Serializable {
   @ApiModelProperty(value = "创建人")
   private Long createBy;
 
-  @ApiModelProperty(value = "修改时间")
+  @ApiModelProperty(value = "修改时间", hidden = true)
   @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
   private Date updateDate;
 
-  @ApiModelProperty(value = "修改人")
+  @ApiModelProperty(value = "修改人", hidden = true)
   private Long updateBy;
 
   @ApiModelProperty(value = "备注")
@@ -91,7 +93,7 @@ public class OrderContractVO implements Serializable {
   @ApiModelProperty(value = "部门名称")
   private String deptName;
 
-  @ApiModelProperty(value = "机构id")
+  @ApiModelProperty(value = "机构id", hidden = true)
   private Long orgId;
 
   @ApiModelProperty(value = "流程会签日期")

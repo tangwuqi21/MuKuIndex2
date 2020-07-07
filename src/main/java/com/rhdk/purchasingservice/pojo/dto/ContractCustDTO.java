@@ -23,7 +23,7 @@ public class ContractCustDTO implements Serializable {
   // @ApiModelProperty(value = "自增id")
   // private Long id;
 
-  @ApiModelProperty(value = "合同id")
+  @ApiModelProperty(value = "合同id", hidden = true)
   private Long contractId;
 
   @ApiModelProperty(value = "客户id")
@@ -38,7 +38,7 @@ public class ContractCustDTO implements Serializable {
   @NotNull(message = "银行账户id不能为空")
   private Long bankAccountId;
 
-  @ApiModelProperty(value = "描述")
+  @ApiModelProperty(value = "描述", hidden = true)
   private String dscp;
 
   @ApiModelProperty(value = "创建人", hidden = true)
