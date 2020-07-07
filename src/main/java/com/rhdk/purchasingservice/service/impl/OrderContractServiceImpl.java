@@ -131,14 +131,6 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     return recordsList;
   }
 
-  public Map<Long, OrderContractVO> listToMap(List<OrderContractVO> contractVOList) {
-    Map<Long, OrderContractVO> result = new HashMap<>();
-    contractVOList.forEach(
-        temp -> {
-          result.put(temp.getContractId(), temp);
-        });
-    return result;
-  }
 
   public Map<Long, Long> listToMap2(List<PurcasingContract> contractVOList) {
     Map<Long, Long> result = new HashMap<>();

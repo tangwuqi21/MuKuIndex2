@@ -42,7 +42,6 @@ public class OrderContractDTO implements Serializable {
   private String contractName;
 
   @ApiModelProperty(value = "往来单位", hidden = true)
-  @NotNull(message = "往来单位不能为空")
   private String contractCompany;
 
   @ApiModelProperty(value = "合同类型,1-采购合同；2-经租合同;")
