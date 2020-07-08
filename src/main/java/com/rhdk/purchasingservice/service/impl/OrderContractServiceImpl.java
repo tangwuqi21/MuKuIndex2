@@ -88,6 +88,9 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
     recordsList = orderContractMapper.selectContractList(page, dto, orgId);
     List<OrderContractVO> resultList = recordsList.getRecords();
     // 获取采购合同id
+    if (CollectionUtils.isEmpty(resultList)) {
+      return recordsList;
+    }
     List<PurcasingContract> contractVOList = purcasingContractMapper.getOrderIds(resultList);
     Map<Long, Long> contractVOMap = listToMap2(contractVOList);
     // 一次取出该合同下的所有商业伙伴信息
