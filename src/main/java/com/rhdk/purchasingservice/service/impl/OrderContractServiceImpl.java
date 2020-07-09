@@ -149,6 +149,9 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
 
   @Override
   public ResponseEnvelope searchOrderContractOne(Long id) {
+    if (id == null) {
+      throw new RuntimeException("获取详情，id不能为空！");
+    }
     OrderContractVO orderContractVO = new OrderContractVO();
     PurcasingContract purcasingContract = purcasingContractMapper.selectById(id);
     // 获取合同基本信息
@@ -256,6 +259,9 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
   @Transactional
   @LcnTransaction
   public ResponseEnvelope updateOrderContract(OrderContractDTO dto) {
+    if (dto.getId() == null) {
+      throw new RuntimeException("修改合同详情，id不能为空！");
+    }
     PurcasingContract model = purcasingContractMapper.selectById(dto.getId());
     // model.setOrgId(TokenUtil.getUserInfo().getOrganizationId());
     // logger.info("updateAttachment-修改采购合同信息开始");
@@ -437,6 +443,9 @@ public class OrderContractServiceImpl extends ServiceImpl<OrderContractMapper, O
   @Transactional
   @LcnTransaction
   public ResponseEnvelope deleteOrderContract(Long id) {
+    if (id == null) {
+      throw new RuntimeException("删除合同记录，id不能为空！");
+    }
     // 物理删除送货明细附件表
     logger.info("deleteOrderContract-删除附件表信息开始");
     OrderAttachmentDTO orderAttachmentDTO = new OrderAttachmentDTO();
