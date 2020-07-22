@@ -1,8 +1,8 @@
-package com.rhdk.purchasingservice.pojo.entity.dto;
+package com.mukutech.websiteservice.pojo.entity.dto;
 
-import com.rhdk.purchasingservice.pojo.dto.BaseDTO;
 import lombok.Getter;
 import lombok.Setter;
+
 import java.io.Serializable;
 
 /**
@@ -15,7 +15,7 @@ import java.io.Serializable;
  */
 @Getter
 @Setter
-public class ${entity}DTO extends BaseDTO implements Serializable {
+public class ${entity}DTO implements Serializable {
     private static final long serialVersionUID = 1L;
     #foreach($field in ${table.fields})
         #if("$!field.comment" != "")

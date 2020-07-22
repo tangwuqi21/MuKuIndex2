@@ -1,7 +1,6 @@
 package ${package.Controller};
 
 
-
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.annotations.Api;
@@ -34,13 +33,13 @@ import ${superControllerClassPackage};
  * @since ${date}
  */
 @Slf4j
-@Api(tags = {"$!{table.comment}API" })
+@Api(tags = {"$!{table.comment}API"})
     #if(${restControllerStyle})
     @RestController
     #else
     @Controller
     #end
-@RequestMapping("#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end" )
+@RequestMapping("#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end")
 @ResponseBody
 #if(${kotlin})
 class ${table.controllerName}#if(${superControllerClass}) : ${superControllerClass}()#end
@@ -60,28 +59,28 @@ class ${table.controllerName}#if(${superControllerClass}) : ${superControllerCla
 private ${table.serviceName}  $tableServiceName;
 
 
-@ApiOperation(value = "$!{table.comment}列表分页查询" , notes = "$!{table.comment}API" )
-@RequestMapping(value = "/search${entity}ListPage" , method = RequestMethod.POST)
+@ApiOperation(value = "$!{table.comment}列表分页查询", notes = "$!{table.comment}API")
+@RequestMapping(value = "/search${entity}ListPage", method = RequestMethod.POST)
 public ResponseEnvelope search${entity}ListPage(@RequestBody ${entity}DTO dto){
         return ${tableServiceName}.search${entity}ListPage(dto);
         }
-@ApiOperation(value = "$!{table.comment}详细查询" , notes = "$!{table.comment}API" )
-@RequestMapping(value = "/search${entity}One" , method = RequestMethod.GET)
+@ApiOperation(value = "$!{table.comment}详细查询", notes = "$!{table.comment}API")
+@RequestMapping(value = "/search${entity}One", method = RequestMethod.GET)
 public ResponseEnvelope search${entity}One(Long id){
         return ${tableServiceName}.search${entity}One(id);
         }
-@ApiOperation(value = "$!{table.comment}添加" , notes = "$!{table.comment}API" )
-@RequestMapping(value = "/add${entity}" , method = RequestMethod.POST)
+@ApiOperation(value = "$!{table.comment}添加", notes = "$!{table.comment}API")
+@RequestMapping(value = "/add${entity}", method = RequestMethod.POST)
 public ResponseEnvelope add${entity}(@RequestBody ${entity}DTO dto){
         return ${tableServiceName}.add${entity}(dto);
         }
-@ApiOperation(value = "$!{table.comment}更新" , notes = "$!{table.comment}API" )
-@RequestMapping(value = "/update${entity}" , method = RequestMethod.POST)
+@ApiOperation(value = "$!{table.comment}更新", notes = "$!{table.comment}API")
+@RequestMapping(value = "/update${entity}", method = RequestMethod.POST)
 public ResponseEnvelope update${entity}(@RequestBody ${entity}DTO dto){
         return ${tableServiceName}.update${entity}(dto);
         }
-@ApiOperation(value = "$!{table.comment}删除" , notes = "$!{table.comment}API" )
-@RequestMapping(value = "/delete${entity}" , method = RequestMethod.GET)
+@ApiOperation(value = "$!{table.comment}删除", notes = "$!{table.comment}API")
+@RequestMapping(value = "/delete${entity}", method = RequestMethod.GET)
 public ResponseEnvelope delete${entity}(Long id){
         return ${tableServiceName}.delete${entity}(id);
         }

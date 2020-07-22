@@ -1,14 +1,15 @@
 package ${package.Entity};
 import lombok.Data;
+
 import java.util.Date;
-    #foreach($pkg in ${table.importPackages})
-    import ${pkg};
-    #end
-    #if(${entityLombokModel})
-    import lombok.Data;
-    import lombok.EqualsAndHashCode;
-    import lombok.experimental.Accessors;
-    #end
+#foreach($pkg in ${table.importPackages})
+import ${pkg};
+#end
+#if(${entityLombokModel})
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+#end
 
 /**
  * <p>
@@ -52,7 +53,7 @@ private static final long serialVersionUID=1L;
      */
     #end
     #if(${field.keyFlag})
-    ## 主键
+        ## 主键
         #if(${field.keyIdentityFlag})
         @TableId(value = "${field.name}", type = IdType.AUTO)
         #elseif(!$null.isNull(${idType}) && "$!idType" != "")
@@ -60,9 +61,9 @@ private static final long serialVersionUID=1L;
         #elseif(${field.convert})
         @TableId("${field.name}")
         #end
-    ## 普通字段
+        ## 普通字段
     #elseif(${field.fill})
-    ## -----   存在字段填充设置   -----
+        ## -----   存在字段填充设置   -----
         #if(${field.convert})
         @TableField(value = "${field.name}", fill = FieldFill.${field.fill})
         #else
@@ -71,11 +72,11 @@ private static final long serialVersionUID=1L;
     #elseif(${field.convert})
     @TableField("${field.name}")
     #end
-## 乐观锁注解
+    ## 乐观锁注解
     #if(${versionFieldName}==${field.name})
     @Version
     #end
-## 逻辑删除注解
+    ## 逻辑删除注解
     #if(${logicDeleteFieldName}==${field.name})
     @TableLogic
     #end

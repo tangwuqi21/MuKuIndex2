@@ -16,16 +16,16 @@
         </dependencySet>
     </dependencySets>
     <fileSets>
-<!--        <fileSet>-->
-<!--	        <directory>src/main/bin</directory>-->
-<!--	        <outputDirectory>/</outputDirectory>-->
-<!--		    <includes>-->
-<!--		      <include>restart.sh</include>-->
-<!--		      <include>start.sh</include>-->
-<!--		      <include>stop.sh</include>-->
-<!--		      <include>start.bat</include>-->
-<!--		    </includes>-->
-<!--        </fileSet>-->
+        <!--        <fileSet>-->
+        <!--	        <directory>src/main/bin</directory>-->
+        <!--	        <outputDirectory>/</outputDirectory>-->
+        <!--		    <includes>-->
+        <!--		      <include>restart.sh</include>-->
+        <!--		      <include>start.sh</include>-->
+        <!--		      <include>stop.sh</include>-->
+        <!--		      <include>start.bat</include>-->
+        <!--		    </includes>-->
+        <!--        </fileSet>-->
 
         <!-- 把配置文件放进config目录 -->
         <fileSet>

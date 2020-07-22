@@ -6,7 +6,7 @@ server:
 
   config: classpath:logback-boot.xml  # 默认logback.xml配置文件目录
   level:
-    com.rhdk.purchasingservice.mapper: debug  #打印sql
+    com.mukutech.websiteservice.mapper: debug  #打印sql
 
 
 mybatis-plus:
@@ -18,7 +18,7 @@ mybatis-plus:
   mapper-locations: classpath:/mapping/*.xml
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-    type-aliases-package: com.rhdk.purchasingservice.pojo.entity
+    type-aliases-package: com.mukutech.websiteservice.pojo.entity
 
 feign:
   hystrix:

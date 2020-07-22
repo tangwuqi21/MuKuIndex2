@@ -10,7 +10,7 @@ spring:
       maxRequestSize: 500MB
 
   application:
-    name: purchasingService-uat
+    name: websiteService-uat
   datasource:
     url: jdbc:oracle:thin:@192.168.11.13:1521:RHDKOLDB
     username: dk_uat
@@ -18,65 +18,65 @@ spring:
     driver-class-name: oracle.jdbc.driver.OracleDriver
     type: com.alibaba.druid.pool.DruidDataSource
 
-  redis:
-    database: 2
-    host: 192.168.11.25
-    port: 6379
-    password: ronghe2020
-    pool:
-      # 连接池最大连接数（使用负值表示没有限制）test
-      max-active: 10
-      # 连接池最大阻塞等待时间（使用负值表示没有限制）（毫秒）
-      max-wait: 60000
-      # 连接池中的最大空闲连接
-      max-idle: 5
-      # 连接池中的最小空闲连接
-      min-idle: 2
-      # 连接超时时间（毫秒）
-    timeout: 60000
-logging:
-  config: classpath:logback-boot.xml  # 默认logback.xml配置文件目录
-  level:
-    com.rhdk.assetservice.dao: info  #打印sql
+#  redis:
+#    database: 2
+#    host: 192.168.11.25
+#    port: 6379
+#    password: ronghe2020
+#    pool:
+#      # 连接池最大连接数（使用负值表示没有限制）test
+#      max-active: 10
+#      # 连接池最大阻塞等待时间（使用负值表示没有限制）（毫秒）
+#      max-wait: 60000
+#      # 连接池中的最大空闲连接
+#      max-idle: 5
+#      # 连接池中的最小空闲连接
+#      min-idle: 2
+#      # 连接超时时间（毫秒）
+#    timeout: 60000
+#logging:
+#  config: classpath:logback-boot.xml  # 默认logback.xml配置文件目录
+#  level:
+#    com.rhdk.assetservice.dao: info  #打印sql
 
-eureka:
-  client:
-    #    register-with-eureka: false #把自己当成客户端
-    #    fetch-registry: false
-    healthcheck:
-      enabled: false   #关闭健康检查，不然无法注册到eureka注册中心
-    #普通安全级别设置访问Eureka的访问密码
-    serviceUrl:
-      defaultZone: http://192.168.21.142:8761/eureka
-  instance:
-    prefer-ip-address: true
-    #自定义 eureka 监控服务的ip服务名等
-    instance-id: ${spring.application.name}:${spring.cloud.client.ipAddress}:${server.port}
-#ribbon.eureka.enable: true
+#eureka:
+#  client:
+#    #    register-with-eureka: false #把自己当成客户端
+#    #    fetch-registry: false
+#    healthcheck:
+#      enabled: false   #关闭健康检查，不然无法注册到eureka注册中心
+#    #普通安全级别设置访问Eureka的访问密码
+#    serviceUrl:
+#      defaultZone: http://192.168.21.142:8761/eureka
+#  instance:
+#    prefer-ip-address: true
+#    #自定义 eureka 监控服务的ip服务名等
+#    instance-id: ${spring.application.name}:${spring.cloud.client.ipAddress}:${server.port}
+##ribbon.eureka.enable: true
 
 
-jwt:
-  token:
-    verification-key: |
-      -----BEGIN PUBLIC KEY-----
-      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnrIeJJhcf5eBXd0TI+M7
-      +gzvQfwNe/+EbphOS2GswMXzfRF/UuxZqgsjwgw+0MqK481UzMZGUMfeMN4AaqSG
-      j7DxFMBKtYlsQ/DVIkt8WAf3C9EUJ2ZytS3ZZoc4POUgf30GYhDjM/VTG7/EaHeU
-      vVSZDY5LSExkSS4muN8OSZ9/3hPgyTxnZ8+IjbjFnpfbkXlXiNP3h//WjLp4Gp04
-      BTUozdRFdix0yaABrV9NMquiYWz+MkW/VP1swfhtHXJ7oVuLWl/Zg/UXHcKZyuOl
-      /BzRrlfLRfxTmdq+isYuxNJZazHIXJSFPpMwxbcWkgMg8pE3AQqUBtKGs0f64ye1
-      IQIDAQAB
-      -----END PUBLIC KEY-----
-
-igen-rpc:
-  server-name:
-    auth: IGEN-MCRSRV-AUTH_THRIFT
-    account: IGEN-MCRSRV-ACC_THRIFT
-
-feign:
-  hystrix:
-    enabled: false
-
-feignName:
-  assetService: ASSETSERVICE-UAT
-  inventoryService: INVENTORY-SERVICE-UAT
+#jwt:
+#  token:
+#    verification-key: |
+#      -----BEGIN PUBLIC KEY-----
+#      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnrIeJJhcf5eBXd0TI+M7
+#      +gzvQfwNe/+EbphOS2GswMXzfRF/UuxZqgsjwgw+0MqK481UzMZGUMfeMN4AaqSG
+#      j7DxFMBKtYlsQ/DVIkt8WAf3C9EUJ2ZytS3ZZoc4POUgf30GYhDjM/VTG7/EaHeU
+#      vVSZDY5LSExkSS4muN8OSZ9/3hPgyTxnZ8+IjbjFnpfbkXlXiNP3h//WjLp4Gp04
+#      BTUozdRFdix0yaABrV9NMquiYWz+MkW/VP1swfhtHXJ7oVuLWl/Zg/UXHcKZyuOl
+#      /BzRrlfLRfxTmdq+isYuxNJZazHIXJSFPpMwxbcWkgMg8pE3AQqUBtKGs0f64ye1
+#      IQIDAQAB
+#      -----END PUBLIC KEY-----
+#
+#igen-rpc:
+#  server-name:
+#    auth: IGEN-MCRSRV-AUTH_THRIFT
+#    account: IGEN-MCRSRV-ACC_THRIFT
+#
+#feign:
+#  hystrix:
+#    enabled: false
+#
+#feignName:
+#  assetService: ASSETSERVICE-UAT
+#  inventoryService: INVENTORY-SERVICE-UAT

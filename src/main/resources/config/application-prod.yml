@@ -10,12 +10,12 @@ spring:
       maxRequestSize: 500MB
 
   application:
-    name: purchasingService-prod
+    name: websiteService-prod
   datasource:
-    url: jdbc:oracle:thin:@192.168.1.23:1521:RHDKOLDB
-    username: dk_prod
-    password: dk_prod
-    driver-class-name: oracle.jdbc.driver.OracleDriver
+    url: jdbc:mysql://localhost:3306/mybatis?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
+    username: root
+    password: admin
+    driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
 
   redis:

@@ -10,12 +10,12 @@ spring:
       maxRequestSize: 500MB
 
   application:
-    name: purchasingService-test
+    name: websiteService-test
   datasource:
-    url: jdbc:oracle:thin:@192.168.30.97:1521:helowin
-    username: RHDK_SSO_TEST
-    password: RHDK_SSO_TEST
-    driver-class-name: oracle.jdbc.OracleDriver
+    url: jdbc:mysql://localhost:3306/center_test_db?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
+    username: root
+    password: admin
+    driver-class-name: com.mysql.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
 
     filters: stat
@@ -41,79 +41,79 @@ spring:
       add-mappings: false
 
   #redis 连接信息
-  redis:
-    database: 2
-    host: 192.168.30.96
-    port: 36379
-    password: ronghe2020
-    pool:
-      # 连接池最大连接数（使用负值表示没有限制）test
-      max-active: 10
-      # 连接池最大阻塞等待时间（使用负值表示没有限制）（毫秒）
-      max-wait: 60000
-      # 连接池中的最大空闲连接
-      max-idle: 5
-      # 连接池中的最小空闲连接
-      min-idle: 2
-      # 连接超时时间（毫秒）
-    timeout: 60000
-logging:
-  config: classpath:logback-boot.xml  # 默认logback.xml配置文件目录
-  level:
-    com.rhdk.purchasingservice.dao: info  #打印sql
-
-eureka:
-  client:
-    #    register-with-eureka: false #把自己当成客户端
-    #    fetch-registry: false
-    healthcheck:
-      enabled: false   #关闭健康检查，不然无法注册到eureka 注册中心
-    #普通安全级别设置访问Eureka的访问密码
-    serviceUrl:
-      defaultZone: http://192.168.30.94:8761/eureka
-  instance:
-    prefer-ip-address: true
-    #自定义 eureka 监控服务的ip服务名等
-    instance-id: ${spring.application.name}:${spring.cloud.client.ipAddress}:${server.port}
-#ribbon.eureka.enable: true
-
-tx-lcn:
-  client:
-    manager-address: 192.168.30.97:8070
-
-jwt:
-  token:
-    verification-key: |
-      -----BEGIN PUBLIC KEY-----
-      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnrIeJJhcf5eBXd0TI+M7
-      +gzvQfwNe/+EbphOS2GswMXzfRF/UuxZqgsjwgw+0MqK481UzMZGUMfeMN4AaqSG
-      j7DxFMBKtYlsQ/DVIkt8WAf3C9EUJ2ZytS3ZZoc4POUgf30GYhDjM/VTG7/EaHeU
-      vVSZDY5LSExkSS4muN8OSZ9/3hPgyTxnZ8+IjbjFnpfbkXlXiNP3h//WjLp4Gp04
-      BTUozdRFdix0yaABrV9NMquiYWz+MkW/VP1swfhtHXJ7oVuLWl/Zg/UXHcKZyuOl
-      /BzRrlfLRfxTmdq+isYuxNJZazHIXJSFPpMwxbcWkgMg8pE3AQqUBtKGs0f64ye1
-      IQIDAQAB
-      -----END PUBLIC KEY-----
-
-mybatis-plus:
-  global-config:
-    id-type: 1
-    logic-delete-field: delFlag
-    logic-delete-value: 1
-    logic-not-delete-value: 0
-  mapper-locations: classpath:/mapping/*.xml
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-    type-aliases-package: com.rhdk.purchasingservice.pojo.entity
-
-igen-rpc:
-  server-name:
-    auth: IGEN-MCRSRV-AUTH_THRIFT
-    account: IGEN-MCRSRV-ACC_THRIFT
-
-feign:
-  hystrix:
-    enabled: false
-
-feignName:
-  assetService: assetService-test
-  inventoryService: INVENTORY-SERVICE-TEST
+#  redis:
+#    database: 2
+#    host: 192.168.30.96
+#    port: 36379
+#    password: ronghe2020
+#    pool:
+#      # 连接池最大连接数（使用负值表示没有限制）test
+#      max-active: 10
+#      # 连接池最大阻塞等待时间（使用负值表示没有限制）（毫秒）
+#      max-wait: 60000
+#      # 连接池中的最大空闲连接
+#      max-idle: 5
+#      # 连接池中的最小空闲连接
+#      min-idle: 2
+#      # 连接超时时间（毫秒）
+#    timeout: 60000
+#logging:
+#  config: classpath:logback-boot.xml  # 默认logback.xml配置文件目录
+#  level:
+#    com.mukutech.websiteservice.dao: info  #打印sql
+#
+#eureka:
+#  client:
+#    #    register-with-eureka: false #把自己当成客户端
+#    #    fetch-registry: false
+#    healthcheck:
+#      enabled: false   #关闭健康检查，不然无法注册到eureka 注册中心
+#    #普通安全级别设置访问Eureka的访问密码
+#    serviceUrl:
+#      defaultZone: http://192.168.30.94:8761/eureka
+#  instance:
+#    prefer-ip-address: true
+#    #自定义 eureka 监控服务的ip服务名等
+#    instance-id: ${spring.application.name}:${spring.cloud.client.ipAddress}:${server.port}
+##ribbon.eureka.enable: true
+#
+#tx-lcn:
+#  client:
+#    manager-address: 192.168.30.97:8070
+#
+#jwt:
+#  token:
+#    verification-key: |
+#      -----BEGIN PUBLIC KEY-----
+#      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnrIeJJhcf5eBXd0TI+M7
+#      +gzvQfwNe/+EbphOS2GswMXzfRF/UuxZqgsjwgw+0MqK481UzMZGUMfeMN4AaqSG
+#      j7DxFMBKtYlsQ/DVIkt8WAf3C9EUJ2ZytS3ZZoc4POUgf30GYhDjM/VTG7/EaHeU
+#      vVSZDY5LSExkSS4muN8OSZ9/3hPgyTxnZ8+IjbjFnpfbkXlXiNP3h//WjLp4Gp04
+#      BTUozdRFdix0yaABrV9NMquiYWz+MkW/VP1swfhtHXJ7oVuLWl/Zg/UXHcKZyuOl
+#      /BzRrlfLRfxTmdq+isYuxNJZazHIXJSFPpMwxbcWkgMg8pE3AQqUBtKGs0f64ye1
+#      IQIDAQAB
+#      -----END PUBLIC KEY-----
+#
+#mybatis-plus:
+#  global-config:
+#    id-type: 1
+#    logic-delete-field: delFlag
+#    logic-delete-value: 1
+#    logic-not-delete-value: 0
+#  mapper-locations: classpath:/mapping/*.xml
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#    type-aliases-package: com.mukutech.websiteservice.pojo.entity
+#
+#igen-rpc:
+#  server-name:
+#    auth: IGEN-MCRSRV-AUTH_THRIFT
+#    account: IGEN-MCRSRV-ACC_THRIFT
+#
+#feign:
+#  hystrix:
+#    enabled: false
+#
+#feignName:
+#  assetService: assetService-test
+#  inventoryService: INVENTORY-SERVICE-TEST
