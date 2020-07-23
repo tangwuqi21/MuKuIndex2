@@ -36,8 +36,8 @@ open class ${table.serviceImplName} : ${superServiceImplClass}<${table.mapperNam
         @Override
         public ResponseEnvelope search${entity}ListPage(${entity}DTO dto){
         Page<${entity}>page=new Page<${entity}>();
-        page.setSize(dto.getSize());
-        page.setCurrent(dto.getCurrent());
+        page.setSize(dto.getPageSize());
+        page.setCurrent(dto.getCurrentPage());
         QueryWrapper<${entity}>queryWrapper=new QueryWrapper<${entity}>();
     ${entity} entity=new ${entity}();
         BeanCopyUtil.copyPropertiesIgnoreNull(dto,entity);
