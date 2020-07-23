@@ -17,11 +17,9 @@ import com.mukutech.websiteservice.service.ISysJobService;
 import org.springframework.stereotype.Controller;
 
 
-
-
 /**
  * <p>
- *  前端控制器
+ * 前端控制器
  * </p>
  *
  * @author TCGUO
@@ -29,39 +27,43 @@ import org.springframework.stereotype.Controller;
  */
 @Slf4j
 @Api(tags = {"招聘职位API"})
-    @Controller
+@Controller
 @RequestMapping("/websiteservice/sysJob")
 @ResponseBody
-    public class SysJobController {
+public class SysJobController {
 
-@Autowired
-private ISysJobService  iSysJobService;
+    @Autowired
+    private ISysJobService iSysJobService;
 
 
-@ApiOperation(value = "列表分页查询", notes = "API")
-@RequestMapping(value = "/searchSysJobListPage", method = RequestMethod.POST)
-public ResponseEnvelope searchSysJobListPage(@RequestBody SysJobDTO dto){
+    @ApiOperation(value = "列表分页查询", notes = "API")
+    @RequestMapping(value = "/searchSysJobListPage", method = RequestMethod.POST)
+    public ResponseEnvelope searchSysJobListPage(@RequestBody SysJobDTO dto) {
         return iSysJobService.searchSysJobListPage(dto);
-        }
-@ApiOperation(value = "详细查询", notes = "API")
-@RequestMapping(value = "/searchSysJobOne", method = RequestMethod.GET)
-public ResponseEnvelope searchSysJobOne(Long id){
-        return iSysJobService.searchSysJobOne(id);
-        }
-@ApiOperation(value = "添加", notes = "API")
-@RequestMapping(value = "/addSysJob", method = RequestMethod.POST)
-public ResponseEnvelope addSysJob(@RequestBody SysJobDTO dto){
-        return iSysJobService.addSysJob(dto);
-        }
-@ApiOperation(value = "更新", notes = "API")
-@RequestMapping(value = "/updateSysJob", method = RequestMethod.POST)
-public ResponseEnvelope updateSysJob(@RequestBody SysJobDTO dto){
-        return iSysJobService.updateSysJob(dto);
-        }
-@ApiOperation(value = "删除", notes = "API")
-@RequestMapping(value = "/deleteSysJob", method = RequestMethod.GET)
-public ResponseEnvelope deleteSysJob(Long id){
-        return iSysJobService.deleteSysJob(id);
-        }
+    }
 
-        }
+    @ApiOperation(value = "详细查询", notes = "API")
+    @RequestMapping(value = "/searchSysJobOne", method = RequestMethod.GET)
+    public ResponseEnvelope searchSysJobOne(Long id) {
+        return iSysJobService.searchSysJobOne(id);
+    }
+
+    @ApiOperation(value = "添加", notes = "API")
+    @RequestMapping(value = "/addSysJob", method = RequestMethod.POST)
+    public ResponseEnvelope addSysJob(@RequestBody SysJobDTO dto) {
+        return iSysJobService.addSysJob(dto);
+    }
+
+    @ApiOperation(value = "更新", notes = "API")
+    @RequestMapping(value = "/updateSysJob", method = RequestMethod.POST)
+    public ResponseEnvelope updateSysJob(@RequestBody SysJobDTO dto) {
+        return iSysJobService.updateSysJob(dto);
+    }
+
+    @ApiOperation(value = "删除", notes = "API")
+    @RequestMapping(value = "/deleteSysJob", method = RequestMethod.GET)
+    public ResponseEnvelope deleteSysJob(Long id) {
+        return iSysJobService.deleteSysJob(id);
+    }
+
+}

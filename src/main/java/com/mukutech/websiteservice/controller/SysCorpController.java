@@ -17,11 +17,9 @@ import com.mukutech.websiteservice.service.ISysCorpService;
 import org.springframework.stereotype.Controller;
 
 
-
-
 /**
  * <p>
- *  前端控制器
+ * 前端控制器
  * </p>
  *
  * @author TCGUO
@@ -29,39 +27,43 @@ import org.springframework.stereotype.Controller;
  */
 @Slf4j
 @Api(tags = {"公司信息API"})
-    @Controller
+@Controller
 @RequestMapping("/websiteservice/sysCorp")
 @ResponseBody
-    public class SysCorpController {
+public class SysCorpController {
 
-@Autowired
-private ISysCorpService  iSysCorpService;
+    @Autowired
+    private ISysCorpService iSysCorpService;
 
 
-@ApiOperation(value = "列表分页查询", notes = "API")
-@RequestMapping(value = "/searchSysCorpListPage", method = RequestMethod.POST)
-public ResponseEnvelope searchSysCorpListPage(@RequestBody SysCorpDTO dto){
+    @ApiOperation(value = "列表分页查询", notes = "API")
+    @RequestMapping(value = "/searchSysCorpListPage", method = RequestMethod.POST)
+    public ResponseEnvelope searchSysCorpListPage(@RequestBody SysCorpDTO dto) {
         return iSysCorpService.searchSysCorpListPage(dto);
-        }
-@ApiOperation(value = "详细查询", notes = "API")
-@RequestMapping(value = "/searchSysCorpOne", method = RequestMethod.GET)
-public ResponseEnvelope searchSysCorpOne(Long id){
-        return iSysCorpService.searchSysCorpOne(id);
-        }
-@ApiOperation(value = "添加", notes = "API")
-@RequestMapping(value = "/addSysCorp", method = RequestMethod.POST)
-public ResponseEnvelope addSysCorp(@RequestBody SysCorpDTO dto){
-        return iSysCorpService.addSysCorp(dto);
-        }
-@ApiOperation(value = "更新", notes = "API")
-@RequestMapping(value = "/updateSysCorp", method = RequestMethod.POST)
-public ResponseEnvelope updateSysCorp(@RequestBody SysCorpDTO dto){
-        return iSysCorpService.updateSysCorp(dto);
-        }
-@ApiOperation(value = "删除", notes = "API")
-@RequestMapping(value = "/deleteSysCorp", method = RequestMethod.GET)
-public ResponseEnvelope deleteSysCorp(Long id){
-        return iSysCorpService.deleteSysCorp(id);
-        }
+    }
 
-        }
+    @ApiOperation(value = "详细查询", notes = "API")
+    @RequestMapping(value = "/searchSysCorpOne", method = RequestMethod.GET)
+    public ResponseEnvelope searchSysCorpOne(Long id) {
+        return iSysCorpService.searchSysCorpOne(id);
+    }
+
+    @ApiOperation(value = "添加", notes = "API")
+    @RequestMapping(value = "/addSysCorp", method = RequestMethod.POST)
+    public ResponseEnvelope addSysCorp(@RequestBody SysCorpDTO dto) {
+        return iSysCorpService.addSysCorp(dto);
+    }
+
+    @ApiOperation(value = "更新", notes = "API")
+    @RequestMapping(value = "/updateSysCorp", method = RequestMethod.POST)
+    public ResponseEnvelope updateSysCorp(@RequestBody SysCorpDTO dto) {
+        return iSysCorpService.updateSysCorp(dto);
+    }
+
+    @ApiOperation(value = "删除", notes = "API")
+    @RequestMapping(value = "/deleteSysCorp", method = RequestMethod.GET)
+    public ResponseEnvelope deleteSysCorp(Long id) {
+        return iSysCorpService.deleteSysCorp(id);
+    }
+
+}

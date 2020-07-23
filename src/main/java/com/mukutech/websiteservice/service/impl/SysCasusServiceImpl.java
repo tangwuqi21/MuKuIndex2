@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
- *  服务实现类
+ * 服务实现类
  * </p>
  *
  * @author TCGUO
@@ -27,55 +27,59 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Transactional
 @Service
-        public class SysCasusServiceImpl extends ServiceImpl<SysCasusMapper, SysCasus> implements ISysCasusService {
+public class SysCasusServiceImpl extends ServiceImpl<SysCasusMapper, SysCasus> implements ISysCasusService {
 
 
-        @Autowired
-        private SysCasusMapper sysCasusMapper;
+    @Autowired
+    private SysCasusMapper sysCasusMapper;
 
-        @Override
-        public ResponseEnvelope searchSysCasusListPage(SysCasusDTO dto){
-        Page<SysCasus> page=new Page<SysCasus>();
+    @Override
+    public ResponseEnvelope searchSysCasusListPage(SysCasusDTO dto) {
+        Page<SysCasus> page = new Page<SysCasus>();
         page.setSize(dto.getPageSize());
         page.setCurrent(dto.getCurrentPage());
-        QueryWrapper<SysCasus>queryWrapper=new QueryWrapper<SysCasus>();
-    SysCasus entity=new SysCasus();
-        BeanCopyUtil.copyPropertiesIgnoreNull(dto,entity);
+        QueryWrapper<SysCasus> queryWrapper = new QueryWrapper<SysCasus>();
+        SysCasus entity = new SysCasus();
+        BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
         queryWrapper.setEntity(entity);
-        return ResultVOUtil.returnSuccess(sysCasusMapper.selectPage(page,queryWrapper));
-        }
-        @Override
-        public ResponseEnvelope searchSysCasusOne(Long id){
+        return ResultVOUtil.returnSuccess(sysCasusMapper.selectPage(page, queryWrapper));
+    }
+
+    @Override
+    public ResponseEnvelope searchSysCasusOne(Long id) {
 
         return ResultVOUtil.returnSuccess(this.selectOne(id));
-        }
-        @Override
-        public ResponseEnvelope addSysCasus(SysCasusDTO dto){
-    SysCasus entity=new SysCasus();
-        BeanCopyUtil.copyPropertiesIgnoreNull(dto,entity);
-    sysCasusMapper.insert(entity);
+    }
+
+    @Override
+    public ResponseEnvelope addSysCasus(SysCasusDTO dto) {
+        SysCasus entity = new SysCasus();
+        BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
+        sysCasusMapper.insert(entity);
         return ResultVOUtil.returnSuccess();
-        }
-        @Override
-        public ResponseEnvelope updateSysCasus(SysCasusDTO dto){
-    SysCasus entity=this.selectOne(dto.getId());
-        BeanCopyUtil.copyPropertiesIgnoreNull(dto,entity);
-    sysCasusMapper.updateById(entity);
+    }
+
+    @Override
+    public ResponseEnvelope updateSysCasus(SysCasusDTO dto) {
+        SysCasus entity = this.selectOne(dto.getId());
+        BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
+        sysCasusMapper.updateById(entity);
         return ResultVOUtil.returnSuccess();
-        }
-        @Override
-        public ResponseEnvelope deleteSysCasus(Long id){
-    sysCasusMapper.deleteById(id);
+    }
+
+    @Override
+    public ResponseEnvelope deleteSysCasus(Long id) {
+        sysCasusMapper.deleteById(id);
         return ResultVOUtil.returnSuccess();
-        }
+    }
 
 
-        public SysCasus selectOne(Long id){
-    SysCasus entity=new SysCasus();
+    public SysCasus selectOne(Long id) {
+        SysCasus entity = new SysCasus();
         entity.setId(id);
-        QueryWrapper<SysCasus>queryWrapper=new QueryWrapper<>();
+        QueryWrapper<SysCasus> queryWrapper = new QueryWrapper<>();
         queryWrapper.setEntity(entity);
         return sysCasusMapper.selectOne(queryWrapper);
-        }
+    }
 
-        }
+}

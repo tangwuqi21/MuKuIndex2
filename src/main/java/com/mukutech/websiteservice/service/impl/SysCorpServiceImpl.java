@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
- *  服务实现类
+ * 服务实现类
  * </p>
  *
  * @author TCGUO
@@ -26,55 +26,59 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Transactional
 @Service
-        public class SysCorpServiceImpl extends ServiceImpl<SysCorpMapper, SysCorp> implements ISysCorpService {
+public class SysCorpServiceImpl extends ServiceImpl<SysCorpMapper, SysCorp> implements ISysCorpService {
 
 
-        @Autowired
-        private SysCorpMapper sysCorpMapper;
+    @Autowired
+    private SysCorpMapper sysCorpMapper;
 
-        @Override
-        public ResponseEnvelope searchSysCorpListPage(SysCorpDTO dto){
-        Page<SysCorp> page=new Page<SysCorp>();
+    @Override
+    public ResponseEnvelope searchSysCorpListPage(SysCorpDTO dto) {
+        Page<SysCorp> page = new Page<SysCorp>();
         page.setSize(dto.getPageSize());
         page.setCurrent(dto.getCurrentPage());
-        QueryWrapper<SysCorp>queryWrapper=new QueryWrapper<SysCorp>();
-    SysCorp entity=new SysCorp();
-        BeanCopyUtil.copyPropertiesIgnoreNull(dto,entity);
+        QueryWrapper<SysCorp> queryWrapper = new QueryWrapper<SysCorp>();
+        SysCorp entity = new SysCorp();
+        BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
         queryWrapper.setEntity(entity);
-        return ResultVOUtil.returnSuccess(sysCorpMapper.selectPage(page,queryWrapper));
-        }
-        @Override
-        public ResponseEnvelope searchSysCorpOne(Long id){
+        return ResultVOUtil.returnSuccess(sysCorpMapper.selectPage(page, queryWrapper));
+    }
+
+    @Override
+    public ResponseEnvelope searchSysCorpOne(Long id) {
 
         return ResultVOUtil.returnSuccess(this.selectOne(id));
-        }
-        @Override
-        public ResponseEnvelope addSysCorp(SysCorpDTO dto){
-    SysCorp entity=new SysCorp();
-        BeanCopyUtil.copyPropertiesIgnoreNull(dto,entity);
-    sysCorpMapper.insert(entity);
+    }
+
+    @Override
+    public ResponseEnvelope addSysCorp(SysCorpDTO dto) {
+        SysCorp entity = new SysCorp();
+        BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
+        sysCorpMapper.insert(entity);
         return ResultVOUtil.returnSuccess();
-        }
-        @Override
-        public ResponseEnvelope updateSysCorp(SysCorpDTO dto){
-    SysCorp entity=this.selectOne(dto.getId());
-        BeanCopyUtil.copyPropertiesIgnoreNull(dto,entity);
-    sysCorpMapper.updateById(entity);
+    }
+
+    @Override
+    public ResponseEnvelope updateSysCorp(SysCorpDTO dto) {
+        SysCorp entity = this.selectOne(dto.getId());
+        BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
+        sysCorpMapper.updateById(entity);
         return ResultVOUtil.returnSuccess();
-        }
-        @Override
-        public ResponseEnvelope deleteSysCorp(Long id){
-    sysCorpMapper.deleteById(id);
+    }
+
+    @Override
+    public ResponseEnvelope deleteSysCorp(Long id) {
+        sysCorpMapper.deleteById(id);
         return ResultVOUtil.returnSuccess();
-        }
+    }
 
 
-        public SysCorp selectOne(Long id){
-    SysCorp entity=new SysCorp();
+    public SysCorp selectOne(Long id) {
+        SysCorp entity = new SysCorp();
         entity.setId(id);
-        QueryWrapper<SysCorp>queryWrapper=new QueryWrapper<>();
+        QueryWrapper<SysCorp> queryWrapper = new QueryWrapper<>();
         queryWrapper.setEntity(entity);
         return sysCorpMapper.selectOne(queryWrapper);
-        }
+    }
 
-        }
+}
