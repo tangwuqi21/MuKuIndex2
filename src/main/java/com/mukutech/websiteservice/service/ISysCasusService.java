@@ -9,16 +9,20 @@ import com.mukutech.websiteservice.pojo.entity.SysCasus;
 
 /**
  * <p>
- *  服务类
+ * 服务类
  * </p>
  *
  * @author TCGUO
  * @since 2020-07-23
  */
 public interface ISysCasusService extends IService<SysCasus> {
-public ResponseEnvelope searchSysCasusListPage(SysCasusDTO DTO);
-public ResponseEnvelope searchSysCasusOne(Long id);
-public ResponseEnvelope addSysCasus(SysCasusDTO DTO);
-public ResponseEnvelope updateSysCasus(SysCasusDTO DTO);
-public ResponseEnvelope deleteSysCasus(Long id);
-        }
+    public ResponseEnvelope searchSysCasusListPage(SysCasusDTO DTO);
+
+    public ResponseEnvelope searchSysCasusOne(Long id);
+
+    public ResponseEnvelope addSysCasus(SysCasusDTO DTO);
+
+    public ResponseEnvelope updateSysCasus(SysCasusDTO DTO);
+
+    public ResponseEnvelope deleteSysCasus(Long id);
+}
