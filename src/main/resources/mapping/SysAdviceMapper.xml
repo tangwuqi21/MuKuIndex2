@@ -3,7 +3,7 @@
 <mapper namespace="com.mukutech.websiteservice.mapper.SysAdviceMapper">
 
         <!-- 通用查询映射结果 -->
-        <resultMap id="BaseResultMap" type="com.mukutech.websiteservice.entity.SysAdvice">
+        <resultMap id="BaseResultMap" type="com.mukutech.websiteservice.pojo.entity.SysAdvice">
                     <id column="id" property="id"/>
                     <result column="title" property="title"/>
                     <result column="msg" property="msg"/>

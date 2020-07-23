@@ -42,10 +42,10 @@ public class SysCorpController {
         return iSysCorpService.searchSysCorpListPage(dto);
     }
 
-    @ApiOperation(value = "详细查询", notes = "API")
+    @ApiOperation(value = "查询公司详细信息", notes = "查询公司详细信息的API")
     @RequestMapping(value = "/searchSysCorpOne", method = RequestMethod.GET)
-    public ResponseEnvelope searchSysCorpOne(Long id) {
-        return iSysCorpService.searchSysCorpOne(id);
+    public ResponseEnvelope searchSysCorpOne() {
+        return iSysCorpService.searchSysCorpOne(1L);
     }
 
     @ApiOperation(value = "添加", notes = "API")
