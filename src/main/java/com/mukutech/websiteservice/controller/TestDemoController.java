@@ -40,6 +40,12 @@ public class TestDemoController {
         return iTestDemoService.searchTestDemoListPage(dto);
     }
 
+    /**
+     * 提交到master分之
+     *
+     * @param id
+     * @return
+     */
     @ApiOperation(value = "用户基础属性表详细查询", notes = "用户基础属性表API")
     @RequestMapping(value = "/searchTestDemoOne", method = RequestMethod.GET)
     public ResponseEnvelope searchTestDemoOne(Long id) {
