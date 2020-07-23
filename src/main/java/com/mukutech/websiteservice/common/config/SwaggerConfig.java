@@ -1,5 +1,6 @@
 package com.mukutech.websiteservice.common.config;
 
+import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -22,6 +23,7 @@ import java.util.List;
  * @date 2020-07-22 22:12:31
  */
 @Configuration
+@EnableKnife4j
 @Import(BeanValidatorPluginsConfiguration.class)
 public class SwaggerConfig {
 

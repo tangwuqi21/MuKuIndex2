@@ -1,12 +1,10 @@
 package com.mukutech.websiteservice.pojo.entity;
-import lombok.Data;
 
-import java.util.Date;
+import lombok.Data;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
@@ -19,14 +17,15 @@ import lombok.experimental.Accessors;
  * @since 2020-07-23
  */
 @Data
-    @EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 public class SysJob extends Model<SysJob> {
 
-private static final long serialVersionUID=1L;
+    private static final long serialVersionUID=1L;
 
-                @TableId(value = "id", type = IdType.AUTO)
-                private Long id;
+
+    @TableId(value = "id", type = IdType.AUTO)
+    private Long id;
     /**
      * 职位编号
      */
@@ -45,9 +44,9 @@ private static final long serialVersionUID=1L;
         private Integer state;
 
 
-@Override
-protected Serializable pkVal(){
+    @Override
+    protected Serializable pkVal(){
             return this.id;
         }
 
-        }
+}

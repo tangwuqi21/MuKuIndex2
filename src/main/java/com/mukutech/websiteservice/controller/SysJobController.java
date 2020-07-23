@@ -1,6 +1,7 @@
 package com.mukutech.websiteservice.controller;
 
 
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.mukutech.websiteservice.common.utils.response.ResponseEnvelope;
 import com.mukutech.websiteservice.pojo.dto.SysJobDTO;
 import org.springframework.web.bind.annotation.*;
@@ -36,8 +37,10 @@ public class SysJobController {
     private ISysJobService iSysJobService;
 
 
-    @ApiOperation(value = "列表分页查询", notes = "API")
+    @ApiOperation(value = "招聘职位列表的分页查询", notes = "招聘职位列表的分页查询的API")
     @RequestMapping(value = "/searchSysJobListPage", method = RequestMethod.POST)
+    @ApiOperationSupport(ignoreParameters = {"dto.code",
+            "dto.department", "dto.id", "dto.name", "dto.state"})
     public ResponseEnvelope searchSysJobListPage(@RequestBody SysJobDTO dto) {
         return iSysJobService.searchSysJobListPage(dto);
     }
