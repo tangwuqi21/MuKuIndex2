@@ -1,6 +1,7 @@
 package com.mukutech.websiteservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mukutech.websiteservice.common.utils.BeanCopyUtil;
@@ -9,6 +10,7 @@ import com.mukutech.websiteservice.common.utils.response.ResponseEnvelope;
 import com.mukutech.websiteservice.mapper.SysCorpMapper;
 import com.mukutech.websiteservice.pojo.dto.SysCorpDTO;
 import com.mukutech.websiteservice.pojo.entity.SysCorp;
+import com.mukutech.websiteservice.pojo.entity.SysJob;
 import com.mukutech.websiteservice.service.ISysCorpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,13 +42,13 @@ public class SysCorpServiceImpl extends ServiceImpl<SysCorpMapper, SysCorp> impl
         QueryWrapper<SysCorp> queryWrapper = new QueryWrapper<SysCorp>();
         SysCorp entity = new SysCorp();
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
+        entity.setState(1);
         queryWrapper.setEntity(entity);
         return ResultVOUtil.returnSuccess(sysCorpMapper.selectPage(page, queryWrapper));
     }
 
     @Override
     public ResponseEnvelope searchSysCorpOne(Long id) {
-
         return ResultVOUtil.returnSuccess(this.selectOne(id));
     }
 
@@ -54,6 +56,7 @@ public class SysCorpServiceImpl extends ServiceImpl<SysCorpMapper, SysCorp> impl
     public ResponseEnvelope addSysCorp(SysCorpDTO dto) {
         SysCorp entity = new SysCorp();
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
+        entity.setState(1);
         sysCorpMapper.insert(entity);
         return ResultVOUtil.returnSuccess();
     }
@@ -72,10 +75,20 @@ public class SysCorpServiceImpl extends ServiceImpl<SysCorpMapper, SysCorp> impl
         return ResultVOUtil.returnSuccess();
     }
 
+    @Override
+    public ResponseEnvelope logicDeleteCorp(Long id) {
+        SysCorp sysCorp = new SysCorp();
+        sysCorp.setState(0);
+        UpdateWrapper<SysCorp> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id", id);
+        sysCorpMapper.update(sysCorp, updateWrapper);
+        return ResultVOUtil.returnSuccess();
+    }
 
     public SysCorp selectOne(Long id) {
         SysCorp entity = new SysCorp();
         entity.setId(id);
+        entity.setState(1);
         QueryWrapper<SysCorp> queryWrapper = new QueryWrapper<>();
         queryWrapper.setEntity(entity);
         return sysCorpMapper.selectOne(queryWrapper);

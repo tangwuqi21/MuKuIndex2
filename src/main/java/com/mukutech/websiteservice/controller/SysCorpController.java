@@ -1,6 +1,7 @@
 package com.mukutech.websiteservice.controller;
 
 
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.mukutech.websiteservice.common.utils.response.ResponseEnvelope;
 import com.mukutech.websiteservice.pojo.dto.SysCorpDTO;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +39,7 @@ public class SysCorpController {
 
     @ApiOperation(value = "列表分页查询", notes = "API")
     @RequestMapping(value = "/searchSysCorpListPage", method = RequestMethod.POST)
+    @ApiOperationSupport(includeParameters = {"dto.pageSize", "dto.currentPage"})
     public ResponseEnvelope searchSysCorpListPage(@RequestBody SysCorpDTO dto) {
         return iSysCorpService.searchSysCorpListPage(dto);
     }
@@ -50,20 +52,28 @@ public class SysCorpController {
 
     @ApiOperation(value = "添加", notes = "API")
     @RequestMapping(value = "/addSysCorp", method = RequestMethod.POST)
+    @ApiOperationSupport(ignoreParameters = {"dto.pageSize", "dto.currentPage", "dto.state", "dto.id"})
     public ResponseEnvelope addSysCorp(@RequestBody SysCorpDTO dto) {
         return iSysCorpService.addSysCorp(dto);
     }
 
     @ApiOperation(value = "更新", notes = "API")
     @RequestMapping(value = "/updateSysCorp", method = RequestMethod.POST)
+    @ApiOperationSupport(ignoreParameters = {"dto.pageSize", "dto.currentPage", "dto.state"})
     public ResponseEnvelope updateSysCorp(@RequestBody SysCorpDTO dto) {
         return iSysCorpService.updateSysCorp(dto);
     }
 
-    @ApiOperation(value = "删除", notes = "API")
+    @ApiOperation(value = "真实删除", notes = "API")
     @RequestMapping(value = "/deleteSysCorp", method = RequestMethod.GET)
     public ResponseEnvelope deleteSysCorp(Long id) {
         return iSysCorpService.deleteSysCorp(id);
+    }
+
+    @ApiOperation(value = "逻辑删除", notes = "API")
+    @RequestMapping(value = "/logicDeleteCorp", method = RequestMethod.GET)
+    public ResponseEnvelope logicDeleteCorp(Long id) {
+        return iSysCorpService.logicDeleteCorp(id);
     }
 
 }

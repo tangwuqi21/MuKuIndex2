@@ -35,7 +35,7 @@ public class SysAdvice extends Model<SysAdvice> {
     private String title;
     private String msg;
     private String email;
-    private LocalDateTime createTime;
+    private Date createTime;
     private Integer state;
 
 

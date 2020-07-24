@@ -39,8 +39,7 @@ public class SysJobController {
 
     @ApiOperation(value = "招聘职位列表的分页查询", notes = "招聘职位列表的分页查询的API")
     @RequestMapping(value = "/searchSysJobListPage", method = RequestMethod.POST)
-    @ApiOperationSupport(ignoreParameters = {"dto.code",
-            "dto.department", "dto.id", "dto.name", "dto.state"})
+    @ApiOperationSupport(includeParameters = {"dto.pageSize", "dto.currentPage"})
     public ResponseEnvelope searchSysJobListPage(@RequestBody SysJobDTO dto) {
         return iSysJobService.searchSysJobListPage(dto);
     }
@@ -53,20 +52,28 @@ public class SysJobController {
 
     @ApiOperation(value = "添加", notes = "API")
     @RequestMapping(value = "/addSysJob", method = RequestMethod.POST)
+    @ApiOperationSupport(includeParameters = {"dto.name", "dto.department"})
     public ResponseEnvelope addSysJob(@RequestBody SysJobDTO dto) {
         return iSysJobService.addSysJob(dto);
     }
 
     @ApiOperation(value = "更新", notes = "API")
     @RequestMapping(value = "/updateSysJob", method = RequestMethod.POST)
+    @ApiOperationSupport(includeParameters = {"dto.id", "dto.name", "dto.department"})
     public ResponseEnvelope updateSysJob(@RequestBody SysJobDTO dto) {
         return iSysJobService.updateSysJob(dto);
     }
 
-    @ApiOperation(value = "删除", notes = "API")
+    @ApiOperation(value = "真实删除", notes = "API")
     @RequestMapping(value = "/deleteSysJob", method = RequestMethod.GET)
     public ResponseEnvelope deleteSysJob(Long id) {
         return iSysJobService.deleteSysJob(id);
+    }
+
+    @ApiOperation(value = "逻辑删除", notes = "API")
+    @RequestMapping(value = "/logicDeleteJob", method = RequestMethod.GET)
+    public ResponseEnvelope logicDeleteJob(Long id) {
+        return iSysJobService.logicDeleteJob(id);
     }
 
 }

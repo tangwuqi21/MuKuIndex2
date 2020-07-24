@@ -25,4 +25,6 @@ public interface ISysCasusService extends IService<SysCasus> {
     public ResponseEnvelope updateSysCasus(SysCasusDTO DTO);
 
     public ResponseEnvelope deleteSysCasus(Long id);
+
+    public ResponseEnvelope logicDeleteCasus(Long id);
 }

@@ -1,6 +1,7 @@
 package com.mukutech.websiteservice.controller;
 
 
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.mukutech.websiteservice.common.utils.response.ResponseEnvelope;
 import com.mukutech.websiteservice.pojo.dto.SysAdviceDTO;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +39,7 @@ public class SysAdviceController {
 
     @ApiOperation(value = "列表分页查询", notes = "API")
     @RequestMapping(value = "/searchSysAdviceListPage", method = RequestMethod.POST)
+    @ApiOperationSupport(includeParameters = {"dto.pageSize", "dto.currentPage"})
     public ResponseEnvelope searchSysAdviceListPage(@RequestBody SysAdviceDTO dto) {
         return iSysAdviceService.searchSysAdviceListPage(dto);
     }
@@ -50,20 +52,29 @@ public class SysAdviceController {
 
     @ApiOperation(value = "添加", notes = "API")
     @RequestMapping(value = "/addSysAdvice", method = RequestMethod.POST)
+    @ApiOperationSupport(includeParameters = {"dto.title", "dto.msg", "dto.email"})
     public ResponseEnvelope addSysAdvice(@RequestBody SysAdviceDTO dto) {
         return iSysAdviceService.addSysAdvice(dto);
     }
 
     @ApiOperation(value = "更新", notes = "API")
     @RequestMapping(value = "/updateSysAdvice", method = RequestMethod.POST)
+    @ApiOperationSupport(ignoreParameters = {"dto.pageSize", "dto.currentPage", "dto.state", "dto.createTime"})
     public ResponseEnvelope updateSysAdvice(@RequestBody SysAdviceDTO dto) {
         return iSysAdviceService.updateSysAdvice(dto);
     }
 
-    @ApiOperation(value = "删除", notes = "API")
+    @ApiOperation(value = "真实删除", notes = "API")
     @RequestMapping(value = "/deleteSysAdvice", method = RequestMethod.GET)
     public ResponseEnvelope deleteSysAdvice(Long id) {
         return iSysAdviceService.deleteSysAdvice(id);
     }
+
+    @ApiOperation(value = "逻辑删除", notes = "API")
+    @RequestMapping(value = "/logicDeleteAdvice", method = RequestMethod.GET)
+    public ResponseEnvelope logicDeleteAdvice(Long id) {
+        return iSysAdviceService.logicDeleteAdvice(id);
+    }
+
 
 }

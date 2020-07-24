@@ -25,4 +25,6 @@ public interface ISysJobService extends IService<SysJob> {
     public ResponseEnvelope updateSysJob(SysJobDTO DTO);
 
     public ResponseEnvelope deleteSysJob(Long id);
+
+    public ResponseEnvelope logicDeleteJob(Long id);
 }

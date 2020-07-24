@@ -1,6 +1,7 @@
 package com.mukutech.websiteservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mukutech.websiteservice.common.utils.BeanCopyUtil;
@@ -8,6 +9,7 @@ import com.mukutech.websiteservice.common.utils.ResultVOUtil;
 import com.mukutech.websiteservice.common.utils.response.ResponseEnvelope;
 import com.mukutech.websiteservice.mapper.SysJobMapper;
 import com.mukutech.websiteservice.pojo.dto.SysJobDTO;
+import com.mukutech.websiteservice.pojo.entity.SysAdvice;
 import com.mukutech.websiteservice.pojo.entity.SysJob;
 import com.mukutech.websiteservice.service.ISysJobService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,7 @@ public class SysJobServiceImpl extends ServiceImpl<SysJobMapper, SysJob> impleme
         QueryWrapper<SysJob> queryWrapper = new QueryWrapper<SysJob>();
         SysJob entity = new SysJob();
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
+        entity.setState(1);
         queryWrapper.setEntity(entity);
         return ResultVOUtil.returnSuccess(sysJobMapper.selectPage(page, queryWrapper));
     }
@@ -54,6 +57,7 @@ public class SysJobServiceImpl extends ServiceImpl<SysJobMapper, SysJob> impleme
     public ResponseEnvelope addSysJob(SysJobDTO dto) {
         SysJob entity = new SysJob();
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
+        entity.setState(1);
         sysJobMapper.insert(entity);
         return ResultVOUtil.returnSuccess();
     }
@@ -72,10 +76,20 @@ public class SysJobServiceImpl extends ServiceImpl<SysJobMapper, SysJob> impleme
         return ResultVOUtil.returnSuccess();
     }
 
+    @Override
+    public ResponseEnvelope logicDeleteJob(Long id) {
+        SysJob sysJob = new SysJob();
+        sysJob.setState(0);
+        UpdateWrapper<SysJob> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id", id);
+        sysJobMapper.update(sysJob, updateWrapper);
+        return ResultVOUtil.returnSuccess();
+    }
 
     public SysJob selectOne(Long id) {
         SysJob entity = new SysJob();
         entity.setId(id);
+        entity.setState(1);
         QueryWrapper<SysJob> queryWrapper = new QueryWrapper<>();
         queryWrapper.setEntity(entity);
         return sysJobMapper.selectOne(queryWrapper);

@@ -24,4 +24,6 @@ public interface ISysAdviceService extends IService<SysAdvice> {
     public ResponseEnvelope updateSysAdvice(SysAdviceDTO DTO);
 
     public ResponseEnvelope deleteSysAdvice(Long id);
+
+    public ResponseEnvelope logicDeleteAdvice(Long id);
 }

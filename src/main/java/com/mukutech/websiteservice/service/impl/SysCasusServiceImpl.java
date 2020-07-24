@@ -1,6 +1,7 @@
 package com.mukutech.websiteservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mukutech.websiteservice.common.utils.BeanCopyUtil;
@@ -10,6 +11,7 @@ import com.mukutech.websiteservice.common.utils.response.ResponseEnvelope;
 import com.mukutech.websiteservice.mapper.SysCasusMapper;
 import com.mukutech.websiteservice.pojo.dto.SysCasusDTO;
 import com.mukutech.websiteservice.pojo.entity.SysCasus;
+import com.mukutech.websiteservice.pojo.entity.SysCorp;
 import com.mukutech.websiteservice.service.ISysCasusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,7 +43,9 @@ public class SysCasusServiceImpl extends ServiceImpl<SysCasusMapper, SysCasus> i
         QueryWrapper<SysCasus> queryWrapper = new QueryWrapper<SysCasus>();
         SysCasus entity = new SysCasus();
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
+        entity.setState(1);
         queryWrapper.setEntity(entity);
+        queryWrapper.orderByAsc("order_id");
         return ResultVOUtil.returnSuccess(sysCasusMapper.selectPage(page, queryWrapper));
     }
 
@@ -55,6 +59,7 @@ public class SysCasusServiceImpl extends ServiceImpl<SysCasusMapper, SysCasus> i
     public ResponseEnvelope addSysCasus(SysCasusDTO dto) {
         SysCasus entity = new SysCasus();
         BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
+        entity.setState(1);
         sysCasusMapper.insert(entity);
         return ResultVOUtil.returnSuccess();
     }
@@ -73,10 +78,20 @@ public class SysCasusServiceImpl extends ServiceImpl<SysCasusMapper, SysCasus> i
         return ResultVOUtil.returnSuccess();
     }
 
+    @Override
+    public ResponseEnvelope logicDeleteCasus(Long id) {
+        SysCasus sysCasus = new SysCasus();
+        sysCasus.setState(0);
+        UpdateWrapper<SysCasus> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id", id);
+        sysCasusMapper.update(sysCasus, updateWrapper);
+        return ResultVOUtil.returnSuccess();
+    }
 
     public SysCasus selectOne(Long id) {
         SysCasus entity = new SysCasus();
         entity.setId(id);
+        entity.setState(1);
         QueryWrapper<SysCasus> queryWrapper = new QueryWrapper<>();
         queryWrapper.setEntity(entity);
         return sysCasusMapper.selectOne(queryWrapper);

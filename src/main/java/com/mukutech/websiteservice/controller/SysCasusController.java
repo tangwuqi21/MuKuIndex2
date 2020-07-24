@@ -1,6 +1,7 @@
 package com.mukutech.websiteservice.controller;
 
 
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.mukutech.websiteservice.common.utils.response.ResponseEnvelope;
 import com.mukutech.websiteservice.pojo.dto.SysCasusDTO;
 import org.springframework.web.bind.annotation.*;
@@ -35,9 +36,9 @@ public class SysCasusController {
     @Autowired
     private ISysCasusService iSysCasusService;
 
-
     @ApiOperation(value = "列表分页查询", notes = "API")
     @RequestMapping(value = "/searchSysCasusListPage", method = RequestMethod.POST)
+    @ApiOperationSupport(includeParameters = {"dto.pageSize", "dto.currentPage"})
     public ResponseEnvelope searchSysCasusListPage(@RequestBody SysCasusDTO dto) {
         return iSysCasusService.searchSysCasusListPage(dto);
     }
@@ -49,6 +50,7 @@ public class SysCasusController {
     }
 
     @ApiOperation(value = "添加", notes = "API")
+    @ApiOperationSupport(includeParameters = {"dto.name", "dto.node", "dto.picture"})
     @RequestMapping(value = "/addSysCasus", method = RequestMethod.POST)
     public ResponseEnvelope addSysCasus(@RequestBody SysCasusDTO dto) {
         return iSysCasusService.addSysCasus(dto);
@@ -56,14 +58,21 @@ public class SysCasusController {
 
     @ApiOperation(value = "更新", notes = "API")
     @RequestMapping(value = "/updateSysCasus", method = RequestMethod.POST)
+    @ApiOperationSupport(ignoreParameters = {"dto.pageSize", "dto.currentPage", "dto.state"})
     public ResponseEnvelope updateSysCasus(@RequestBody SysCasusDTO dto) {
         return iSysCasusService.updateSysCasus(dto);
     }
 
-    @ApiOperation(value = "删除", notes = "API")
+    @ApiOperation(value = "真实删除", notes = "API")
     @RequestMapping(value = "/deleteSysCasus", method = RequestMethod.GET)
     public ResponseEnvelope deleteSysCasus(Long id) {
         return iSysCasusService.deleteSysCasus(id);
+    }
+
+    @ApiOperation(value = "逻辑删除", notes = "API")
+    @RequestMapping(value = "/logicDeleteCasus", method = RequestMethod.GET)
+    public ResponseEnvelope logicDeleteCasus(Long id) {
+        return iSysCasusService.logicDeleteCasus(id);
     }
 
 }

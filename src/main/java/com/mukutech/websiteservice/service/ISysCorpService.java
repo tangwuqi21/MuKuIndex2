@@ -24,4 +24,6 @@ public interface ISysCorpService extends IService<SysCorp> {
     public ResponseEnvelope updateSysCorp(SysCorpDTO DTO);
 
     public ResponseEnvelope deleteSysCorp(Long id);
+
+    public ResponseEnvelope logicDeleteCorp(Long id);
 }
