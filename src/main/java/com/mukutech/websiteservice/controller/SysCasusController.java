@@ -36,11 +36,10 @@ public class SysCasusController {
     @Autowired
     private ISysCasusService iSysCasusService;
 
-    @ApiOperation(value = "列表分页查询", notes = "API")
+    @ApiOperation(value = "成功案例列表查询", notes = "API")
     @RequestMapping(value = "/searchSysCasusListPage", method = RequestMethod.POST)
-    @ApiOperationSupport(includeParameters = {"dto.pageSize", "dto.currentPage"})
-    public ResponseEnvelope searchSysCasusListPage(@RequestBody SysCasusDTO dto) {
-        return iSysCasusService.searchSysCasusListPage(dto);
+    public ResponseEnvelope searchSysCasusListPage() {
+        return iSysCasusService.searchSysCasusListPage();
     }
 
     @ApiOperation(value = "详细查询", notes = "API")

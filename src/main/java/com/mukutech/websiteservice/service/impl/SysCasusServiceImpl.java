@@ -36,17 +36,13 @@ public class SysCasusServiceImpl extends ServiceImpl<SysCasusMapper, SysCasus> i
     private SysCasusMapper sysCasusMapper;
 
     @Override
-    public ResponseEnvelope searchSysCasusListPage(SysCasusDTO dto) {
-        Page<SysCasus> page = new Page<SysCasus>();
-        page.setSize(dto.getPageSize());
-        page.setCurrent(dto.getCurrentPage());
+    public ResponseEnvelope searchSysCasusListPage() {
         QueryWrapper<SysCasus> queryWrapper = new QueryWrapper<SysCasus>();
         SysCasus entity = new SysCasus();
-        BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
         entity.setState(1);
         queryWrapper.setEntity(entity);
         queryWrapper.orderByAsc("order_id");
-        return ResultVOUtil.returnSuccess(sysCasusMapper.selectPage(page, queryWrapper));
+        return ResultVOUtil.returnSuccess(sysCasusMapper.selectList(queryWrapper));
     }
 
     @Override

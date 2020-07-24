@@ -16,7 +16,7 @@ import com.mukutech.websiteservice.pojo.entity.SysCasus;
  * @since 2020-07-23
  */
 public interface ISysCasusService extends IService<SysCasus> {
-    public ResponseEnvelope searchSysCasusListPage(SysCasusDTO DTO);
+    public ResponseEnvelope searchSysCasusListPage();
 
     public ResponseEnvelope searchSysCasusOne(Long id);
 
