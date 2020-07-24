@@ -16,7 +16,7 @@ import com.mukutech.websiteservice.pojo.entity.SysJob;
  * @since 2020-07-23
  */
 public interface ISysJobService extends IService<SysJob> {
-    public ResponseEnvelope searchSysJobListPage(SysJobDTO DTO);
+    public ResponseEnvelope searchSysJobListPage();
 
     public ResponseEnvelope searchSysJobOne(Long id);
 

@@ -2,14 +2,12 @@ package com.mukutech.websiteservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mukutech.websiteservice.common.utils.BeanCopyUtil;
 import com.mukutech.websiteservice.common.utils.ResultVOUtil;
 import com.mukutech.websiteservice.common.utils.response.ResponseEnvelope;
 import com.mukutech.websiteservice.mapper.SysJobMapper;
 import com.mukutech.websiteservice.pojo.dto.SysJobDTO;
-import com.mukutech.websiteservice.pojo.entity.SysAdvice;
 import com.mukutech.websiteservice.pojo.entity.SysJob;
 import com.mukutech.websiteservice.service.ISysJobService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,16 +33,12 @@ public class SysJobServiceImpl extends ServiceImpl<SysJobMapper, SysJob> impleme
     private SysJobMapper sysJobMapper;
 
     @Override
-    public ResponseEnvelope searchSysJobListPage(SysJobDTO dto) {
-        Page<SysJob> page = new Page<SysJob>();
-        page.setSize(dto.getPageSize());
-        page.setCurrent(dto.getCurrentPage());
+    public ResponseEnvelope searchSysJobListPage() {
         QueryWrapper<SysJob> queryWrapper = new QueryWrapper<SysJob>();
         SysJob entity = new SysJob();
-        BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
         entity.setState(1);
         queryWrapper.setEntity(entity);
-        return ResultVOUtil.returnSuccess(sysJobMapper.selectPage(page, queryWrapper));
+        return ResultVOUtil.returnSuccess(sysJobMapper.selectList(queryWrapper));
     }
 
     @Override

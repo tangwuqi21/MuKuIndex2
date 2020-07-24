@@ -37,11 +37,11 @@ public class SysJobController {
     private ISysJobService iSysJobService;
 
 
-    @ApiOperation(value = "招聘职位列表的分页查询", notes = "招聘职位列表的分页查询的API")
+    @ApiOperation(value = "招聘职位列表查询", notes = "招聘职位列表的分页查询的API")
     @RequestMapping(value = "/searchSysJobListPage", method = RequestMethod.POST)
-    @ApiOperationSupport(includeParameters = {"dto.pageSize", "dto.currentPage"})
-    public ResponseEnvelope searchSysJobListPage(@RequestBody SysJobDTO dto) {
-        return iSysJobService.searchSysJobListPage(dto);
+    @ApiOperationSupport()
+    public ResponseEnvelope searchSysJobListPage() {
+        return iSysJobService.searchSysJobListPage();
     }
 
     @ApiOperation(value = "详细查询", notes = "API")
