@@ -8,12 +8,13 @@
                     <result column="code" property="code"/>
                     <result column="name" property="name"/>
                     <result column="department" property="department"/>
+                    <result column="publish_date" property="publishDate"/>
                     <result column="state" property="state"/>
         </resultMap>
 
         <!-- 通用查询结果列 -->
         <sql id="Base_Column_List">
-            id, code, name, department, state
+            id, code, name, department, publish_date, state
         </sql>
 
 

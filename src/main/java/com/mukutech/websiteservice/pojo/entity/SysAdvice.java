@@ -1,5 +1,6 @@
 package com.mukutech.websiteservice.pojo.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
@@ -35,6 +36,7 @@ public class SysAdvice extends Model<SysAdvice> {
     private String title;
     private String msg;
     private String email;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createTime;
     private Integer state;
 

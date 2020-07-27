@@ -10,7 +10,6 @@ import com.mukutech.websiteservice.common.utils.response.ResponseEnvelope;
 import com.mukutech.websiteservice.mapper.SysCorpMapper;
 import com.mukutech.websiteservice.pojo.dto.SysCorpDTO;
 import com.mukutech.websiteservice.pojo.entity.SysCorp;
-import com.mukutech.websiteservice.pojo.entity.SysJob;
 import com.mukutech.websiteservice.service.ISysCorpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

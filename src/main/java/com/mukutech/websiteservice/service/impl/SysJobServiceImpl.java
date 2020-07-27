@@ -1,7 +1,7 @@
 package com.mukutech.websiteservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mukutech.websiteservice.common.utils.BeanCopyUtil;
 import com.mukutech.websiteservice.common.utils.ResultVOUtil;
@@ -17,11 +17,11 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
- * 服务实现类
+ *  服务实现类
  * </p>
  *
- * @author TCGUO
- * @since 2020-07-23
+ * @author SnowLee
+ * @since 2020-07-27
  */
 @Slf4j
 @Transactional
@@ -33,58 +33,49 @@ public class SysJobServiceImpl extends ServiceImpl<SysJobMapper, SysJob> impleme
     private SysJobMapper sysJobMapper;
 
     @Override
-    public ResponseEnvelope searchSysJobListPage() {
-        QueryWrapper<SysJob> queryWrapper = new QueryWrapper<SysJob>();
-        SysJob entity = new SysJob();
-        entity.setState(1);
+    public ResponseEnvelope searchSysJobListPage(SysJobDTO dto){
+        Page<SysJob>page=new Page<SysJob>();
+        page.setSize(dto.getPageSize());
+        page.setCurrent(dto.getCurrentPage());
+        QueryWrapper<SysJob> queryWrapper=new QueryWrapper<SysJob>();
+        SysJob entity=new SysJob();
+        BeanCopyUtil.copyPropertiesIgnoreNull(dto,entity);
         queryWrapper.setEntity(entity);
-        return ResultVOUtil.returnSuccess(sysJobMapper.selectList(queryWrapper));
+        return ResultVOUtil.returnSuccess(sysJobMapper.selectPage(page,queryWrapper));
     }
 
     @Override
-    public ResponseEnvelope searchSysJobOne(Long id) {
+    public ResponseEnvelope searchSysJobOne(Long id){
 
         return ResultVOUtil.returnSuccess(this.selectOne(id));
     }
 
     @Override
-    public ResponseEnvelope addSysJob(SysJobDTO dto) {
-        SysJob entity = new SysJob();
-        BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
-        entity.setState(1);
+    public ResponseEnvelope addSysJob(SysJobDTO dto){
+        SysJob entity=new SysJob();
+        BeanCopyUtil.copyPropertiesIgnoreNull(dto,entity);
         sysJobMapper.insert(entity);
         return ResultVOUtil.returnSuccess();
     }
 
     @Override
-    public ResponseEnvelope updateSysJob(SysJobDTO dto) {
-        SysJob entity = this.selectOne(dto.getId());
-        BeanCopyUtil.copyPropertiesIgnoreNull(dto, entity);
+    public ResponseEnvelope updateSysJob(SysJobDTO dto){
+        SysJob entity=this.selectOne(dto.getId());
+        BeanCopyUtil.copyPropertiesIgnoreNull(dto,entity);
         sysJobMapper.updateById(entity);
         return ResultVOUtil.returnSuccess();
     }
 
     @Override
-    public ResponseEnvelope deleteSysJob(Long id) {
+    public ResponseEnvelope deleteSysJob(Long id){
         sysJobMapper.deleteById(id);
         return ResultVOUtil.returnSuccess();
     }
 
-    @Override
-    public ResponseEnvelope logicDeleteJob(Long id) {
-        SysJob sysJob = new SysJob();
-        sysJob.setState(0);
-        UpdateWrapper<SysJob> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.eq("id", id);
-        sysJobMapper.update(sysJob, updateWrapper);
-        return ResultVOUtil.returnSuccess();
-    }
-
-    public SysJob selectOne(Long id) {
-        SysJob entity = new SysJob();
+    public SysJob selectOne(Long id){
+        SysJob entity=new SysJob();
         entity.setId(id);
-        entity.setState(1);
-        QueryWrapper<SysJob> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<SysJob>queryWrapper=new QueryWrapper<>();
         queryWrapper.setEntity(entity);
         return sysJobMapper.selectOne(queryWrapper);
     }

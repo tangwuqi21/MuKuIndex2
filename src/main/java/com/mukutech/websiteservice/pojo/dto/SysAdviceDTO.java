@@ -1,11 +1,12 @@
 package com.mukutech.websiteservice.pojo.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * <p>
@@ -32,8 +33,9 @@ public class SysAdviceDTO extends BaseDTO implements Serializable {
     @ApiModelProperty(value = "留言人邮箱")
     private String email;
 
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     @ApiModelProperty(value = "留言时间")
-    private LocalDateTime createTime;
+    private Date createTime;
 
     @ApiModelProperty(value = "状态：1有效，0删除")
     private Integer state;
