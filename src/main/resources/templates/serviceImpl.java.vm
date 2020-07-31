@@ -2,7 +2,7 @@ package ${package.ServiceImpl};
 
 import ${package.Entity}.${entity};
 import ${package.Mapper}.${table.mapperName};
-import com.mukutech.websiteservice.pojo.dto.${entity}DTO;
+import com.mukutech.seapersonservice.pojo.dto.${entity}DTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package com.mukutech.websiteservice.pojo.vo;
+package com.mukutech.seapersonservice.pojo.vo;
 
 import io.swagger.annotations.ApiModelProperty;
 import com.fasterxml.jackson.annotation.JsonInclude;

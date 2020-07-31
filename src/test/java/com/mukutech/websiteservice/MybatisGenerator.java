@@ -1,4 +1,4 @@
-package com.mukutech.websiteservice;
+package com.mukutech.seapersonservice;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.annotation.FieldFill;
@@ -57,7 +57,7 @@ public class MybatisGenerator {
         // 包配置
         PackageConfig pc = new PackageConfig();
         pc.setParent("com.mukutech");
-        pc.setModuleName("websiteservice");
+        pc.setModuleName("seapersonservice");
         pc.setController("controller");
         mpg.setPackageInfo(pc);
 
@@ -94,7 +94,7 @@ public class MybatisGenerator {
                     public String outputFile(TableInfo tableInfo) {
                         // 自定义输出文件名 ， 如果你 Entity 设置了前后缀、此处注意 xml 的名称会跟着发生变化！！
                         return outPath
-                                + "/com/mukutech/websiteservice/pojo/dto/"
+                                + "/com/mukutech/seapersonservice/pojo/dto/"
                                 + tableInfo.getEntityName()
                                 + "DTO"
                                 + StringPool.DOT_JAVA;
@@ -106,7 +106,7 @@ public class MybatisGenerator {
                     @Override
                     public String outputFile(TableInfo tableInfo) {
                         return outPath
-                                + "/com/mukutech/websiteservice/pojo/vo/"
+                                + "/com/mukutech/seapersonservice/pojo/vo/"
                                 + tableInfo.getEntityName()
                                 + "VO.java";
                     }

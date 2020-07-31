@@ -2,7 +2,7 @@ package ${package.Service};
 
 import ${package.Entity}.${entity};
 import ${superServiceClassPackage};
-import com.mukutech.websiteservice.pojo.dto.${entity}DTO;
+import com.mukutech.seapersonservice.pojo.dto.${entity}DTO;
 
 
 /**

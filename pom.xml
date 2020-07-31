@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.mukutech</groupId>
-    <artifactId>websiteservice</artifactId>
+    <artifactId>seapersonservice</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>websiteservice</name>
-    <description>上海慕库科技发展有限公司门户网站服务端</description>
+    <name>seapersonservice</name>
+    <description>海外有你-个人中心服务模块</description>
 
     <properties>
         <resource.delimiter>#</resource.delimiter><!--maven 动态切换 标记符-->
@@ -188,7 +188,7 @@
     </dependencies>
 
     <build>
-        <finalName>websiteService-30002</finalName>
+        <finalName>seapersonservice-30007</finalName>
         <plugins>
             <plugin>
                 <!--过滤 xls,xlsx-->
@@ -220,7 +220,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.mukutech.websiteservice.WebsiteserviceApplication</mainClass>
+                            <mainClass>com.mukutech.seapersonservice.seapersonserviceApplication</mainClass>
                             <!-- 防止manifest中引用snapshot版本的jar命名混乱 -->
                             <useUniqueVersions>false</useUniqueVersions>
                         </manifest>

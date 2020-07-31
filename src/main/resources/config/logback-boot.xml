@@ -107,7 +107,7 @@
 
     <!--com.rhzl指定了 这个包下产生的日志都要打印;如果这个包名不存在，那么这个名字需要在代码中引用-->
     <!--指定sql 的打印：yml 配置文件定义sql 打印的级别,dev:debug  prod:info 不打印sql-->
-    <logger name="com.mukutech.websiteservice" level="INFO">
+    <logger name="com.mukutech.seapersonservice" level="INFO">
         <appender-ref ref="sqlLog"/>
     </logger>
 

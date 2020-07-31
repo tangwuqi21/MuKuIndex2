@@ -1,5 +1,5 @@
 server:
-  port: 30002
+  port: 30007
 
 spring:
   profiles:
@@ -10,7 +10,7 @@ spring:
       maxRequestSize: 500MB
 
   application:
-    name: websiteService-test
+    name: seapersonservice-test
   datasource:
     url: jdbc:mysql://localhost:3306/center_test_db?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
     username: root
@@ -60,7 +60,7 @@ spring:
 #logging:
 #  config: classpath:logback-boot.xml  # 默认logback.xml配置文件目录
 #  level:
-#    com.mukutech.websiteservice.dao: info  #打印sql
+#    com.mukutech.seapersonservice.dao: info  #打印sql
 #
 #eureka:
 #  client:
@@ -103,7 +103,7 @@ spring:
 #  mapper-locations: classpath:/mapping/*.xml
 #  configuration:
 #    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-#    type-aliases-package: com.mukutech.websiteservice.pojo.entity
+#    type-aliases-package: com.mukutech.seapersonservice.pojo.entity
 #
 #igen-rpc:
 #  server-name:
